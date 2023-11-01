@@ -1,0 +1,26 @@
+From 2f497dbe08c4374e02006edb5c2036d7216cd878 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pawe=C5=82=20Po=C5=82awski?= <ppolawsk@redhat.com>
+Date: Wed, 7 Dec 2022 03:19:20 +0100
+Subject: Revert "ArmVirtPkg: make EFI_LOADER_DATA non-executable"
+
+This reverts commit 2997ae38739756ecba9b0de19e86032ebc689ef9.
+---
+ ArmVirtPkg/ArmVirt.dsc.inc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ArmVirtPkg/ArmVirt.dsc.inc b/ArmVirtPkg/ArmVirt.dsc.inc
+index 1f0f8d44cd..65bfbc033f 100644
+--- a/ArmVirtPkg/ArmVirt.dsc.inc
++++ b/ArmVirtPkg/ArmVirt.dsc.inc
+@@ -368,7 +368,7 @@
+   # reserved ones, with the exception of LoaderData regions, of which OS loaders
+   # (i.e., GRUB) may assume that its contents are executable.
+   #
+-  gEfiMdeModulePkgTokenSpaceGuid.PcdDxeNxMemoryProtectionPolicy|0xC000000000007FD5
++  gEfiMdeModulePkgTokenSpaceGuid.PcdDxeNxMemoryProtectionPolicy|0xC000000000007FD1
+ 
+ [Components.common]
+   #
+-- 
+2.38.1
+

@@ -1,0 +1,54 @@
+From f8e271d73e62ca932253b9461657483cc1081807 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
+Date: Thu, 1 Jul 2021 20:29:34 +0200
+Subject: ArmVirtPkg: Remove HttpDynamicCommand from shell (RHEL only)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
+RH-MergeRequest: 3: Disable features for RHEL9
+RH-Commit: [16/19] 07a74f1fdcdbb9a31d25ce9760edcd852e9574c3
+RH-Bugzilla: 1967747
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+
+Remove the command to download files in the shell via HTTP(S).
+
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+---
+ ArmVirtPkg/ArmVirt.dsc.inc           | 4 ----
+ ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc | 1 -
+ 2 files changed, 5 deletions(-)
+
+diff --git a/ArmVirtPkg/ArmVirt.dsc.inc b/ArmVirtPkg/ArmVirt.dsc.inc
+index 39a569e07e..49d2ef381c 100644
+--- a/ArmVirtPkg/ArmVirt.dsc.inc
++++ b/ArmVirtPkg/ArmVirt.dsc.inc
+@@ -379,10 +379,6 @@
+   #
+   # UEFI application (Shell Embedded Boot Loader)
+   #
+-  ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
+   OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf {
+     <PcdsFixedAtBuild>
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+diff --git a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
+index 5ef9f89464..46978cc76c 100644
+--- a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
++++ b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
+@@ -98,7 +98,6 @@ READ_LOCK_STATUS   = TRUE
+   INF OvmfPkg/VirtioRngDxe/VirtioRng.inf
+ 
+   INF ShellPkg/Application/Shell/Shell.inf
+-  INF ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf
+   INF OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ 
+   #
+-- 
+2.38.1
+
