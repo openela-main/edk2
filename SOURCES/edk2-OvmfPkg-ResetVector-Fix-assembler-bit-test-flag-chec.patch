@@ -1,0 +1,42 @@
+From bcc2e81950016f6cda6f3c125bfa7c88a5f8ca8e Mon Sep 17 00:00:00 2001
+From: Tom Lendacky <thomas.lendacky@amd.com>
+Date: Fri, 14 Jul 2023 15:28:26 -0500
+Subject: [PATCH] OvmfPkg/ResetVector: Fix assembler bit test flag check
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 47: OvmfPkg/ResetVector: Fix assembler bit test flag check
+RH-Jira: RHEL-9943
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [1/1] 4565e2863391eb63d598991bc1b394cabd96a466 (kraxel.rh/centos-src-edk2)
+
+Commit 63c50d3ff2854a76432b752af4f2a76f33ff1974 changed the check that is
+used to determine if SEV-ES is active. Originally, a CMP instruction with
+a supporting JZ instruction was used for the check. It was changed to use
+the BT instruction but not JZ instruction. The result of a BT instruction
+changes the the carry flag (CF) and not the zero flag (ZF). As a result,
+the wrong condition is being checked. Update the JZ to a JNC to properly
+detect if SEV-ES is active.
+
+Fixes: 63c50d3ff285 ("OvmfPkg/ResetVector: cache the SEV status MSR...")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+(cherry picked from commit e674096accc8e57cd0dd84679905e1222423251e)
+---
+ OvmfPkg/ResetVector/Ia32/Flat32ToFlat64.asm | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/OvmfPkg/ResetVector/Ia32/Flat32ToFlat64.asm b/OvmfPkg/ResetVector/Ia32/Flat32ToFlat64.asm
+index c5c683ebed..429a58c5ef 100644
+--- a/OvmfPkg/ResetVector/Ia32/Flat32ToFlat64.asm
++++ b/OvmfPkg/ResetVector/Ia32/Flat32ToFlat64.asm
+@@ -44,7 +44,7 @@ Transition32FlatTo64Flat:
+ 
+     mov     ecx, 1
+     bt      [SEV_ES_WORK_AREA_STATUS_MSR], ecx
+-    jz      EnablePaging
++    jnc     EnablePaging
+ 
+     ;
+     ; SEV-ES is active, perform a quick sanity check against the reported
+-- 
+2.39.3
+

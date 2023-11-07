@@ -1,0 +1,74 @@
+From 9572a0fe959277c5b57df05a32503ff83a7e93af Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Thu, 1 Jun 2023 13:57:11 +0200
+Subject: [PATCH 02/12] ArmVirt/PlatformBootManagerLib: factor out IsVirtio()
+
+RH-Author: Gerd Hoffmann <kraxel@redhat.com>
+RH-MergeRequest: 39: ArmVirt: add VirtioSerialDxe to ArmVirtQemu builds
+RH-Jira: RHEL-643
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [2/6] 553a155707eb1c878133c1d13f6422c2b70fb78d (kraxel/centos-edk2)
+
+IsVirtioRng() becomes just a thin wrapper for IsVirtio().
+This allows to add similar thin wrappers for other virtio
+devices in the future.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+(cherry picked from commit a196b04926e70880334fcd649837d0ac63b0bfd5)
+---
+ .../PlatformBootManagerLib/PlatformBm.c       | 26 +++++++++++++++----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
+
+diff --git a/ArmVirtPkg/Library/PlatformBootManagerLib/PlatformBm.c b/ArmVirtPkg/Library/PlatformBootManagerLib/PlatformBm.c
+index 10c815378c..5eb6f0f9c1 100644
+--- a/ArmVirtPkg/Library/PlatformBootManagerLib/PlatformBm.c
++++ b/ArmVirtPkg/Library/PlatformBootManagerLib/PlatformBm.c
+@@ -269,15 +269,16 @@ IsPciDisplay (
+ }
+ 
+ /**
+-  This FILTER_FUNCTION checks if a handle corresponds to a Virtio RNG device at
+-  the VIRTIO_DEVICE_PROTOCOL level.
++  This function checks if a handle corresponds to the Virtio Device ID given
++  at the VIRTIO_DEVICE_PROTOCOL level.
+ **/
+ STATIC
+ BOOLEAN
+ EFIAPI
+-IsVirtioRng (
++IsVirtio (
+   IN EFI_HANDLE    Handle,
+-  IN CONST CHAR16  *ReportText
++  IN CONST CHAR16  *ReportText,
++  IN UINT16        VirtIoDeviceId
+   )
+ {
+   EFI_STATUS              Status;
+@@ -293,7 +294,22 @@ IsVirtioRng (
+   }
+ 
+   return (BOOLEAN)(VirtIo->SubSystemDeviceId ==
+-                   VIRTIO_SUBSYSTEM_ENTROPY_SOURCE);
++                   VirtIoDeviceId);
++}
++
++/**
++  This FILTER_FUNCTION checks if a handle corresponds to a Virtio RNG device at
++  the VIRTIO_DEVICE_PROTOCOL level.
++**/
++STATIC
++BOOLEAN
++EFIAPI
++IsVirtioRng (
++  IN EFI_HANDLE    Handle,
++  IN CONST CHAR16  *ReportText
++  )
++{
++  return IsVirtio (Handle, ReportText, VIRTIO_SUBSYSTEM_ENTROPY_SOURCE);
+ }
+ 
+ /**
+-- 
+2.39.3
+

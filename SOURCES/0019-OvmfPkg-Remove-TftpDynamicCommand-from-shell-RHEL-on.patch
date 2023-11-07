@@ -1,0 +1,112 @@
+From c536b7c67fe45bfa1bc27299ba0a584af572e80d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
+Date: Thu, 1 Jul 2021 20:29:25 +0200
+Subject: OvmfPkg: Remove TftpDynamicCommand from shell (RHEL only)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
+RH-MergeRequest: 3: Disable features for RHEL9
+RH-Commit: [13/19] cf9ef346386ac89fa05b29d429d8d1b27cf0e3b0
+RH-Bugzilla: 1967747
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+
+Remove the command to download files in the shell via TFTP.
+
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+---
+ OvmfPkg/OvmfPkgIa32.dsc    | 4 ----
+ OvmfPkg/OvmfPkgIa32.fdf    | 1 -
+ OvmfPkg/OvmfPkgIa32X64.dsc | 4 ----
+ OvmfPkg/OvmfPkgIa32X64.fdf | 1 -
+ OvmfPkg/OvmfPkgX64.dsc     | 4 ----
+ OvmfPkg/OvmfPkgX64.fdf     | 1 -
+ 6 files changed, 15 deletions(-)
+
+diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
+index 5762871fee..ed72cbf57e 100644
+--- a/OvmfPkg/OvmfPkgIa32.dsc
++++ b/OvmfPkg/OvmfPkgIa32.dsc
+@@ -904,10 +904,6 @@
+ !endif
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5" && $(BUILD_SHELL) == TRUE
+-  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
+   ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf {
+     <PcdsFixedAtBuild>
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+diff --git a/OvmfPkg/OvmfPkgIa32.fdf b/OvmfPkg/OvmfPkgIa32.fdf
+index 9df41eae67..1d19e20e8a 100644
+--- a/OvmfPkg/OvmfPkgIa32.fdf
++++ b/OvmfPkg/OvmfPkgIa32.fdf
+@@ -297,7 +297,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
+ INF  FatPkg/EnhancedFatDxe/Fat.inf
+ 
+ !if $(BUILD_SHELL) == TRUE && $(TOOL_CHAIN_TAG) != "XCODE5"
+-INF  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
+ INF  ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf
+ INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ !endif
+diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
+index dc5020a632..9b97e664d7 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.dsc
++++ b/OvmfPkg/OvmfPkgIa32X64.dsc
+@@ -918,10 +918,6 @@
+ !endif
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5" && $(BUILD_SHELL) == TRUE
+-  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
+   ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf {
+     <PcdsFixedAtBuild>
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
+index e002846515..621772963f 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.fdf
++++ b/OvmfPkg/OvmfPkgIa32X64.fdf
+@@ -298,7 +298,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
+ INF  FatPkg/EnhancedFatDxe/Fat.inf
+ 
+ !if $(BUILD_SHELL) == TRUE && $(TOOL_CHAIN_TAG) != "XCODE5"
+-INF  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
+ INF  ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf
+ INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ !endif
+diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
+index e1e1df4b9d..8bf848c647 100644
+--- a/OvmfPkg/OvmfPkgX64.dsc
++++ b/OvmfPkg/OvmfPkgX64.dsc
+@@ -992,10 +992,6 @@
+ !endif
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5" && $(BUILD_SHELL) == TRUE
+-  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
+   ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf {
+     <PcdsFixedAtBuild>
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
+index e586632664..b1d6c23a93 100644
+--- a/OvmfPkg/OvmfPkgX64.fdf
++++ b/OvmfPkg/OvmfPkgX64.fdf
+@@ -323,7 +323,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
+ INF  FatPkg/EnhancedFatDxe/Fat.inf
+ 
+ !if $(BUILD_SHELL) == TRUE && $(TOOL_CHAIN_TAG) != "XCODE5"
+-INF  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
+ INF  ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf
+ INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ !endif
+-- 
+2.39.3
+

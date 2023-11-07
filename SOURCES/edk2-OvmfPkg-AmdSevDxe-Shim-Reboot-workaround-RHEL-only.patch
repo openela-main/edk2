@@ -1,0 +1,120 @@
+From 9f0b4df867e6a2d56838e4048be245eac3fcc18e Mon Sep 17 00:00:00 2001
+From: Oliver Steffen <osteffen@redhat.com>
+Date: Wed, 16 Aug 2023 12:09:40 +0200
+Subject: [PATCH 3/3] OvmfPkg/AmdSevDxe: Shim Reboot workaround (RHEL only)
+
+RH-Author: Oliver Steffen <osteffen@redhat.com>
+RH-MergeRequest: 46: OvmfPkg/AmdSevDxe: Shim Reboot workaround (RHEL only)
+RH-Bugzilla: 2218196
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [1/1] 9bf3bb989e36253aa34bf82ecfe8faa7312e8d22 (osteffen/edk2)
+
+Add a callback at the end of the Dxe phase that sets the
+"FB_NO_REBOOT" variable under the Shim GUID.
+This is a workaround for a boot loop in case a confidential
+guest that uses shim is booted with a vtpm device present.
+
+BZ 2218196
+
+Signed-off-by: Oliver Steffen <osteffen@redhat.com>
+---
+ OvmfPkg/AmdSevDxe/AmdSevDxe.c   | 42 +++++++++++++++++++++++++++++++++
+ OvmfPkg/AmdSevDxe/AmdSevDxe.inf |  2 ++
+ 2 files changed, 44 insertions(+)
+
+diff --git a/OvmfPkg/AmdSevDxe/AmdSevDxe.c b/OvmfPkg/AmdSevDxe/AmdSevDxe.c
+index db3675ae86..f639c093a2 100644
+--- a/OvmfPkg/AmdSevDxe/AmdSevDxe.c
++++ b/OvmfPkg/AmdSevDxe/AmdSevDxe.c
+@@ -19,6 +19,7 @@
+ #include <Library/MemoryAllocationLib.h>
+ #include <Library/UefiBootServicesTableLib.h>
+ #include <Guid/ConfidentialComputingSevSnpBlob.h>
++#include <Guid/GlobalVariable.h>
+ #include <Library/PcdLib.h>
+ #include <Pi/PrePiDxeCis.h>
+ #include <Protocol/SevMemoryAcceptance.h>
+@@ -28,6 +29,10 @@
+ // Present, initialized, tested bits defined in MdeModulePkg/Core/Dxe/DxeMain.h
+ #define EFI_MEMORY_INTERNAL_MASK  0x0700000000000000ULL
+ 
++static EFI_GUID  ShimLockGuid = {
++  0x605dab50, 0xe046, 0x4300, { 0xab, 0xb6, 0x3d, 0xd8, 0x10, 0xdd, 0x8b, 0x23 }
++};
++
+ STATIC
+ EFI_STATUS
+ AllocateConfidentialComputingBlob (
+@@ -191,6 +196,32 @@ STATIC EDKII_MEMORY_ACCEPT_PROTOCOL  mMemoryAcceptProtocol = {
+   AmdSevMemoryAccept
+ };
+ 
++VOID
++EFIAPI
++PopulateVarstore (
++  EFI_EVENT  Event,
++  VOID       *Context
++  )
++{
++  EFI_SYSTEM_TABLE  *SystemTable = (EFI_SYSTEM_TABLE *)Context;
++  EFI_STATUS        Status;
++
++  DEBUG ((DEBUG_INFO, "Populating Varstore\n"));
++  UINT32  data = 1;
++
++  Status = SystemTable->RuntimeServices->SetVariable (
++                                           L"FB_NO_REBOOT",
++                                           &ShimLockGuid,
++                                           EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_BOOTSERVICE_ACCESS,
++                                           sizeof (data),
++                                           &data
++                                           );
++  ASSERT_EFI_ERROR (Status);
++
++  Status = SystemTable->BootServices->CloseEvent (Event);
++  ASSERT_EFI_ERROR (Status);
++}
++
+ EFI_STATUS
+ EFIAPI
+ AmdSevDxeEntryPoint (
+@@ -203,6 +234,7 @@ AmdSevDxeEntryPoint (
+   UINTN                                     NumEntries;
+   UINTN                                     Index;
+   CONFIDENTIAL_COMPUTING_SNP_BLOB_LOCATION  *SnpBootDxeTable;
++  EFI_EVENT                                 PopulateVarstoreEvent;
+ 
+   //
+   // Do nothing when SEV is not enabled
+@@ -361,5 +393,15 @@ AmdSevDxeEntryPoint (
+                   );
+   }
+ 
++  Status = gBS->CreateEventEx (
++                  EVT_NOTIFY_SIGNAL,
++                  TPL_CALLBACK,
++                  PopulateVarstore,
++                  SystemTable,
++                  &gEfiEndOfDxeEventGroupGuid,
++                  &PopulateVarstoreEvent
++                  );
++  ASSERT_EFI_ERROR (Status);
++
+   return EFI_SUCCESS;
+ }
+diff --git a/OvmfPkg/AmdSevDxe/AmdSevDxe.inf b/OvmfPkg/AmdSevDxe/AmdSevDxe.inf
+index e7c7d526c9..09cbd2b0ca 100644
+--- a/OvmfPkg/AmdSevDxe/AmdSevDxe.inf
++++ b/OvmfPkg/AmdSevDxe/AmdSevDxe.inf
+@@ -54,6 +54,8 @@
+ [Guids]
+   gConfidentialComputingSevSnpBlobGuid
+   gEfiEventBeforeExitBootServicesGuid
++  gEfiEndOfDxeEventGroupGuid              ## CONSUMES ## Event
++
+ 
+ [Pcd]
+   gUefiOvmfPkgTokenSpaceGuid.PcdOvmfHostBridgePciDevId
+-- 
+2.39.3
+
