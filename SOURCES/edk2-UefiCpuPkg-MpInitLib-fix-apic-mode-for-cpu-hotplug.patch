@@ -1,0 +1,49 @@
+From c32f4994552ea5835cf00ce06f2f7d88c71249e5 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 28 Feb 2023 15:47:00 +0100
+Subject: [PATCH] UefiCpuPkg/MpInitLib: fix apic mode for cpu hotplug
+
+RH-Author: Miroslav Rezanina <mrezanin@redhat.com>
+RH-MergeRequest: 29: UefiCpuPkg/MpInitLib: fix apic mode for cpu hotplug
+RH-Bugzilla: 2150267
+RH-Acked-by: Oliver Steffen <osteffen@redhat.com>
+RH-Acked-by: Jon Maloy <jmaloy@redhat.com>
+RH-Commit: [1/1] e7e332ac0e6edf207b1b9692f2e1aed4a1fe7c0c
+
+In case the number of CPUs can in increase beyond 255
+due to CPU hotplug choose x2apic mode.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ UefiCpuPkg/Library/MpInitLib/MpLib.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/UefiCpuPkg/Library/MpInitLib/MpLib.c b/UefiCpuPkg/Library/MpInitLib/MpLib.c
+index b9a06747ed..177d15ab5b 100644
+--- a/UefiCpuPkg/Library/MpInitLib/MpLib.c
++++ b/UefiCpuPkg/Library/MpInitLib/MpLib.c
+@@ -495,7 +495,9 @@ CollectProcessorCount (
+   //
+   // Enable x2APIC mode if
+   //  1. Number of CPU is greater than 255; or
+-  //  2. There are any logical processors reporting an Initial APIC ID of 255 or greater.
++  //  2. The platform exposed the exact *boot* CPU count to us in advance, and
++  //     more than 255 logical processors are possible later, with hotplug; or
++  //  3. There are any logical processors reporting an Initial APIC ID of 255 or greater.
+   //
+   X2Apic = FALSE;
+   if (CpuMpData->CpuCount > 255) {
+@@ -503,6 +505,10 @@ CollectProcessorCount (
+     // If there are more than 255 processor found, force to enable X2APIC
+     //
+     X2Apic = TRUE;
++  } else if ((PcdGet32 (PcdCpuBootLogicalProcessorNumber) > 0) &&
++             (PcdGet32 (PcdCpuMaxLogicalProcessorNumber) > 255))
++  {
++    X2Apic = TRUE;
+   } else {
+     CpuInfoInHob = (CPU_INFO_IN_HOB *) (UINTN) CpuMpData->CpuInfoInHob;
+     for (Index = 0; Index < CpuMpData->CpuCount; Index++) {
+-- 
+2.37.3
+
