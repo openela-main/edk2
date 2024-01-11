@@ -1,0 +1,95 @@
+From fc45137e55e73a3ba59fd28868e24521a28a9a6e Mon Sep 17 00:00:00 2001
+From: Oliver Steffen <osteffen@redhat.com>
+Date: Tue, 31 Jan 2023 15:32:28 +0100
+Subject: [PATCH] Revert "ArmVirtPkg/ArmVirtQemu: enable initial ID map at
+ early boot"
+
+RH-Author: Oliver Steffen <osteffen@redhat.com>
+RH-MergeRequest: 25: Revert "ArmVirtPkg/ArmVirtQemu: enable initial ID map at early boot"
+RH-Bugzilla: 2157656
+RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+RH-Acked-by: Miroslav Rezanina <mrezanin@redhat.com>
+RH-Commit: [1/1] b236b89984f7b7890089ba65228073ab79063b34 (osteffen/edk2)
+
+This reverts commit 07be1d34d95460a238fcd0f6693efb747c28b329,
+which causes the firmware to crash early on AARCH64.
+
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=2157656
+
+There is a potential fix upstream:
+https://github.com/tianocore/edk2/pull/3878/commits
+
+We need to reevaluate on the next rebase if the fix works and if we can
+drop this revert-comment.
+
+Signed-off-by: Oliver Steffen <osteffen@redhat.com>
+---
+ ArmVirtPkg/ArmVirtQemu.dsc | 17 +++--------------
+ ArmVirtPkg/ArmVirtQemu.fdf |  2 +-
+ 2 files changed, 4 insertions(+), 15 deletions(-)
+
+diff --git a/ArmVirtPkg/ArmVirtQemu.dsc b/ArmVirtPkg/ArmVirtQemu.dsc
+index 76389e6bd4..3bf51b09aa 100644
+--- a/ArmVirtPkg/ArmVirtQemu.dsc
++++ b/ArmVirtPkg/ArmVirtQemu.dsc
+@@ -64,6 +64,8 @@
+   QemuFwCfgSimpleParserLib|OvmfPkg/Library/QemuFwCfgSimpleParserLib/QemuFwCfgSimpleParserLib.inf
+   QemuLoadImageLib|OvmfPkg/Library/GenericQemuLoadImageLib/GenericQemuLoadImageLib.inf
+ 
++  ArmPlatformLib|ArmPlatformPkg/Library/ArmPlatformLibNull/ArmPlatformLibNull.inf
++
+   TimerLib|ArmPkg/Library/ArmArchTimerLib/ArmArchTimerLib.inf
+   VirtNorFlashPlatformLib|ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.inf
+ 
+@@ -91,12 +93,6 @@
+   TpmPlatformHierarchyLib|SecurityPkg/Library/PeiDxeTpmPlatformHierarchyLibNull/PeiDxeTpmPlatformHierarchyLib.inf
+ !endif
+ 
+-[LibraryClasses.AARCH64]
+-  ArmPlatformLib|ArmVirtPkg/Library/ArmPlatformLibQemu/ArmPlatformLibQemu.inf
+-
+-[LibraryClasses.ARM]
+-  ArmPlatformLib|ArmPlatformPkg/Library/ArmPlatformLibNull/ArmPlatformLibNull.inf
+-
+ [LibraryClasses.common.PEIM]
+   ArmVirtMemInfoLib|ArmVirtPkg/Library/QemuVirtMemInfoLib/QemuVirtMemInfoPeiLib.inf
+ 
+@@ -117,8 +113,6 @@
+   UefiScsiLib|MdePkg/Library/UefiScsiLib/UefiScsiLib.inf
+ 
+ [BuildOptions]
+-  GCC:*_*_AARCH64_CC_XIPFLAGS ==
+-
+ !include NetworkPkg/NetworkBuildOptions.dsc.inc
+ 
+ ################################################################################
+@@ -330,12 +324,7 @@
+   ArmPlatformPkg/PrePeiCore/PrePeiCoreUniCore.inf
+   MdeModulePkg/Core/Pei/PeiMain.inf
+   ArmPlatformPkg/PlatformPei/PlatformPeim.inf
+-  ArmVirtPkg/MemoryInitPei/MemoryInitPeim.inf {
+-    <LibraryClasses>
+-!if $(ARCH) == AARCH64
+-      ArmMmuLib|ArmPkg/Library/ArmMmuLib/ArmMmuPeiLib.inf
+-!endif
+-  }
++  ArmPlatformPkg/MemoryInitPei/MemoryInitPeim.inf
+   ArmPkg/Drivers/CpuPei/CpuPei.inf
+ 
+ !if $(TPM2_ENABLE) == TRUE
+diff --git a/ArmVirtPkg/ArmVirtQemu.fdf b/ArmVirtPkg/ArmVirtQemu.fdf
+index 764f652afd..c61ed36d89 100644
+--- a/ArmVirtPkg/ArmVirtQemu.fdf
++++ b/ArmVirtPkg/ArmVirtQemu.fdf
+@@ -107,7 +107,7 @@ READ_LOCK_STATUS   = TRUE
+   INF ArmPlatformPkg/PrePeiCore/PrePeiCoreUniCore.inf
+   INF MdeModulePkg/Core/Pei/PeiMain.inf
+   INF ArmPlatformPkg/PlatformPei/PlatformPeim.inf
+-  INF ArmVirtPkg/MemoryInitPei/MemoryInitPeim.inf
++  INF ArmPlatformPkg/MemoryInitPei/MemoryInitPeim.inf
+   INF ArmPkg/Drivers/CpuPei/CpuPei.inf
+   INF MdeModulePkg/Core/DxeIplPeim/DxeIpl.inf
+ 
+-- 
+2.31.1
+

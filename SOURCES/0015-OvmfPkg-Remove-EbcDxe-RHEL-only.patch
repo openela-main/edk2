@@ -1,0 +1,129 @@
+From a53408a224cef3260b12c969c9f8797b85b12f94 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
+Date: Thu, 1 Jul 2021 20:28:49 +0200
+Subject: OvmfPkg: Remove EbcDxe (RHEL only)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
+RH-MergeRequest: 3: Disable features for RHEL9
+RH-Commit: [2/19] 6777c3dc453e4aecddc20216f783ba2a5acccaa0
+RH-Bugzilla: 1967747
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+
+Remove EFI Byte Code interpreter.
+
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+---
+ OvmfPkg/AmdSev/AmdSevX64.dsc | 1 -
+ OvmfPkg/AmdSev/AmdSevX64.fdf | 1 -
+ OvmfPkg/OvmfPkgIa32.dsc      | 1 -
+ OvmfPkg/OvmfPkgIa32.fdf      | 1 -
+ OvmfPkg/OvmfPkgIa32X64.dsc   | 1 -
+ OvmfPkg/OvmfPkgIa32X64.fdf   | 1 -
+ OvmfPkg/OvmfPkgX64.dsc       | 1 -
+ OvmfPkg/OvmfPkgX64.fdf       | 1 -
+ 8 files changed, 8 deletions(-)
+
+diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
+index 05908a7227..8131d2fae1 100644
+--- a/OvmfPkg/AmdSev/AmdSevX64.dsc
++++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
+@@ -599,7 +599,6 @@
+ !include OvmfPkg/OvmfTpmSecurityStub.dsc.inc
+   }
+ 
+-  MdeModulePkg/Universal/EbcDxe/EbcDxe.inf
+   UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf
+   UefiCpuPkg/CpuDxe/CpuDxe.inf
+   OvmfPkg/LocalApicTimerDxe/LocalApicTimerDxe.inf
+diff --git a/OvmfPkg/AmdSev/AmdSevX64.fdf b/OvmfPkg/AmdSev/AmdSevX64.fdf
+index 4658e1d30e..67b9cdf941 100644
+--- a/OvmfPkg/AmdSev/AmdSevX64.fdf
++++ b/OvmfPkg/AmdSev/AmdSevX64.fdf
+@@ -205,7 +205,6 @@ INF  MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
+ 
+ INF  MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
+ INF  MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
+-INF  MdeModulePkg/Universal/EbcDxe/EbcDxe.inf
+ INF  UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf
+ INF  UefiCpuPkg/CpuDxe/CpuDxe.inf
+ INF  OvmfPkg/LocalApicTimerDxe/LocalApicTimerDxe.inf
+diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
+index 9c0fb7d545..8e29e62ea9 100644
+--- a/OvmfPkg/OvmfPkgIa32.dsc
++++ b/OvmfPkg/OvmfPkgIa32.dsc
+@@ -750,7 +750,6 @@
+ !include OvmfPkg/OvmfTpmSecurityStub.dsc.inc
+   }
+ 
+-  MdeModulePkg/Universal/EbcDxe/EbcDxe.inf
+   UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf
+   UefiCpuPkg/CpuDxe/CpuDxe.inf
+ !ifdef $(CSM_ENABLE)
+diff --git a/OvmfPkg/OvmfPkgIa32.fdf b/OvmfPkg/OvmfPkgIa32.fdf
+index 7023ade8ce..159995952e 100644
+--- a/OvmfPkg/OvmfPkgIa32.fdf
++++ b/OvmfPkg/OvmfPkgIa32.fdf
+@@ -216,7 +216,6 @@ INF  MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
+ 
+ INF  MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
+ INF  MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
+-INF  MdeModulePkg/Universal/EbcDxe/EbcDxe.inf
+ INF  UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf
+ INF  UefiCpuPkg/CpuDxe/CpuDxe.inf
+ !ifdef $(CSM_ENABLE)
+diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
+index 8b93437044..c79514e86f 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.dsc
++++ b/OvmfPkg/OvmfPkgIa32X64.dsc
+@@ -764,7 +764,6 @@
+ !include OvmfPkg/OvmfTpmSecurityStub.dsc.inc
+   }
+ 
+-  MdeModulePkg/Universal/EbcDxe/EbcDxe.inf
+   UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf
+   UefiCpuPkg/CpuDxe/CpuDxe.inf
+ !ifdef $(CSM_ENABLE)
+diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
+index 80de4fa2c0..334de16a12 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.fdf
++++ b/OvmfPkg/OvmfPkgIa32X64.fdf
+@@ -217,7 +217,6 @@ INF  MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
+ 
+ INF  MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
+ INF  MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
+-INF  MdeModulePkg/Universal/EbcDxe/EbcDxe.inf
+ INF  UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf
+ INF  UefiCpuPkg/CpuDxe/CpuDxe.inf
+ !ifdef $(CSM_ENABLE)
+diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
+index 8c9162db17..1daa7e6fe4 100644
+--- a/OvmfPkg/OvmfPkgX64.dsc
++++ b/OvmfPkg/OvmfPkgX64.dsc
+@@ -809,7 +809,6 @@
+ !endif
+   }
+ 
+-  MdeModulePkg/Universal/EbcDxe/EbcDxe.inf
+   UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf
+ 
+   UefiCpuPkg/CpuDxe/CpuDxe.inf {
+diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
+index c0f5a1ef3c..dec53ecdbd 100644
+--- a/OvmfPkg/OvmfPkgX64.fdf
++++ b/OvmfPkg/OvmfPkgX64.fdf
+@@ -239,7 +239,6 @@ INF  MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
+ 
+ INF  MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
+ INF  MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
+-INF  MdeModulePkg/Universal/EbcDxe/EbcDxe.inf
+ INF  UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf
+ 
+ INF  UefiCpuPkg/CpuDxe/CpuDxe.inf
+-- 
+2.38.1
+
