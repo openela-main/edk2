@@ -1,0 +1,42 @@
+From 60a5604388fa73872d67e9ed46a29c7fd0e4fc32 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Tue, 27 Jun 2023 13:14:06 +0200
+Subject: [PATCH 06/12] OvmfPkg/VirtioSerialDxe: Remove noisy debug print on
+ supported() call
+
+RH-Author: Gerd Hoffmann <kraxel@redhat.com>
+RH-MergeRequest: 39: ArmVirt: add VirtioSerialDxe to ArmVirtQemu builds
+RH-Jira: RHEL-643
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [6/6] 62b611c1d82f1b87cac2a07655ca37117d438989 (kraxel/centos-edk2)
+
+The UEFI driver model invokes the supported() method on every driver
+every time a connection attempt is made on any handle, and so doing an
+unconditional DEBUG() print inside this method produced a lot of noise.
+
+So let's drop this DEBUG() call from the VirtioSerial driver's
+Supported() method.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+(cherry picked from commit ea7a3015a2404e1358218463dd25df5ae7615352)
+---
+ OvmfPkg/VirtioSerialDxe/VirtioSerial.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/OvmfPkg/VirtioSerialDxe/VirtioSerial.c b/OvmfPkg/VirtioSerialDxe/VirtioSerial.c
+index bfb2b324ea..9e27a519f4 100644
+--- a/OvmfPkg/VirtioSerialDxe/VirtioSerial.c
++++ b/OvmfPkg/VirtioSerialDxe/VirtioSerial.c
+@@ -510,8 +510,6 @@ VirtioSerialDriverBindingSupported (
+     Status = EFI_UNSUPPORTED;
+   }
+ 
+-  DEBUG ((DEBUG_INFO, "%a:%d: subsystem %d -> %r\n", __func__, __LINE__, VirtIo->SubSystemDeviceId, Status));
+-
+   //
+   // We needed VirtIo access only transitorily, to see whether we support the
+   // device or not.
+-- 
+2.39.3
+

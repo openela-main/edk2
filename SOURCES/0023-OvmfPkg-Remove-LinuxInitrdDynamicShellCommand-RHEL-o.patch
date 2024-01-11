@@ -1,0 +1,146 @@
+From e07788f7cf34a364b770e2b979942bf1a8b659f0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
+Date: Thu, 1 Jul 2021 20:29:39 +0200
+Subject: OvmfPkg: Remove LinuxInitrdDynamicShellCommand (RHEL only)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
+RH-MergeRequest: 3: Disable features for RHEL9
+RH-Commit: [17/19] 491fe1301ea29c7cb56c20272e45614d5fcb6f14
+RH-Bugzilla: 1967747
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+
+Remove the command to register a file in the shell as the
+initial ramdisk for a UEFI stubbed kernel, to be booted next.
+
+Note: as further dynamic shell commands might show up upstream,
+we intentionally preserve the empty !ifdef'ry context to ease
+future downstream rebases.
+
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+---
+ OvmfPkg/AmdSev/AmdSevX64.dsc | 4 ----
+ OvmfPkg/AmdSev/AmdSevX64.fdf | 1 -
+ OvmfPkg/OvmfPkgIa32.dsc      | 4 ----
+ OvmfPkg/OvmfPkgIa32.fdf      | 1 -
+ OvmfPkg/OvmfPkgIa32X64.dsc   | 4 ----
+ OvmfPkg/OvmfPkgIa32X64.fdf   | 1 -
+ OvmfPkg/OvmfPkgX64.dsc       | 4 ----
+ OvmfPkg/OvmfPkgX64.fdf       | 1 -
+ 8 files changed, 20 deletions(-)
+
+diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
+index 5987de6d83..427df673f3 100644
+--- a/OvmfPkg/AmdSev/AmdSevX64.dsc
++++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
+@@ -728,10 +728,6 @@
+   MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5" && $(BUILD_SHELL) == TRUE
+-  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
+ !endif
+   OvmfPkg/AmdSev/SecretDxe/SecretDxe.inf
+   OvmfPkg/AmdSev/Grub/Grub.inf
+diff --git a/OvmfPkg/AmdSev/AmdSevX64.fdf b/OvmfPkg/AmdSev/AmdSevX64.fdf
+index 4d2f9c7248..a48c93e2a5 100644
+--- a/OvmfPkg/AmdSev/AmdSevX64.fdf
++++ b/OvmfPkg/AmdSev/AmdSevX64.fdf
+@@ -274,7 +274,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
+ INF  FatPkg/EnhancedFatDxe/Fat.inf
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5" && $(BUILD_SHELL) == TRUE
+-INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ !endif
+ INF OvmfPkg/AmdSev/SecretDxe/SecretDxe.inf
+ INF  OvmfPkg/AmdSev/Grub/Grub.inf
+diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
+index 078eab1acc..147774ef58 100644
+--- a/OvmfPkg/OvmfPkgIa32.dsc
++++ b/OvmfPkg/OvmfPkgIa32.dsc
+@@ -904,10 +904,6 @@
+ !endif
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5" && $(BUILD_SHELL) == TRUE
+-  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
+ !endif
+ !if $(BUILD_SHELL) == TRUE
+   ShellPkg/Application/Shell/Shell.inf {
+diff --git a/OvmfPkg/OvmfPkgIa32.fdf b/OvmfPkg/OvmfPkgIa32.fdf
+index 5b2265c7d1..56f2c45795 100644
+--- a/OvmfPkg/OvmfPkgIa32.fdf
++++ b/OvmfPkg/OvmfPkgIa32.fdf
+@@ -297,7 +297,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
+ INF  FatPkg/EnhancedFatDxe/Fat.inf
+ 
+ !if $(BUILD_SHELL) == TRUE && $(TOOL_CHAIN_TAG) != "XCODE5"
+-INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ !endif
+ !if $(BUILD_SHELL) == TRUE
+ INF  ShellPkg/Application/Shell/Shell.inf
+diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
+index 6779503e7e..a41bc32454 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.dsc
++++ b/OvmfPkg/OvmfPkgIa32X64.dsc
+@@ -918,10 +918,6 @@
+ !endif
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5" && $(BUILD_SHELL) == TRUE
+-  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
+ !endif
+ !if $(BUILD_SHELL) == TRUE
+   ShellPkg/Application/Shell/Shell.inf {
+diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
+index da32cf1a2f..9efbe6a06d 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.fdf
++++ b/OvmfPkg/OvmfPkgIa32X64.fdf
+@@ -298,7 +298,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
+ INF  FatPkg/EnhancedFatDxe/Fat.inf
+ 
+ !if $(BUILD_SHELL) == TRUE && $(TOOL_CHAIN_TAG) != "XCODE5"
+-INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ !endif
+ !if $(BUILD_SHELL) == TRUE
+ INF  ShellPkg/Application/Shell/Shell.inf
+diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
+index 66f267f731..ce363f748f 100644
+--- a/OvmfPkg/OvmfPkgX64.dsc
++++ b/OvmfPkg/OvmfPkgX64.dsc
+@@ -992,10 +992,6 @@
+ !endif
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5" && $(BUILD_SHELL) == TRUE
+-  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
+ !endif
+ !if $(BUILD_SHELL) == TRUE
+   ShellPkg/Application/Shell/Shell.inf {
+diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
+index 7bf83e266c..404e72dc7d 100644
+--- a/OvmfPkg/OvmfPkgX64.fdf
++++ b/OvmfPkg/OvmfPkgX64.fdf
+@@ -323,7 +323,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
+ INF  FatPkg/EnhancedFatDxe/Fat.inf
+ 
+ !if $(BUILD_SHELL) == TRUE && $(TOOL_CHAIN_TAG) != "XCODE5"
+-INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ !endif
+ !if $(BUILD_SHELL) == TRUE
+ INF  ShellPkg/Application/Shell/Shell.inf
+-- 
+2.39.3
+

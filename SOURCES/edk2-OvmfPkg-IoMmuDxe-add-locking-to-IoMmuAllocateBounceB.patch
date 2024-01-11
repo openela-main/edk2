@@ -1,0 +1,79 @@
+From 7f3f6e3088655e33600aacd886aa51d19c01c59a Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Wed, 19 Jul 2023 18:31:29 +0200
+Subject: [PATCH 2/3] OvmfPkg/IoMmuDxe: add locking to
+ IoMmuAllocateBounceBuffer
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 45: OvmfPkg/IoMmuDxe: add locking to IoMmuAllocateBounceBuffer
+RH-Bugzilla: 2211060
+RH-Acked-by: Oliver Steffen <osteffen@redhat.com>
+RH-Commit: [1/1] c4998c57651df23342a0cd6e8982bf59f306da83 (kraxel.rh/centos-src-edk2)
+
+Searching for an unused bounce buffer in mReservedMemBitmap and
+reserving the buffer by flipping the bit is a critical section
+which must not be interrupted.  Raise the TPL level to ensure
+that.
+
+Without this fix it can happen that IoMmuDxe hands out the same
+bounce buffer twice, causing trouble down the road.  Seen happening
+in practice with VirtioNetDxe setting up the network interface (and
+calling into IoMmuDxe from a polling timer callback) in parallel with
+Boot Manager doing some disk I/O.  An ASSERT() in VirtioNet caught
+the buffer inconsistency.
+
+Full story with lots of details and discussions is available here:
+https://bugzilla.redhat.com/show_bug.cgi?id=2211060
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+(cherry picked from commit a52044a9e602bc168cdf5d73a48952bfc9edb521)
+---
+ OvmfPkg/IoMmuDxe/IoMmuBuffer.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/OvmfPkg/IoMmuDxe/IoMmuBuffer.c b/OvmfPkg/IoMmuDxe/IoMmuBuffer.c
+index c8f6cf4818..103003cae3 100644
+--- a/OvmfPkg/IoMmuDxe/IoMmuBuffer.c
++++ b/OvmfPkg/IoMmuDxe/IoMmuBuffer.c
+@@ -367,7 +367,9 @@ IoMmuAllocateBounceBuffer (
+ {
+   EFI_STATUS  Status;
+   UINT32      ReservedMemBitmap;
++  EFI_TPL     OldTpl;
+ 
++  OldTpl            = gBS->RaiseTPL (TPL_NOTIFY);
+   ReservedMemBitmap = 0;
+   Status            = InternalAllocateBuffer (
+                         Type,
+@@ -378,6 +380,7 @@ IoMmuAllocateBounceBuffer (
+                         );
+   MapInfo->ReservedMemBitmap = ReservedMemBitmap;
+   mReservedMemBitmap        |= ReservedMemBitmap;
++  gBS->RestoreTPL (OldTpl);
+ 
+   ASSERT (Status == EFI_SUCCESS);
+ 
+@@ -395,6 +398,8 @@ IoMmuFreeBounceBuffer (
+   IN OUT     MAP_INFO  *MapInfo
+   )
+ {
++  EFI_TPL  OldTpl;
++
+   if (MapInfo->ReservedMemBitmap == 0) {
+     gBS->FreePages (MapInfo->PlainTextAddress, MapInfo->NumberOfPages);
+   } else {
+@@ -407,9 +412,11 @@ IoMmuFreeBounceBuffer (
+       mReservedMemBitmap,
+       mReservedMemBitmap & ((UINT32)(~MapInfo->ReservedMemBitmap))
+       ));
++    OldTpl                     = gBS->RaiseTPL (TPL_NOTIFY);
+     MapInfo->PlainTextAddress  = 0;
+     mReservedMemBitmap        &= (UINT32)(~MapInfo->ReservedMemBitmap);
+     MapInfo->ReservedMemBitmap = 0;
++    gBS->RestoreTPL (OldTpl);
+   }
+ 
+   return EFI_SUCCESS;
+-- 
+2.39.3
+

@@ -1,9 +1,11 @@
 ExclusiveArch: x86_64 aarch64
 
-%define GITDATE        20221207
-%define GITCOMMIT      fff6d81270b5
+%define GITDATE        20230524
+%define GITCOMMIT      ba91d0292e
 %define TOOLCHAIN      GCC5
 %define OPENSSL_VER    1.1.1k
+
+%define DBXDATE        20230509
 
 %define build_ovmf 0
 %define build_aarch64 0
@@ -15,14 +17,14 @@ ExclusiveArch: x86_64 aarch64
 %endif
 
 Name:       edk2
-Version:    %{GITDATE}git%{GITCOMMIT}
-Release:    9%{?dist}
+Version:    %{GITDATE}
+Release:    4%{?dist}
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and OpenSSL and MIT
 URL:        http://www.tianocore.org
 
 # The source tarball is created using following commands:
-# COMMIT=fff6d81270b5
+# COMMIT=ba91d0292e
 # git archive --format=tar --prefix=edk2-$COMMIT/ $COMMIT \
 # | xz -9ev >/tmp/edk2-$COMMIT.tar.xz
 Source0:edk2-%{GITCOMMIT}.tar.xz
@@ -30,8 +32,10 @@ Source1: ovmf-whitepaper-c770f8c.txt
 Source2: openssl-rhel-d00c3c5b8a9d6d3ea3dabfcafdf36afd61ba8bcc.tar.xz
 
 # json description files
-Source10: 50-edk2-aarch64.json
-Source11: 51-edk2-aarch64-verbose.json
+Source10: 50-edk2-aarch64-qcow2.json
+Source11: 51-edk2-aarch64-raw.json
+Source12: 52-edk2-aarch64-verbose-qcow2.json
+Source13: 53-edk2-aarch64-verbose-raw.json
 
 Source40: 30-edk2-ovmf-x64-sb-enrolled.json
 Source41: 40-edk2-ovmf-x64-sb.json
@@ -43,51 +47,68 @@ Source45: 60-edk2-ovmf-x64-inteltdx.json
 Source80: edk2-build.py
 Source82: edk2-build.rhel-9
 
+Source90: DBXUpdate-%{DBXDATE}.x64.bin
+
 Patch0002: 0002-Remove-submodules.patch
-Patch0003: 0003-MdeModulePkg-TerminalDxe-add-other-text-resolutions-.patch
-Patch0004: 0004-MdeModulePkg-TerminalDxe-set-xterm-resolution-on-mod.patch
-Patch0005: 0005-OvmfPkg-take-PcdResizeXterm-from-the-QEMU-command-li.patch
-Patch0006: 0006-ArmVirtPkg-take-PcdResizeXterm-from-the-QEMU-command.patch
-Patch0007: 0007-OvmfPkg-enable-DEBUG_VERBOSE-RHEL-only.patch
-Patch0008: 0008-OvmfPkg-silence-DEBUG_VERBOSE-0x00400000-in-QemuVide.patch
-Patch0009: 0009-ArmVirtPkg-silence-DEBUG_VERBOSE-0x00400000-in-QemuR.patch
-Patch0010: 0010-OvmfPkg-QemuRamfbDxe-Do-not-report-DXE-failure-on-Aa.patch
-Patch0011: 0011-OvmfPkg-silence-EFI_D_VERBOSE-0x00400000-in-NvmExpre.patch
-Patch0012: 0012-CryptoPkg-OpensslLib-list-RHEL8-specific-OpenSSL-fil.patch
-Patch0013: 0013-OvmfPkg-QemuKernelLoaderFsDxe-suppress-error-on-no-k.patch
-Patch0014: 0014-SecurityPkg-Tcg2Dxe-suppress-error-on-no-swtpm-in-si.patch
-Patch0015: 0015-OvmfPkg-Remove-EbcDxe-RHEL-only.patch
-Patch0016: 0016-OvmfPkg-Remove-VirtioGpu-device-driver-RHEL-only.patch
-Patch0017: 0017-OvmfPkg-Remove-VirtioFsDxe-filesystem-driver-RHEL-on.patch
-Patch0018: 0018-ArmVirtPkg-Remove-VirtioFsDxe-filesystem-driver-RHEL.patch
-Patch0019: 0019-OvmfPkg-Remove-UdfDxe-filesystem-driver-RHEL-only.patch
-Patch0020: 0020-ArmVirtPkg-Remove-UdfDxe-filesystem-driver-RHEL-only.patch
-Patch0021: 0021-OvmfPkg-Remove-TftpDynamicCommand-from-shell-RHEL-on.patch
-Patch0022: 0022-ArmVirtPkg-Remove-TftpDynamicCommand-from-shell-RHEL.patch
-Patch0023: 0023-OvmfPkg-Remove-HttpDynamicCommand-from-shell-RHEL-on.patch
-Patch0024: 0024-ArmVirtPkg-Remove-HttpDynamicCommand-from-shell-RHEL.patch
-Patch0025: 0025-OvmfPkg-Remove-LinuxInitrdDynamicShellCommand-RHEL-o.patch
-Patch0026: 0026-ArmVirtPkg-Remove-LinuxInitrdDynamicShellCommand-RHE.patch
-Patch0028: 0028-Revert-ArmVirtPkg-make-EFI_LOADER_DATA-non-executabl.patch
-Patch0032: 0032-Revert-OvmfPkg-PlatformDxe-Handle-all-requests-in-Ex.patch
-Patch0033: 0033-OvmfPkg-SmbiosPlatformDxe-use-PcdFirmware.patch
-# For bz#2158173 - [aarch64][numa] Failed to create 2 numa nodes in some hardwares
-Patch34: edk2-OvmfPkg-VirtNorFlashDxe-map-flash-memory-as-uncachea.patch
-# For bz#1983086 - Assertion failure when creating 1024 VCPU VM: [...]UefiCpuPkg/CpuMpPei/CpuBist.c(186): !EFI_ERROR (Status)
-Patch35: edk2-MdePkg-Remove-Itanium-leftover-data-structure-RH-onl.patch
-# For bz#2158173 - [aarch64][numa] Failed to create 2 numa nodes in some hardwares
-Patch36: edk2-ArmVirt-don-t-use-unaligned-CopyMem-on-NOR-flash.patch
-# For bz#2157656 - [edk2] [aarch64] Unable to initialize EFI firmware when using edk2-aarch64-20221207gitfff6d81270b5-1.el9 in some hardwares
-Patch37: edk2-Revert-ArmVirtPkg-ArmVirtQemu-enable-initial-ID-map-.patch
-# For bz#2164534 - CVE-2023-0286 edk2: openssl: X.400 address type confusion in X.509 GeneralName [rhel-9]
-# For bz#2164550 - CVE-2022-4304 edk2: openssl: timing attack in RSA Decryption implementation [rhel-9]
-# For bz#2164565 - CVE-2023-0215 edk2: openssl: use-after-free following BIO_new_NDEF [rhel-9]
-# For bz#2164583 - CVE-2022-4450 edk2: openssl: double free after calling PEM_read_bio_ex [rhel-9]
-Patch38: edk2-rh-openssl-add-crypto-bn-rsa_sup_mul.c-to-file-list.patch
-# For bz#2162307 - Broken GRUB output on a serial console
-Patch39: edk2-Revert-MdeModulePkg-TerminalDxe-add-other-text-resol.patch
-# For bz#2174605 - [EDK2] disable dynamic mmio window
-Patch40: edk2-OvmfPkg-disable-dynamic-mmio-window-rhel-only.patch
+Patch0003: 0003-MdeModulePkg-TerminalDxe-set-xterm-resolution-on-mod.patch
+Patch0004: 0004-OvmfPkg-take-PcdResizeXterm-from-the-QEMU-command-li.patch
+Patch0005: 0005-ArmVirtPkg-take-PcdResizeXterm-from-the-QEMU-command.patch
+Patch0006: 0006-OvmfPkg-enable-DEBUG_VERBOSE-RHEL-only.patch
+Patch0007: 0007-OvmfPkg-silence-DEBUG_VERBOSE-0x00400000-in-QemuVide.patch
+Patch0008: 0008-ArmVirtPkg-silence-DEBUG_VERBOSE-0x00400000-in-QemuR.patch
+Patch0009: 0009-OvmfPkg-QemuRamfbDxe-Do-not-report-DXE-failure-on-Aa.patch
+Patch0010: 0010-OvmfPkg-silence-EFI_D_VERBOSE-0x00400000-in-NvmExpre.patch
+Patch0011: 0011-OvmfPkg-QemuKernelLoaderFsDxe-suppress-error-on-no-k.patch
+Patch0012: 0012-SecurityPkg-Tcg2Dxe-suppress-error-on-no-swtpm-in-si.patch
+Patch0013: 0013-OvmfPkg-Remove-EbcDxe-RHEL-only.patch
+Patch0014: 0014-OvmfPkg-Remove-VirtioGpu-device-driver-RHEL-only.patch
+Patch0015: 0015-OvmfPkg-Remove-VirtioFsDxe-filesystem-driver-RHEL-on.patch
+Patch0016: 0016-ArmVirtPkg-Remove-VirtioFsDxe-filesystem-driver-RHEL.patch
+Patch0017: 0017-OvmfPkg-Remove-UdfDxe-filesystem-driver-RHEL-only.patch
+Patch0018: 0018-ArmVirtPkg-Remove-UdfDxe-filesystem-driver-RHEL-only.patch
+Patch0019: 0019-OvmfPkg-Remove-TftpDynamicCommand-from-shell-RHEL-on.patch
+Patch0020: 0020-ArmVirtPkg-Remove-TftpDynamicCommand-from-shell-RHEL.patch
+Patch0021: 0021-OvmfPkg-Remove-HttpDynamicCommand-from-shell-RHEL-on.patch
+Patch0022: 0022-ArmVirtPkg-Remove-HttpDynamicCommand-from-shell-RHEL.patch
+Patch0023: 0023-OvmfPkg-Remove-LinuxInitrdDynamicShellCommand-RHEL-o.patch
+Patch0024: 0024-ArmVirtPkg-Remove-LinuxInitrdDynamicShellCommand-RHE.patch
+Patch0025: 0025-recreate-import-redhat-directory.patch
+Patch0026: 0026-CryptoPkg-OpensslLib-list-RHEL8-specific-OpenSSL-fil.patch
+Patch0027: 0027-OvmfPkg-disable-dynamic-mmio-window-rhel-only.patch
+Patch0028: 0028-ArmPkg-Disable-EFI_MEMORY_ATTRIBUTE_PROTOCOL-RH-only.patch
+Patch0029: 0029-OvmfPkg-PciHotPlugInitDxe-Do-not-reserve-IO-ports-by.patch
+# For RHEL-643 - add virtio serial support to armvirt
+Patch30: edk2-ArmVirt-add-VirtioSerialDxe-to-ArmVirtQemu-builds.patch
+# For RHEL-643 - add virtio serial support to armvirt
+Patch31: edk2-ArmVirt-PlatformBootManagerLib-factor-out-IsVirtio.patch
+# For RHEL-643 - add virtio serial support to armvirt
+Patch32: edk2-ArmVirt-PlatformBootManagerLib-factor-out-IsVirtioPc.patch
+# For RHEL-643 - add virtio serial support to armvirt
+Patch33: edk2-ArmVirt-PlatformBootManagerLib-set-up-virtio-serial-.patch
+# For RHEL-643 - add virtio serial support to armvirt
+Patch34: edk2-OvmfPkg-VirtioSerialDxe-use-TPL_NOTIFY.patch
+# For RHEL-643 - add virtio serial support to armvirt
+Patch35: edk2-OvmfPkg-VirtioSerialDxe-Remove-noisy-debug-print-on-.patch
+# For bz#2174749 - [edk2] re-enable dynamic mmio window
+Patch36: edk2-OvmfPkg-PlatformInitLib-limit-phys-bits-to-46.patch
+# For bz#2174749 - [edk2] re-enable dynamic mmio window
+Patch37: edk2-Revert-OvmfPkg-disable-dynamic-mmio-window-rhel-only.patch
+# For bz#2124143 - ovmf must consider max cpu count not boot cpu count for apic mode [rhel-9]
+Patch38: edk2-UefiCpuPkg-MpInitLib-fix-apic-mode-for-cpu-hotplug.patch
+# For RHEL-644 - enable gigabyte pages
+Patch39: edk2-OvmfPkg-PlatformInitLib-check-PcdUse1GPageTable.patch
+# For RHEL-644 - enable gigabyte pages
+Patch40: edk2-OvmfPkg-OvmfPkgIa32X64-enable-1G-pages.patch
+# For RHEL-644 - enable gigabyte pages
+Patch41: edk2-OvmfPkg-MicrovmX64-enable-1G-pages.patch
+# For bz#2190244 - [EDK2] [AMDSERVER 9.3 Bug] OVMF AP Creation Fixes
+Patch42: edk2-OvmfPkg-AmdSev-fix-BdsPlatform.c-assertion-failure-d.patch
+# For bz#2211060 - SEV-es guest randomly stuck at boot to hard drive screen from powerdown and boot again
+Patch43: edk2-OvmfPkg-IoMmuDxe-add-locking-to-IoMmuAllocateBounceB.patch
+# For bz#2218196 - Add vtpm devices with OVMF.amdsev.fd causes VM reset
+Patch44: edk2-OvmfPkg-AmdSevDxe-Shim-Reboot-workaround-RHEL-only.patch
+# For RHEL-9943 - [EDK2][AMDSERVER Bug] OvmfPkg/ResetVector: Fix assembler bit test flag check [rhel-9.3.0.z]
+Patch45: edk2-OvmfPkg-ResetVector-Fix-assembler-bit-test-flag-chec.patch
 
 
 # python3-devel and libuuid-devel are required for building tools.
@@ -97,6 +118,7 @@ BuildRequires:  python3-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  /usr/bin/iasl
 BuildRequires:  binutils gcc git gcc-c++ make
+BuildRequires:  qemu-img
 
 %if %{build_ovmf}
 # Only OVMF includes 80x86 assembly files (*.nasm*).
@@ -109,7 +131,7 @@ BuildRequires:  mtools
 BuildRequires:  xorriso
 
 # secure boot enrollment
-BuildRequires:  python3dist(virt-firmware)
+BuildRequires:  python3dist(virt-firmware) >= 23.4
 
 # endif build_ovmf
 %endif
@@ -140,6 +162,9 @@ Summary:    UEFI firmware for aarch64 virtual machines
 BuildArch:  noarch
 Provides:   AAVMF = %{version}-%{release}
 Obsoletes:  AAVMF < 20180508-100.gitee3198e672e2.el7
+
+# need libvirt version with qcow2 support
+Conflicts:  libvirt-daemon-driver-qemu < 9.2.0
 
 # No Secure Boot for AAVMF yet, but we include OpenSSL for the IPv6 stack.
 Provides:   bundled(openssl) = %{OPENSSL_VER}
@@ -188,9 +213,10 @@ git config am.keepcr true
 %autosetup -T -D -n edk2-%{GITCOMMIT} -S git_am
 
 cp -a -- %{SOURCE1} .
-cp -a -- %{SOURCE10} %{SOURCE11} .
+cp -a -- %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} .
 cp -a -- %{SOURCE40} %{SOURCE41} %{SOURCE43} %{SOURCE44} %{SOURCE45} .
 cp -a -- %{SOURCE80} %{SOURCE82} .
+cp -a -- %{SOURCE90} .
 tar -C CryptoPkg/Library/OpensslLib -a -f %{SOURCE2} -x
 
 # Done by %setup, but we do not use it for the auxiliary tarballs
@@ -243,11 +269,16 @@ touch OvmfPkg/AmdSev/Grub/grub.efi   # dummy
 build_iso RHEL-9/ovmf
 virt-fw-vars --input   RHEL-9/ovmf/OVMF_VARS.fd \
              --output  RHEL-9/ovmf/OVMF_VARS.secboot.fd \
+             --set-dbx DBXUpdate-%{DBXDATE}.x64.bin \
              --enroll-redhat --secure-boot
 %endif
 
 %if %{build_aarch64}
 ./edk2-build.py --config edk2-build.rhel-9 -m armvirt --release-date "$RELEASE_DATE"
+for raw in */aarch64/*.raw; do
+    qcow2="${raw%.raw}.qcow2"
+    qemu-img convert -f raw -O qcow2 -o cluster_size=4096 -S 4096 "$raw" "$qcow2"
+done
 %endif
 
 %install
@@ -305,8 +336,10 @@ ln -s ../%{name}/aarch64/vars-template-pflash.raw \
   %{buildroot}%{_datadir}/AAVMF/AAVMF_VARS.fd
 
 install -m 0644 \
-        50-edk2-aarch64.json \
-        51-edk2-aarch64-verbose.json \
+        50-edk2-aarch64-qcow2.json \
+        51-edk2-aarch64-raw.json \
+        52-edk2-aarch64-verbose-qcow2.json \
+        53-edk2-aarch64-verbose-raw.json \
         %{buildroot}%{_datadir}/qemu/firmware
 
 # endif build_aarch64
@@ -354,17 +387,19 @@ install -m 0644 \
 %common_files
 %dir %{_datadir}/AAVMF/
 %dir %{_datadir}/%{name}/aarch64/
-%{_datadir}/%{name}/aarch64/QEMU_EFI-pflash.raw
-%{_datadir}/%{name}/aarch64/QEMU_EFI-silent-pflash.raw
-%{_datadir}/%{name}/aarch64/vars-template-pflash.raw
+%{_datadir}/%{name}/aarch64/QEMU_EFI-pflash.*
+%{_datadir}/%{name}/aarch64/QEMU_EFI-silent-pflash.*
+%{_datadir}/%{name}/aarch64/vars-template-pflash.*
 %{_datadir}/AAVMF/AAVMF_CODE.verbose.fd
 %{_datadir}/AAVMF/AAVMF_CODE.fd
 %{_datadir}/AAVMF/AAVMF_VARS.fd
 %{_datadir}/%{name}/aarch64/QEMU_EFI.fd
 %{_datadir}/%{name}/aarch64/QEMU_EFI.silent.fd
 %{_datadir}/%{name}/aarch64/QEMU_VARS.fd
-%{_datadir}/qemu/firmware/50-edk2-aarch64.json
-%{_datadir}/qemu/firmware/51-edk2-aarch64-verbose.json
+%{_datadir}/qemu/firmware/50-edk2-aarch64-qcow2.json
+%{_datadir}/qemu/firmware/51-edk2-aarch64-raw.json
+%{_datadir}/qemu/firmware/52-edk2-aarch64-verbose-qcow2.json
+%{_datadir}/qemu/firmware/53-edk2-aarch64-verbose-raw.json
 # endif build_aarch64
 %endif
 
@@ -393,6 +428,85 @@ install -m 0644 \
 
 
 %changelog
+* Mon Oct 09 2023 Miroslav Rezanina <mrezanin@redhat.com> - 20230524-4
+- edk2-OvmfPkg-ResetVector-Fix-assembler-bit-test-flag-chec.patch [RHEL-9943]
+- Resolves: RHEL-9943
+  ([EDK2][AMDSERVER Bug] OvmfPkg/ResetVector: Fix assembler bit test flag check [rhel-9.3.0.z])
+
+* Thu Aug 24 2023 Miroslav Rezanina <mrezanin@redhat.com> - 20230524-3
+- edk2-OvmfPkg-AmdSev-fix-BdsPlatform.c-assertion-failure-d.patch [bz#2190244]
+- edk2-OvmfPkg-IoMmuDxe-add-locking-to-IoMmuAllocateBounceB.patch [bz#2211060]
+- edk2-OvmfPkg-AmdSevDxe-Shim-Reboot-workaround-RHEL-only.patch [bz#2218196]
+- Resolves: bz#2190244
+  ([EDK2] [AMDSERVER 9.3 Bug] OVMF AP Creation Fixes)
+- Resolves: bz#2211060
+  (SEV-es guest randomly stuck at boot to hard drive screen from powerdown and boot again)
+- Resolves: bz#2218196
+  (Add vtpm devices with OVMF.amdsev.fd causes VM reset)
+
+* Mon Jul 10 2023 Miroslav Rezanina <mrezanin@redhat.com> - 20230524-2
+- edk2-ArmVirt-add-VirtioSerialDxe-to-ArmVirtQemu-builds.patch [RHEL-643]
+- edk2-ArmVirt-PlatformBootManagerLib-factor-out-IsVirtio.patch [RHEL-643]
+- edk2-ArmVirt-PlatformBootManagerLib-factor-out-IsVirtioPc.patch [RHEL-643]
+- edk2-ArmVirt-PlatformBootManagerLib-set-up-virtio-serial-.patch [RHEL-643]
+- edk2-OvmfPkg-VirtioSerialDxe-use-TPL_NOTIFY.patch [RHEL-643]
+- edk2-OvmfPkg-VirtioSerialDxe-Remove-noisy-debug-print-on-.patch [RHEL-643]
+- edk2-OvmfPkg-PlatformInitLib-limit-phys-bits-to-46.patch [bz#2174749]
+- edk2-Revert-OvmfPkg-disable-dynamic-mmio-window-rhel-only.patch [bz#2174749]
+- edk2-UefiCpuPkg-MpInitLib-fix-apic-mode-for-cpu-hotplug.patch [bz#2124143]
+- edk2-OvmfPkg-PlatformInitLib-check-PcdUse1GPageTable.patch [RHEL-644]
+- edk2-OvmfPkg-OvmfPkgIa32X64-enable-1G-pages.patch [RHEL-644]
+- edk2-OvmfPkg-MicrovmX64-enable-1G-pages.patch [RHEL-644]
+- Resolves: RHEL-643
+  (add virtio serial support to armvirt)
+- Resolves: bz#2174749
+  ([edk2] re-enable dynamic mmio window)
+- Resolves: bz#2124143
+  (ovmf must consider max cpu count not boot cpu count for apic mode [rhel-9])
+- Resolves: RHEL-644
+  (enable gigabyte pages)
+
+* Tue Jun 27 2023 Oliver Steffen <osteffen@redhat.com> - 20230524-1
+- Rebase to edk2-stable202305 tag [RHEL-585]
+  Resolves: RHEL-585
+  ([rhel-9.3] rebase EDK2 to edk2-stable202305)
+
+* Mon May 22 2023 Miroslav Rezanina <mrezanin@redhat.com> - 20230301gitf80f052277c8-5
+- edk2-dbx-update-2023-05-09-black-lotus-edition.patch [RHEL-470]
+- edk2-json-descriptors-explicitly-set-mode-split.patch [RHEL-469]
+- Resolves: RHEL-470
+  (edk2: update variable store with latest dbx updates (may 9, black lotus edition))
+- Resolves: RHEL-469
+  (explicitly set mode = split in firmware json description files)
+
+* Tue May 16 2023 Miroslav Rezanina <mrezanin@redhat.com> - 20230301gitf80f052277c8-4
+- edk2-OvmfPkg-Clarify-invariants-for-NestedInterruptTplLib.patch [bz#2189136]
+- edk2-OvmfPkg-Relax-assertion-that-interrupts-do-not-occur.patch [bz#2189136]
+- Resolves: bz#2189136
+  (windows 11 installation broken with edk2-20230301gitf80f052277c8-1.el9)
+
+* Mon May 08 2023 Miroslav Rezanina <mrezanin@redhat.com> - 20230301gitf80f052277c8-3
+- edk2-add-aarch64-qcow2-images.patch [bz#2186754]
+- edk2-update-json-files.patch [bz#2186754]
+- edk2-add-libvirt-version-conflict.patch [bz#2186754]
+- edk2-add-dbx-update-blob-rh-only.patch [RHEL-377]
+- edk2-spec-apply-dbx-update-rh-only.patch [RHEL-377]
+- Resolves: bz#2186754
+  (edk2: Add firmware images in qcow2 format)
+- Resolves: RHEL-377
+  (edk2: ship secure build variable store with latest dbx updates)
+
+* Wed Apr 05 2023 Miroslav Rezanina <mrezanin@redhat.com> - 20230301gitf80f052277c8-2
+- edk2-build-script-update.patch [bz#2183230]
+- edk2-PcdDxeNxMemoryProtectionPolicy-update.patch [bz#2183230]
+- Resolves: bz#2183230
+  ([edk2] Instruction abort exception when booting a VM)
+
+* Wed Mar 22 2023 Miroslav Rezanina <mrezanin@redaht.com> - 20230301gitf80f052277c8-1
+- Rebase to edk2-stable202302 [RHEL-266]
+- Resolves: RHEL-266
+  (rebase edk2 to 2023-02 stable tag)
+
 * Fri Mar 17 2023 Miroslav Rezanina <mrezanin@redhat.com> - 20221207gitfff6d81270b5-9
 - edk2-remove-amd-sev-feature-flag-from-secure-boot-builds-.patch [bz#2169247]
 - Resolves: bz#2169247

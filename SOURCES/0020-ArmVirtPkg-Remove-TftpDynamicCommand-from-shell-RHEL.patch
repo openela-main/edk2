@@ -1,0 +1,57 @@
+From 2795327b7185bec84238542ce94801733a41ffe3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
+Date: Thu, 1 Jul 2021 20:29:28 +0200
+Subject: ArmVirtPkg: Remove TftpDynamicCommand from shell (RHEL only)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
+RH-MergeRequest: 3: Disable features for RHEL9
+RH-Commit: [14/19] 12436014941bd4a7c99a26d779ebdcd75f169403
+RH-Bugzilla: 1967747
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+
+Remove the command to download files in the shell via TFTP.
+
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+---
+ ArmVirtPkg/ArmVirt.dsc.inc           | 7 +++----
+ ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc | 1 -
+ 2 files changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/ArmVirtPkg/ArmVirt.dsc.inc b/ArmVirtPkg/ArmVirt.dsc.inc
+index 2443e8351c..9534d6f95a 100644
+--- a/ArmVirtPkg/ArmVirt.dsc.inc
++++ b/ArmVirtPkg/ArmVirt.dsc.inc
+@@ -375,10 +375,9 @@
+   #
+   MdeModulePkg/Universal/Disk/RamDiskDxe/RamDiskDxe.inf
+ 
+-  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
++  #
++  # UEFI application (Shell Embedded Boot Loader)
++  #
+   ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf {
+     <PcdsFixedAtBuild>
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+diff --git a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
+index 2b17211256..16a073c4a1 100644
+--- a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
++++ b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
+@@ -98,7 +98,6 @@ READ_LOCK_STATUS   = TRUE
+   INF OvmfPkg/VirtioRngDxe/VirtioRng.inf
+ 
+   INF ShellPkg/Application/Shell/Shell.inf
+-  INF ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
+   INF ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf
+   INF OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ 
+-- 
+2.39.3
+

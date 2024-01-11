@@ -1,7 +1,16 @@
-From b7053a8abb865ff58bc92cae6e573ae1e805b602 Mon Sep 17 00:00:00 2001
+From a4954b2259c4be78f61127684239cb11486bc0f7 Mon Sep 17 00:00:00 2001
 From: Miroslav Rezanina <mrezanin@redhat.com>
 Date: Thu, 24 Mar 2022 03:23:02 -0400
 Subject: Remove submodules
+
+Rebase to edk2-stable202305: removing additional submodules:
+
+-  MdePkg/Library/BaseFdtLib/libfdt
+-  MdePkg/Library/MipiSysTLib/mipisyst
+-  UnitTestFrameworkPkg/Library/GoogleTestLib/googletest
+-  UnitTestFrameworkPkg/Library/SubhookLib/subhook
+
+Signed-off-by: Oliver Steffen <osteffen@redhat.com>
 
 Upstream edk2 tracks several submodules we do not need in RHEL (removal
 done by individual commits in previous RHEL versions):
@@ -41,26 +50,35 @@ remove the include path too.
 Signed-off-by: Laszlo Ersek <lersek@redhat.com>
 (cherry picked from commit e05e0de713c4a2b8adb6ff9809611f222bfe50ed)
 ---
- .gitmodules                                   | 25 -------------------
+ .gitmodules                                   | 34 -------------------
  .../ArmSoftFloatLib/berkeley-softfloat-3      |  1 -
  BaseTools/Source/C/BrotliCompress/brotli      |  1 -
  BaseTools/Source/C/GNUmakefile                |  1 -
  CryptoPkg/.gitignore                          |  1 +
  CryptoPkg/Library/OpensslLib/openssl          |  1 -
  .../Library/BrotliCustomDecompressLib/brotli  |  1 -
- MdeModulePkg/MdeModulePkg.dec                 |  3 ---
+ MdeModulePkg/MdeModulePkg.dec                 |  3 --
  .../Universal/RegularExpressionDxe/oniguruma  |  1 -
+ MdePkg/Library/BaseFdtLib/libfdt              |  1 -
+ MdePkg/Library/MipiSysTLib/mipisyst           |  1 -
+ MdePkg/MdePkg.dec                             |  5 ---
  RedfishPkg/Library/JsonLib/jansson            |  1 -
  UnitTestFrameworkPkg/Library/CmockaLib/cmocka |  1 -
- 11 files changed, 1 insertion(+), 36 deletions(-)
+ .../Library/GoogleTestLib/googletest          |  1 -
+ .../Library/SubhookLib/subhook                |  1 -
+ 16 files changed, 1 insertion(+), 54 deletions(-)
  delete mode 160000 ArmPkg/Library/ArmSoftFloatLib/berkeley-softfloat-3
  delete mode 160000 BaseTools/Source/C/BrotliCompress/brotli
  create mode 100644 CryptoPkg/.gitignore
  delete mode 160000 CryptoPkg/Library/OpensslLib/openssl
  delete mode 160000 MdeModulePkg/Library/BrotliCustomDecompressLib/brotli
  delete mode 160000 MdeModulePkg/Universal/RegularExpressionDxe/oniguruma
+ delete mode 160000 MdePkg/Library/BaseFdtLib/libfdt
+ delete mode 160000 MdePkg/Library/MipiSysTLib/mipisyst
  delete mode 160000 RedfishPkg/Library/JsonLib/jansson
  delete mode 160000 UnitTestFrameworkPkg/Library/CmockaLib/cmocka
+ delete mode 160000 UnitTestFrameworkPkg/Library/GoogleTestLib/googletest
+ delete mode 160000 UnitTestFrameworkPkg/Library/SubhookLib/subhook
 
 diff --git a/BaseTools/Source/C/GNUmakefile b/BaseTools/Source/C/GNUmakefile
 index 5275f657ef..39d7199753 100644
@@ -75,12 +93,12 @@ index 5275f657ef..39d7199753 100644
    EfiRom \
    GenFfs \
 diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
-index 58e6ab0048..775f1b27af 100644
+index 95dd077e19..1609b6d9c2 100644
 --- a/MdeModulePkg/MdeModulePkg.dec
 +++ b/MdeModulePkg/MdeModulePkg.dec
-@@ -24,9 +24,6 @@
- [Includes]
+@@ -26,9 +26,6 @@
    Include
+   Test/Mock/Include
  
 -[Includes.Common.Private]
 -  Library/BrotliCustomDecompressLib/brotli/c/include
@@ -88,3 +106,26 @@ index 58e6ab0048..775f1b27af 100644
  [LibraryClasses]
    ##  @libraryclass  Defines a set of methods to reset whole system.
    ResetSystemLib|Include/Library/ResetSystemLib.h
+diff --git a/MdePkg/MdePkg.dec b/MdePkg/MdePkg.dec
+index b85614992b..57b0b5ea6f 100644
+--- a/MdePkg/MdePkg.dec
++++ b/MdePkg/MdePkg.dec
+@@ -29,7 +29,6 @@
+   Include
+   Test/UnitTest/Include
+   Test/Mock/Include
+-  Library/MipiSysTLib/mipisyst/library/include
+ 
+ [Includes.IA32]
+   Include/Ia32
+@@ -295,10 +294,6 @@
+   #
+   FdtLib|Include/Library/FdtLib.h
+ 
+-  ##  @libraryclass  Provides general mipi sys-T services.
+-  #
+-  MipiSysTLib|Include/Library/MipiSysTLib.h
+-
+   ##  @libraryclass  Provides API to output Trace Hub debug message.
+   #
+   TraceHubDebugSysTLib|Include/Library/TraceHubDebugSysTLib.h

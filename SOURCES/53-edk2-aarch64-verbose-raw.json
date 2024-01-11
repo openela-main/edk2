@@ -1,5 +1,5 @@
 {
-    "description": "OVMF with SB+SMM, empty varstore",
+    "description": "UEFI firmware for ARM64 virtual machines, verbose logs",
     "interface-types": [
         "uefi"
     ],
@@ -7,27 +7,24 @@
         "device": "flash",
         "mode": "split",
         "executable": {
-            "filename": "/usr/share/edk2/ovmf/OVMF_CODE.secboot.fd",
+            "filename": "/usr/share/edk2/aarch64/QEMU_EFI-pflash.raw",
             "format": "raw"
         },
         "nvram-template": {
-            "filename": "/usr/share/edk2/ovmf/OVMF_VARS.fd",
+            "filename": "/usr/share/edk2/aarch64/vars-template-pflash.raw",
             "format": "raw"
         }
     },
     "targets": [
         {
-            "architecture": "x86_64",
+            "architecture": "aarch64",
             "machines": [
-                "pc-q35-*"
+                "virt-*"
             ]
         }
     ],
     "features": [
-        "acpi-s3",
-        "requires-smm",
-        "secure-boot",
-        "verbose-dynamic"
+        "verbose-static"
     ],
     "tags": [
 
