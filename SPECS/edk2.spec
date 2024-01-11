@@ -7,7 +7,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}git%{GITCOMMIT}
-Release:    4%{?dist}
+Release:    6%{?dist}
 Summary:    UEFI firmware for 64-bit virtual machines
 Group:      Applications/Emulators
 License:    BSD-2-Clause-Patent and OpenSSL and MIT
@@ -56,6 +56,10 @@ Patch27: edk2-OvmfPkg-AmdSev-SecretPei-Mark-SEV-launch-secret-area.patch
 # For bz#2164558 - CVE-2023-0215 edk2: openssl: use-after-free following BIO_new_NDEF [rhel-8]
 # For bz#2164581 - CVE-2022-4450 edk2: openssl: double free after calling PEM_read_bio_ex [rhel-8]
 Patch28: edk2-rh-openssl-add-crypto-bn-rsa_sup_mul.c-to-file-list.patch
+# For bz#1861743 - CVE-2019-14560 edk2: Function GetEfiGlobalVariable2() return value not checked in DxeImageVerificationHandler() [rhel-8]
+Patch29: edk2-SecurityPkg-DxeImageVerificationLib-Check-result-of-.patch
+# For bz#2150267 - ovmf must consider max cpu count not boot cpu count for apic mode [rhel-8]
+Patch30: edk2-UefiCpuPkg-MpInitLib-fix-apic-mode-for-cpu-hotplug.patch
 
 
 # python3-devel and libuuid-devel are required for building tools.
@@ -500,6 +504,16 @@ true
 %endif
 
 %changelog
+* Fri Aug 04 2023 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-6
+- edk2-UefiCpuPkg-MpInitLib-fix-apic-mode-for-cpu-hotplug.patch [bz#2150267]
+- Resolves: bz#2150267
+  (ovmf must consider max cpu count not boot cpu count for apic mode [rhel-8])
+
+* Thu Apr 06 2023 Miroslav Rezanina <mrezanin@redhat.com> - 20220126gitbb1bba3d77-5
+- edk2-SecurityPkg-DxeImageVerificationLib-Check-result-of-.patch [bz#1861743]
+- Resolves: bz#1861743
+  (CVE-2019-14560 edk2: Function GetEfiGlobalVariable2() return value not checked in DxeImageVerificationHandler() [rhel-8])
+
 * Wed Feb 15 2023 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-4
 - edk2-openssl-update.patch [bz#2164531 bz#2164543 bz#2164558 bz#2164581]
 - edk2-rh-openssl-add-crypto-bn-rsa_sup_mul.c-to-file-list.patch [bz#2164531 bz#2164543 bz#2164558 bz#2164581]
