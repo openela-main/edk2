@@ -7,7 +7,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}git%{GITCOMMIT}
-Release:    6%{?dist}
+Release:    6%{?dist}.3
 Summary:    UEFI firmware for 64-bit virtual machines
 Group:      Applications/Emulators
 License:    BSD-2-Clause-Patent and OpenSSL and MIT
@@ -19,7 +19,7 @@ URL:        http://www.tianocore.org
 # | xz -9ev >/tmp/edk2-$COMMIT.tar.xz
 Source0: http://batcave.lab.eng.brq.redhat.com/www/edk2-%{GITCOMMIT}.tar.xz
 Source1: ovmf-whitepaper-c770f8c.txt
-Source2: openssl-rhel-d00c3c5b8a9d6d3ea3dabfcafdf36afd61ba8bcc.tar.xz
+Source2: openssl-rhel-cf317b2bb227899cb2e761b9163210f62cab1b1e.tar.xz
 Source3: ovmf-vars-generator
 Source4: LICENSE.qosb
 Source5: RedHatSecureBootPkKek1.pem
@@ -60,6 +60,10 @@ Patch28: edk2-rh-openssl-add-crypto-bn-rsa_sup_mul.c-to-file-list.patch
 Patch29: edk2-SecurityPkg-DxeImageVerificationLib-Check-result-of-.patch
 # For bz#2150267 - ovmf must consider max cpu count not boot cpu count for apic mode [rhel-8]
 Patch30: edk2-UefiCpuPkg-MpInitLib-fix-apic-mode-for-cpu-hotplug.patch
+# For RHEL-20351 - [rhel8] guest fails to boot due to ASSERT error [rhel-8.9.0.z]
+Patch31: old.patch
+# For RHEL-20351 - [rhel8] guest fails to boot due to ASSERT error [rhel-8.9.0.z]
+Patch32: old2.patch
 
 
 # python3-devel and libuuid-devel are required for building tools.
@@ -504,6 +508,22 @@ true
 %endif
 
 %changelog
+* Mon Jan 15 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-6.el8_9.3
+- old.patch [RHEL-20351]
+- old2.patch [RHEL-20351]
+- Resolves: RHEL-20351
+  ([rhel8] guest fails to boot due to ASSERT error [rhel-8.9.0.z])
+
+* Fri Jan 05 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-6.el8_9.2
+- edk2-Bumped-openssl-submodule-version-to-cf317b2bb227.patch [RHEL-18048]
+- Resolves: RHEL-18048
+  (CVE-2023-3446 edk2: openssl: Excessive time spent checking DH keys and parameters [rhel-8.9.0.z])
+
+* Wed Nov 22 2023 Miroslav Rezanina <mrezanin@redhat.com> - 20220126gitbb1bba3d77-6.el8_9.1
+- edk2-add-8.6-machine-type-to-edk2-ovmf-cc.json.patch [RHEL-15931]
+- Resolves: RHEL-15931
+  (Missing firmware descriptor with secureboot disabled in RHEL 8)
+
 * Fri Aug 04 2023 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-6
 - edk2-UefiCpuPkg-MpInitLib-fix-apic-mode-for-cpu-hotplug.patch [bz#2150267]
 - Resolves: bz#2150267

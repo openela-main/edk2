@@ -1,0 +1,216 @@
+From bfdee279c563129ad1847a081e9b675e322e0788 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 9 Jan 2024 12:29:02 +0100
+Subject: [PATCH 2/2] OvmfPkg/VirtNorFlashDxe: sanity-check variables
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 41: OvmfPkg/VirtNorFlashDxe: sanity-check variables
+RH-Jira: RHEL-20351
+RH-Acked-by: Jon Maloy <jmaloy@redhat.com>
+RH-Commit: [2/2] da1ecd33775421c2cd77e3b0c1bea94de3aca22d
+
+Extend the ValidateFvHeader function, additionally to the header checks
+walk over the list of variables and sanity check them.
+
+In case we find inconsistencies indicating variable store corruption
+return EFI_NOT_FOUND so the variable store will be re-initialized.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Message-Id: <20240109112902.30002-4-kraxel@redhat.com>
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+[lersek@redhat.com: fix StartId initialization/assignment coding style]
+(cherry picked from commit 4a443f73fd67ca8caaf0a3e1a01f8231b330d2e0)
+---
+ .../Drivers/NorFlashDxe/NorFlashDxe.inf       |   1 +
+ .../Drivers/NorFlashDxe/NorFlashFvb.c         | 149 +++++++++++++++++-
+ 2 files changed, 145 insertions(+), 5 deletions(-)
+
+diff --git a/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf b/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf
+index f8d4c27031..10388880a1 100644
+--- a/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf
++++ b/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf
+@@ -35,6 +35,7 @@
+   DebugLib
+   HobLib
+   NorFlashPlatformLib
++  SafeIntLib
+   UefiLib
+   UefiDriverEntryPoint
+   UefiBootServicesTableLib
+diff --git a/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashFvb.c b/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashFvb.c
+index 904605cbbc..2a166c94a6 100644
+--- a/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashFvb.c
++++ b/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashFvb.c
+@@ -13,6 +13,7 @@
+ #include <Library/UefiLib.h>
+ #include <Library/BaseMemoryLib.h>
+ #include <Library/MemoryAllocationLib.h>
++#include <Library/SafeIntLib.h>
+ 
+ #include <Guid/VariableFormat.h>
+ #include <Guid/SystemNvDataGuid.h>
+@@ -166,11 +167,12 @@ ValidateFvHeader (
+   IN  NOR_FLASH_INSTANCE *Instance
+   )
+ {
+-  UINT16                      Checksum;
+-  EFI_FIRMWARE_VOLUME_HEADER  *FwVolHeader;
+-  VARIABLE_STORE_HEADER       *VariableStoreHeader;
+-  UINTN                       VariableStoreLength;
+-  UINTN                       FvLength;
++  UINT16                            Checksum;
++  CONST EFI_FIRMWARE_VOLUME_HEADER  *FwVolHeader;
++  CONST VARIABLE_STORE_HEADER       *VariableStoreHeader;
++  UINTN                             VarOffset;
++  UINTN                             VariableStoreLength;
++  UINTN                             FvLength;
+ 
+   FwVolHeader = (EFI_FIRMWARE_VOLUME_HEADER*)Instance->RegionBaseAddress;
+ 
+@@ -223,6 +225,143 @@ ValidateFvHeader (
+     return EFI_NOT_FOUND;
+   }
+ 
++  //
++  // check variables
++  //
++  DEBUG ((DEBUG_INFO, "%a: checking variables\n", __func__));
++  VarOffset = sizeof (*VariableStoreHeader);
++  for ( ; ;) {
++    UINTN                                VarHeaderEnd;
++    UINTN                                VarNameEnd;
++    UINTN                                VarEnd;
++    UINTN                                VarPadding;
++    CONST AUTHENTICATED_VARIABLE_HEADER  *VarHeader;
++    CONST CHAR16                         *VarName;
++    CONST CHAR8                          *VarState;
++    RETURN_STATUS                        Status;
++
++    Status = SafeUintnAdd (VarOffset, sizeof (*VarHeader), &VarHeaderEnd);
++    if (RETURN_ERROR (Status)) {
++      DEBUG ((DEBUG_ERROR, "%a: integer overflow\n", __func__));
++      return EFI_NOT_FOUND;
++    }
++
++    if (VarHeaderEnd >= VariableStoreHeader->Size) {
++      if (VarOffset <= VariableStoreHeader->Size - sizeof (UINT16)) {
++        CONST UINT16  *StartId;
++
++        StartId = (VOID *)((UINTN)VariableStoreHeader + VarOffset);
++        if (*StartId == 0x55aa) {
++          DEBUG ((DEBUG_ERROR, "%a: startid at invalid location\n", __func__));
++          return EFI_NOT_FOUND;
++        }
++      }
++
++      DEBUG ((DEBUG_INFO, "%a: end of var list (no space left)\n", __func__));
++      break;
++    }
++
++    VarHeader = (VOID *)((UINTN)VariableStoreHeader + VarOffset);
++    if (VarHeader->StartId != 0x55aa) {
++      DEBUG ((DEBUG_INFO, "%a: end of var list (no startid)\n", __func__));
++      break;
++    }
++
++    VarName = NULL;
++    switch (VarHeader->State) {
++      // usage: State = VAR_HEADER_VALID_ONLY
++      case VAR_HEADER_VALID_ONLY:
++        VarState = "header-ok";
++        VarName  = L"<unknown>";
++        break;
++
++      // usage: State = VAR_ADDED
++      case VAR_ADDED:
++        VarState = "ok";
++        break;
++
++      // usage: State &= VAR_IN_DELETED_TRANSITION
++      case VAR_ADDED &VAR_IN_DELETED_TRANSITION:
++        VarState = "del-in-transition";
++        break;
++
++      // usage: State &= VAR_DELETED
++      case VAR_ADDED &VAR_DELETED:
++      case VAR_ADDED &VAR_DELETED &VAR_IN_DELETED_TRANSITION:
++        VarState = "deleted";
++        break;
++
++      default:
++        DEBUG ((
++          DEBUG_ERROR,
++          "%a: invalid variable state: 0x%x\n",
++          __func__,
++          VarHeader->State
++          ));
++        return EFI_NOT_FOUND;
++    }
++
++    Status = SafeUintnAdd (VarHeaderEnd, VarHeader->NameSize, &VarNameEnd);
++    if (RETURN_ERROR (Status)) {
++      DEBUG ((DEBUG_ERROR, "%a: integer overflow\n", __func__));
++      return EFI_NOT_FOUND;
++    }
++
++    Status = SafeUintnAdd (VarNameEnd, VarHeader->DataSize, &VarEnd);
++    if (RETURN_ERROR (Status)) {
++      DEBUG ((DEBUG_ERROR, "%a: integer overflow\n", __func__));
++      return EFI_NOT_FOUND;
++    }
++
++    if (VarEnd > VariableStoreHeader->Size) {
++      DEBUG ((
++        DEBUG_ERROR,
++        "%a: invalid variable size: 0x%Lx + 0x%Lx + 0x%x + 0x%x > 0x%x\n",
++        __func__,
++        (UINT64)VarOffset,
++        (UINT64)(sizeof (*VarHeader)),
++        VarHeader->NameSize,
++        VarHeader->DataSize,
++        VariableStoreHeader->Size
++        ));
++      return EFI_NOT_FOUND;
++    }
++
++    if (((VarHeader->NameSize & 1) != 0) ||
++        (VarHeader->NameSize < 4))
++    {
++      DEBUG ((DEBUG_ERROR, "%a: invalid name size\n", __func__));
++      return EFI_NOT_FOUND;
++    }
++
++    if (VarName == NULL) {
++      VarName = (VOID *)((UINTN)VariableStoreHeader + VarHeaderEnd);
++      if (VarName[VarHeader->NameSize / 2 - 1] != L'\0') {
++        DEBUG ((DEBUG_ERROR, "%a: name is not null terminated\n", __func__));
++        return EFI_NOT_FOUND;
++      }
++    }
++
++    DEBUG ((
++      DEBUG_VERBOSE,
++      "%a: +0x%04Lx: name=0x%x data=0x%x guid=%g '%s' (%a)\n",
++      __func__,
++      (UINT64)VarOffset,
++      VarHeader->NameSize,
++      VarHeader->DataSize,
++      &VarHeader->VendorGuid,
++      VarName,
++      VarState
++      ));
++
++    VarPadding = (4 - (VarEnd & 3)) & 3;
++    Status     = SafeUintnAdd (VarEnd, VarPadding, &VarOffset);
++    if (RETURN_ERROR (Status)) {
++      DEBUG ((DEBUG_ERROR, "%a: integer overflow\n", __func__));
++      return EFI_NOT_FOUND;
++    }
++  }
++
+   return EFI_SUCCESS;
+ }
+ 
+-- 
+2.41.0
+

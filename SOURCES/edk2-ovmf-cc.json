@@ -18,6 +18,7 @@
         {
             "architecture": "x86_64",
             "machines": [
+                "pc-q35-rhel8.6.0",
                 "pc-q35-rhel8.5.0"
             ]
         }
