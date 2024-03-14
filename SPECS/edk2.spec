@@ -7,7 +7,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}git%{GITCOMMIT}
-Release:    6%{?dist}.3
+Release:    6%{?dist}.6
 Summary:    UEFI firmware for 64-bit virtual machines
 Group:      Applications/Emulators
 License:    BSD-2-Clause-Patent and OpenSSL and MIT
@@ -64,6 +64,18 @@ Patch30: edk2-UefiCpuPkg-MpInitLib-fix-apic-mode-for-cpu-hotplug.patch
 Patch31: old.patch
 # For RHEL-20351 - [rhel8] guest fails to boot due to ASSERT error [rhel-8.9.0.z]
 Patch32: old2.patch
+# For RHEL-21993 - CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8.9.0.z]
+Patch33: edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Pa.patch
+# For RHEL-21993 - CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8.9.0.z]
+Patch34: edk2-NetworkPkg-Add-Unit-tests-to-CI-and-create-Host-Test.patch
+# For RHEL-21993 - CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8.9.0.z]
+Patch35: edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Un.patch
+# For RHEL-22002 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8.9.0.z]
+Patch36: edk2-NetworkPkg-Apply-uncrustify-chang1.patch
+# For RHEL-22002 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8.9.0.z]
+Patch37: edk2-NetworkPkg-UefiPxeBcDxe-SECUR-PATCH-CVE-2023-45234.patch
+# For RHEL-22002 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8.9.0.z]
+Patch38: edk2-NetworkPkg-UefiPxeBcDxe-SECUR-PATCH-CVE-2023-45234_U.patch
 
 
 # python3-devel and libuuid-devel are required for building tools.
@@ -508,6 +520,20 @@ true
 %endif
 
 %changelog
+* Tue Feb 27 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-6.el8_9.6
+- edk2-NetworkPkg-Apply-uncrustify-chang1.patch [RHEL-22002]
+- edk2-NetworkPkg-UefiPxeBcDxe-SECUR-PATCH-CVE-2023-45234.patch [RHEL-22002]
+- edk2-NetworkPkg-UefiPxeBcDxe-SECUR-PATCH-CVE-2023-45234_U.patch [RHEL-22002]
+- Resolves: RHEL-22002
+  (CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8.9.0.z])
+
+* Wed Feb 14 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-6.el8_9.4
+- edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Pa.patch [RHEL-21993]
+- edk2-NetworkPkg-Add-Unit-tests-to-CI-and-create-Host-Test.patch [RHEL-21993]
+- edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Un.patch [RHEL-21993]
+- Resolves: RHEL-21993
+  (CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8.9.0.z])
+
 * Mon Jan 15 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-6.el8_9.3
 - old.patch [RHEL-20351]
 - old2.patch [RHEL-20351]
