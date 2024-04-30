@@ -1,10 +1,14 @@
-From df6b72f26ffb68a28c45f426ad3225388e5fccff Mon Sep 17 00:00:00 2001
+From b91bdc055499a46d825b3c6a2613de5c77e3a66d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:46 +0200
-Subject: ArmVirtPkg: Remove LinuxInitrdDynamicShellCommand (RHEL only)
+Subject: [PATCH] ArmVirtPkg: Remove LinuxInitrdDynamicShellCommand (RHEL only)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+
+Rebase to edk2-stable202311:
+
+Minor update, context change due to new variable policy shell command.
 
 RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
 RH-MergeRequest: 3: Disable features for RHEL9
@@ -19,18 +23,28 @@ Suggested-by: Laszlo Ersek <lersek@redhat.com>
 Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
 Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
 ---
- ArmVirtPkg/ArmVirt.dsc.inc           | 4 ----
- ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc | 1 -
- 2 files changed, 5 deletions(-)
+ ArmVirtPkg/ArmVirt.dsc.inc           | 10 +++-------
+ ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc |  1 -
+ 2 files changed, 3 insertions(+), 8 deletions(-)
 
 diff --git a/ArmVirtPkg/ArmVirt.dsc.inc b/ArmVirtPkg/ArmVirt.dsc.inc
-index d5ebc11ad8..0b2b64c1cb 100644
+index d4c001e1bd..fee6e5b17f 100644
 --- a/ArmVirtPkg/ArmVirt.dsc.inc
 +++ b/ArmVirtPkg/ArmVirt.dsc.inc
-@@ -378,10 +378,6 @@
+@@ -385,17 +385,13 @@
    #
-   # UEFI application (Shell Embedded Boot Loader)
-   #
+   MdeModulePkg/Universal/Disk/RamDiskDxe/RamDiskDxe.inf
+ 
+-  #
+-  # UEFI application (Shell Embedded Boot Loader)
+-  #
++  #
++  # UEFI application (Shell Embedded Boot Loader)
++  #
+   ShellPkg/DynamicCommand/VariablePolicyDynamicCommand/VariablePolicyDynamicCommand.inf {
+     <PcdsFixedAtBuild>
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+   }
 -  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf {
 -    <PcdsFixedAtBuild>
 -      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
@@ -39,17 +53,14 @@ index d5ebc11ad8..0b2b64c1cb 100644
      <LibraryClasses>
        ShellCommandLib|ShellPkg/Library/UefiShellCommandLib/UefiShellCommandLib.inf
 diff --git a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
-index 0a01c29722..4dbb77a6ca 100644
+index 8153558686..4cd53995d2 100644
 --- a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
 +++ b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
-@@ -98,7 +98,6 @@ READ_LOCK_STATUS   = TRUE
-   INF OvmfPkg/VirtioRngDxe/VirtioRng.inf
+@@ -100,7 +100,6 @@ READ_LOCK_STATUS   = TRUE
  
    INF ShellPkg/Application/Shell/Shell.inf
+   INF ShellPkg/DynamicCommand/VariablePolicyDynamicCommand/VariablePolicyDynamicCommand.inf
 -  INF OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
  
    #
    # Bds
--- 
-2.39.3
-

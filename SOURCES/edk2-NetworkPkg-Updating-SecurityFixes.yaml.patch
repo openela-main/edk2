@@ -1,0 +1,51 @@
+From ababd8837103d4e504cc5d044a13fb9516543795 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Fri, 16 Feb 2024 10:48:05 -0500
+Subject: [PATCH 18/18] NetworkPkg: : Updating SecurityFixes.yaml
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 54: NetworkPkg: Dhcp6Dxe: SECURITY PATCH CVE-2023-45230 Patch
+RH-Jira: RHEL-21841 RHEL-21843 RHEL-21845 RHEL-21847 RHEL-21849 RHEL-21851 RHEL-21853
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [18/18] e77d4ea79359b99e7d1073251d67909c2bfdb879
+
+JIRA: https://issues.redhat.com/browse/RHEL-21841
+CVE: CVE-2023-45229
+Upstream: Merged
+
+commit 5fd3078a2e08f607dc86a16c1b184b6e30a34a49
+Author: Doug Flick <dougflick@microsoft.com>
+Date:   Tue Feb 13 10:46:03 2024 -0800
+
+    NetworkPkg: : Updating SecurityFixes.yaml
+
+    This captures the related security change for Dhcp6Dxe that is related
+    to CVE-2023-45229
+
+    Cc: Saloni Kasbekar <saloni.kasbekar@intel.com>
+    Cc: Zachary Clark-williams <zachary.clark-williams@intel.com>
+    Signed-off-by: Doug Flick [MSFT] <doug.edk2@gmail.com>
+    Reviewed-by: Saloni Kasbekar <saloni.kasbekar@intel.com>
+    Reviewed-by: Leif Lindholm <quic_llindhol@quicinc.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ NetworkPkg/SecurityFixes.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/NetworkPkg/SecurityFixes.yaml b/NetworkPkg/SecurityFixes.yaml
+index 7e900483fe..fa42025e0d 100644
+--- a/NetworkPkg/SecurityFixes.yaml
++++ b/NetworkPkg/SecurityFixes.yaml
+@@ -8,6 +8,7 @@ CVE_2023_45229:
+   commit_titles:
+     - "NetworkPkg: Dhcp6Dxe: SECURITY PATCH CVE-2023-45229 Patch"
+     - "NetworkPkg: Dhcp6Dxe: SECURITY PATCH CVE-2023-45229 Unit Tests"
++    - "NetworkPkg: Dhcp6Dxe: SECURITY PATCH CVE-2023-45229 Related Patch"
+   cve: CVE-2023-45229
+   date_reported: 2023-08-28 13:56 UTC
+   description: "Bug 01 - edk2/NetworkPkg: Out-of-bounds read when processing IA_NA/IA_TA options in a DHCPv6 Advertise message"
+-- 
+2.39.3
+

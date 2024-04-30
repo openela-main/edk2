@@ -1,0 +1,41 @@
+From 08fc72d06946ef3adebf110c097ed869ab0ed416 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 30 Jan 2024 14:04:39 +0100
+Subject: [PATCH 7/9] MdePkg/ArchitecturalMsr.h: add #defines for MTRR cache
+ types
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 55: OvmfPkg/Sec: Setup MTRR early in the boot process.
+RH-Jira: RHEL-21704
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [2/4] a568bc2793d677462a2971aae9566a9bbc64b063 (kraxel.rh/centos-src-edk2)
+
+Reviewed-by: Michael D Kinney <michael.d.kinney@intel.com>
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Message-ID: <20240130130441.772484-3-kraxel@redhat.com>
+---
+ MdePkg/Include/Register/Intel/ArchitecturalMsr.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/MdePkg/Include/Register/Intel/ArchitecturalMsr.h b/MdePkg/Include/Register/Intel/ArchitecturalMsr.h
+index 756e7c86ec..08ba949cf7 100644
+--- a/MdePkg/Include/Register/Intel/ArchitecturalMsr.h
++++ b/MdePkg/Include/Register/Intel/ArchitecturalMsr.h
+@@ -2103,6 +2103,13 @@ typedef union {
+ #define MSR_IA32_MTRR_PHYSBASE9  0x00000212
+ /// @}
+ 
++#define MSR_IA32_MTRR_CACHE_UNCACHEABLE      0
++#define MSR_IA32_MTRR_CACHE_WRITE_COMBINING  1
++#define MSR_IA32_MTRR_CACHE_WRITE_THROUGH    4
++#define MSR_IA32_MTRR_CACHE_WRITE_PROTECTED  5
++#define MSR_IA32_MTRR_CACHE_WRITE_BACK       6
++#define MSR_IA32_MTRR_CACHE_INVALID_TYPE     7
++
+ /**
+   MSR information returned for MSR indexes #MSR_IA32_MTRR_PHYSBASE0 to
+   #MSR_IA32_MTRR_PHYSBASE9
+-- 
+2.39.3
+

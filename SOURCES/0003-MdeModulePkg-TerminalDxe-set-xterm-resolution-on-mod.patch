@@ -1,8 +1,12 @@
-From 5eef1273ee036bfa0ba9da1b276e0bf130b1cfbc Mon Sep 17 00:00:00 2001
+From a531e0f3c999670f54926b2579e0721d217a49e0 Mon Sep 17 00:00:00 2001
 From: Laszlo Ersek <lersek@redhat.com>
 Date: Tue, 25 Feb 2014 22:40:01 +0100
-Subject: MdeModulePkg: TerminalDxe: set xterm resolution on mode change (RH
- only)
+Subject: [PATCH] MdeModulePkg: TerminalDxe: set xterm resolution on mode
+ change (RH only)
+
+Notes for rebase to edk2-stable202311:
+
+- Minor context changes due to new PCDs (for USB Networking) being added.
 
 Notes for rebase to edk2-stable202205:
 
@@ -95,12 +99,12 @@ Signed-off-by: Laszlo Ersek <lersek@redhat.com>
  3 files changed, 36 insertions(+)
 
 diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
-index 1609b6d9c2..705fb02f66 100644
+index 265dfec94f..092a8dee2a 100644
 --- a/MdeModulePkg/MdeModulePkg.dec
 +++ b/MdeModulePkg/MdeModulePkg.dec
-@@ -2127,6 +2127,10 @@
-   # @Prompt The shared bit mask when Intel Tdx is enabled.
-   gEfiMdeModulePkgTokenSpaceGuid.PcdTdxSharedBitMask|0x0|UINT64|0x10000025
+@@ -2158,6 +2158,10 @@
+   # @Prompt The value is use for Usb Network rate limiting supported.
+   gEfiMdeModulePkgTokenSpaceGuid.PcdUsbNetworkRateLimitingFactor|100|UINT32|0x10000028
  
 +  ## Controls whether TerminalDxe outputs an XTerm resize sequence on terminal
 +  #  mode change.
@@ -184,6 +188,3 @@ index b2a8aeba85..96810f337c 100644
  
  # [Event]
  # # Relative timer event set by UnicodeToEfiKey(), used to be one 2 seconds input timeout.
--- 
-2.39.3
-

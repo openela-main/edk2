@@ -1,0 +1,49 @@
+From 0e2a3df10d784fd38ceee2f6a733032d1333281f Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 30 Jan 2024 14:04:41 +0100
+Subject: [PATCH 9/9] OvmfPkg/Sec: use cache type #defines from
+ ArchitecturalMsr.h
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 55: OvmfPkg/Sec: Setup MTRR early in the boot process.
+RH-Jira: RHEL-21704
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [4/4] 55f00e3e153ca945ca458e7abc26780a8d83ac85 (kraxel.rh/centos-src-edk2)
+
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Message-ID: <20240130130441.772484-5-kraxel@redhat.com>
+---
+ OvmfPkg/IntelTdx/Sec/SecMain.c | 2 +-
+ OvmfPkg/Sec/SecMain.c          | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/OvmfPkg/IntelTdx/Sec/SecMain.c b/OvmfPkg/IntelTdx/Sec/SecMain.c
+index 0daddac0a0..c00b852f0e 100644
+--- a/OvmfPkg/IntelTdx/Sec/SecMain.c
++++ b/OvmfPkg/IntelTdx/Sec/SecMain.c
+@@ -70,7 +70,7 @@ SecMtrrSetup (
+   }
+ 
+   DefType.Uint64    = AsmReadMsr64 (MSR_IA32_MTRR_DEF_TYPE);
+-  DefType.Bits.Type = 6; /* write back */
++  DefType.Bits.Type = MSR_IA32_MTRR_CACHE_WRITE_BACK;
+   DefType.Bits.E    = 1; /* enable */
+   AsmWriteMsr64 (MSR_IA32_MTRR_DEF_TYPE, DefType.Uint64);
+ }
+diff --git a/OvmfPkg/Sec/SecMain.c b/OvmfPkg/Sec/SecMain.c
+index 3b7dc7205d..aa0fa1b1ec 100644
+--- a/OvmfPkg/Sec/SecMain.c
++++ b/OvmfPkg/Sec/SecMain.c
+@@ -766,7 +766,7 @@ SecMtrrSetup (
+   }
+ 
+   DefType.Uint64    = AsmReadMsr64 (MSR_IA32_MTRR_DEF_TYPE);
+-  DefType.Bits.Type = 6; /* write back */
++  DefType.Bits.Type = MSR_IA32_MTRR_CACHE_WRITE_BACK;
+   DefType.Bits.E    = 1; /* enable */
+   AsmWriteMsr64 (MSR_IA32_MTRR_DEF_TYPE, DefType.Uint64);
+ }
+-- 
+2.39.3
+

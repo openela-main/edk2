@@ -21,20 +21,27 @@ EXCLUDE_SHELL_FROM_FD    = TRUE
 # new upstream
 BUILD_SHELL              = FALSE
 
+[opts.ovmf.sb.stateless]
+SECURE_BOOT_ENABLE       = TRUE
+SMM_REQUIRE              = FALSE
+
 [opts.armvirt.verbose]
 DEBUG_PRINT_ERROR_LEVEL  = 0x8040004F
 
 [opts.armvirt.silent]
 DEBUG_PRINT_ERROR_LEVEL  = 0x80000000
 
+
 [pcds.nx.strict]
 PcdDxeNxMemoryProtectionPolicy = 0xC000000000007FD5
+PcdUninstallMemAttrProtocol    = FALSE
 
-[pcds.nx.broken.grub]
+[pcds.nx.broken.shim.grub]
 # grub.efi uses EfiLoaderData for code
 PcdDxeNxMemoryProtectionPolicy = 0xC000000000007FD1
-# shim can't work with EFI_MEMORY_ATTRIBUTE_PROTOCOL
-gArmTokenSpaceGuid.PcdEnableEfiMemoryAttributeProtocol = FALSE
+# shim.efi has broken MemAttr code
+PcdUninstallMemAttrProtocol    = TRUE
+
 
 #####################################################################
 # stateful ovmf builds (with vars in flash)
@@ -52,13 +59,13 @@ cpy2 = FV/OVMF_VARS.fd
 cpy3 = X64/Shell.efi
 
 [build.ovmf.4m.sb.smm]
-desc = ovmf build (32/64-bit, 4MB, q35 only, needs smm, secure boot)
-conf = OvmfPkg/OvmfPkgIa32X64.dsc
-arch = IA32 X64
+desc = ovmf build (64-bit, 4MB, q35 only, needs smm, secure boot)
+conf = OvmfPkg/OvmfPkgX64.dsc
+arch = X64
 opts = ovmf.common
        ovmf.4m
        ovmf.sb.smm
-plat = Ovmf3264
+plat = OvmfX64
 dest = RHEL-9/ovmf
 cpy1 = FV/OVMF_CODE.fd OVMF_CODE.secboot.fd
 cpy2 = X64/EnrollDefaultKeys.efi
@@ -83,6 +90,7 @@ conf = OvmfPkg/IntelTdx/IntelTdxX64.dsc
 arch = X64
 opts = ovmf.common
        ovmf.4m
+       ovmf.sb.stateless
 plat = IntelTdx
 dest = RHEL-9/ovmf
 cpy1 = FV/OVMF.fd OVMF.inteltdx.fd
@@ -97,7 +105,7 @@ conf = ArmVirtPkg/ArmVirtQemu.dsc
 arch = AARCH64
 opts = ovmf.common
        armvirt.verbose
-pcds = nx.broken.grub
+pcds = nx.broken.shim.grub
 plat = ArmVirtQemu-AARCH64
 dest = RHEL-9/aarch64
 cpy1 = FV/QEMU_EFI.fd
@@ -113,7 +121,7 @@ conf = ArmVirtPkg/ArmVirtQemu.dsc
 arch = AARCH64
 opts = ovmf.common
        armvirt.silent
-pcds = nx.broken.grub
+pcds = nx.broken.shim.grub
 plat = ArmVirtQemu-AARCH64
 dest = RHEL-9/aarch64
 cpy1 = FV/QEMU_EFI.fd  QEMU_EFI.silent.fd

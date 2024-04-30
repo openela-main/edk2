@@ -1,7 +1,7 @@
-From 1078848167171e47d42cfaa0de2ba5dc1bad4639 Mon Sep 17 00:00:00 2001
+From 34b2ee906d0cce11a8156105777b6ecfaca5feba Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:22 +0200
-Subject: ArmVirtPkg: Remove UdfDxe filesystem driver (RHEL only)
+Subject: [PATCH] ArmVirtPkg: Remove UdfDxe filesystem driver (RHEL only)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -24,10 +24,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  3 files changed, 3 deletions(-)
 
 diff --git a/ArmVirtPkg/ArmVirtQemu.dsc b/ArmVirtPkg/ArmVirtQemu.dsc
-index 8fe5926ece..b1deefc2fd 100644
+index f0946821c6..68ad5877ee 100644
 --- a/ArmVirtPkg/ArmVirtQemu.dsc
 +++ b/ArmVirtPkg/ArmVirtQemu.dsc
-@@ -461,7 +461,6 @@
+@@ -464,7 +464,6 @@
    MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
@@ -36,7 +36,7 @@ index 8fe5926ece..b1deefc2fd 100644
    #
    # Bds
 diff --git a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
-index 5da1481532..2b17211256 100644
+index a997063751..dcb1b793d1 100644
 --- a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
 +++ b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
 @@ -83,7 +83,6 @@ READ_LOCK_STATUS   = TRUE
@@ -48,10 +48,10 @@ index 5da1481532..2b17211256 100644
    #
    # Status Code Routing
 diff --git a/ArmVirtPkg/ArmVirtQemuKernel.dsc b/ArmVirtPkg/ArmVirtQemuKernel.dsc
-index c76657d0c4..afebc46a04 100644
+index 8fa801dad6..87e54e682a 100644
 --- a/ArmVirtPkg/ArmVirtQemuKernel.dsc
 +++ b/ArmVirtPkg/ArmVirtQemuKernel.dsc
-@@ -361,7 +361,6 @@
+@@ -364,7 +364,6 @@
    MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
@@ -59,6 +59,3 @@ index c76657d0c4..afebc46a04 100644
  
    #
    # Bds
--- 
-2.39.3
-

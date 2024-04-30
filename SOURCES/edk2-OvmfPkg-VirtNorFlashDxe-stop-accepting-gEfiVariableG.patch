@@ -1,0 +1,42 @@
+From 77047a56601aaa955a12030343bdee973b9d393d Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 9 Jan 2024 12:29:01 +0100
+Subject: [PATCH 2/3] OvmfPkg/VirtNorFlashDxe: stop accepting gEfiVariableGuid
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Only accept gEfiAuthenticatedVariableGuid when checking the variable
+store header in ValidateFvHeader().
+
+The edk2 code base has been switched to use the authenticated varstore
+format unconditionally (even in case secure boot is not used or
+supported) a few years ago.
+
+Suggested-by: László Érsek <lersek@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+Message-Id: <20240109112902.30002-3-kraxel@redhat.com>
+(cherry picked from commit ae22b2f136bcbd27135a5f4dd76d3a68a172d00e)
+---
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c
+index 5ee98e9b59..9a614ae4b2 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c
+@@ -239,9 +239,7 @@ ValidateFvHeader (
+   VariableStoreHeader = (VARIABLE_STORE_HEADER *)((UINTN)FwVolHeader + FwVolHeader->HeaderLength);
+ 
+   // Check the Variable Store Guid
+-  if (!CompareGuid (&VariableStoreHeader->Signature, &gEfiVariableGuid) &&
+-      !CompareGuid (&VariableStoreHeader->Signature, &gEfiAuthenticatedVariableGuid))
+-  {
++  if (!CompareGuid (&VariableStoreHeader->Signature, &gEfiAuthenticatedVariableGuid)) {
+     DEBUG ((
+       DEBUG_INFO,
+       "%a: Variable Store Guid non-compatible\n",
+-- 
+2.39.3
+

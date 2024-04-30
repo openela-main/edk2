@@ -1,0 +1,27 @@
+From c0347206c55c9d4d69b46725e9edbb21448f7494 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 28 Nov 2023 12:11:55 +0100
+Subject: [PATCH] distro: apply 'git diff c9s new_c9s' by mirek
+
+Bring .distro toi latest standards for more automatic support.
+---
+ CryptoPkg/.gitignore | 1 -
+ sources              | 1 -
+ 2 files changed, 2 deletions(-)
+ delete mode 100644 CryptoPkg/.gitignore
+ delete mode 100644 sources
+
+diff --git a/CryptoPkg/.gitignore b/CryptoPkg/.gitignore
+deleted file mode 100644
+index 68b83272b7..0000000000
+--- a/CryptoPkg/.gitignore
++++ /dev/null
+@@ -1 +0,0 @@
+-Library/OpensslLib/openssl*/
+diff --git a/sources b/sources
+deleted file mode 100644
+index ea8c8ad50b..0000000000
+--- a/sources
++++ /dev/null
+@@ -1 +0,0 @@
+-SHA512 (edk2-ba91d0292e.tar.xz) = 3b21cc39671d28bfeb059da3683751cc5277c63a894b2a05bdfbd2bbe53545c34f04c229becf44f1563f89a738f37ae8f2333076d126a7e94d234bc4bb25454c

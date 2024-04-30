@@ -1,0 +1,85 @@
+From 95697612d2f1953c691b0914a1669e0fcf179767 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Tue, 13 Feb 2024 16:30:10 -0500
+Subject: [PATCH 5/9] SecurityPkg: : Updating SecurityFixes.yaml after symbol
+ rename
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 53: SecurityPkg: DxeTpm2MeasureBootLib: SECURITY PATCH 4118 - CVE 2022-36764
+RH-Jira: RHEL-21157
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [5/5] 8e0c9c8c6b6ad05454f138397036954fe36c778c
+
+JIRA: https://issues.redhat.com/browse/RHEL-21157
+CVE: CVE-2022-36764
+Upstream: Merged
+
+commit 264636d8e6983e0f6dc6be2fca9d84ec81315954
+Author: Doug Flick <dougflick@microsoft.com>
+Date:   Wed Jan 17 14:47:22 2024 -0800
+
+    SecurityPkg: : Updating SecurityFixes.yaml after symbol rename
+
+    Adding the new commit titles for the symbol renames
+
+    Cc: Jiewen Yao <jiewen.yao@intel.com>
+    Cc: Rahul Kumar <rahul1.kumar@intel.com>
+
+    Signed-off-by: Doug Flick [MSFT] <doug.edk2@gmail.com>
+    Message-Id: <5e0e851e97459e183420178888d4fcdadc2f1ae1.1705529990.git.doug.edk2@gmail.com>
+    Reviewed-by: Jiewen Yao <Jiewen.yao@intel.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ SecurityPkg/SecurityFixes.yaml | 31 ++++++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
+
+diff --git a/SecurityPkg/SecurityFixes.yaml b/SecurityPkg/SecurityFixes.yaml
+index f9e3e7be74..dc1bb83489 100644
+--- a/SecurityPkg/SecurityFixes.yaml
++++ b/SecurityPkg/SecurityFixes.yaml
+@@ -9,14 +9,35 @@ CVE_2022_36763:
+     - "SecurityPkg: DxeTpm2Measurement: SECURITY PATCH 4117 - CVE 2022-36763"
+     - "SecurityPkg: DxeTpmMeasurement: SECURITY PATCH 4117 - CVE 2022-36763"
+     - "SecurityPkg: : Adding CVE 2022-36763 to SecurityFixes.yaml"
++    - "SecurityPkg: DxeTpm2MeasureBootLib: SECURITY PATCH 4117/4118 symbol rename"
++    - "SecurityPkg: DxeTpmMeasureBootLib: SECURITY PATCH 4117/4118 symbol rename"
++    - "SecurityPkg: : Updating SecurityFixes.yaml after symbol rename"
+   cve: CVE-2022-36763
+   date_reported: 2022-10-25 11:31 UTC
+   description: (CVE-2022-36763) - Heap Buffer Overflow in Tcg2MeasureGptTable()
+   note: This patch is related to and supersedes TCBZ2168
+   files_impacted:
+-  - Library\DxeTpm2MeasureBootLib\DxeTpm2MeasureBootLib.c
+-  - Library\DxeTpmMeasureBootLib\DxeTpmMeasureBootLib.c
++    - Library\DxeTpm2MeasureBootLib\DxeTpm2MeasureBootLib.c
++    - Library\DxeTpmMeasureBootLib\DxeTpmMeasureBootLib.c
+   links:
+-  - https://bugzilla.tianocore.org/show_bug.cgi?id=4117
+-  - https://bugzilla.tianocore.org/show_bug.cgi?id=2168
+-  - https://bugzilla.tianocore.org/show_bug.cgi?id=1990
++    - https://bugzilla.tianocore.org/show_bug.cgi?id=4117
++    - https://bugzilla.tianocore.org/show_bug.cgi?id=2168
++    - https://bugzilla.tianocore.org/show_bug.cgi?id=1990
++CVE_2022_36764:
++  commit_titles:
++    - "SecurityPkg: DxeTpm2MeasureBootLib: SECURITY PATCH 4118 - CVE 2022-36764"
++    - "SecurityPkg: DxeTpmMeasureBootLib: SECURITY PATCH 4118 - CVE 2022-36764"
++    - "SecurityPkg: : Adding CVE 2022-36764 to SecurityFixes.yaml"
++    - "SecurityPkg: DxeTpm2MeasureBootLib: SECURITY PATCH 4117/4118 symbol rename"
++    - "SecurityPkg: DxeTpmMeasureBootLib: SECURITY PATCH 4117/4118 symbol rename"
++    - "SecurityPkg: : Updating SecurityFixes.yaml after symbol rename"
++  cve: CVE-2022-36764
++  date_reported: 2022-10-25 12:23 UTC
++  description: Heap Buffer Overflow in Tcg2MeasurePeImage()
++  note:
++  files_impacted:
++    - Library\DxeTpm2MeasureBootLib\DxeTpm2MeasureBootLib.c
++    - Library\DxeTpmMeasureBootLib\DxeTpmMeasureBootLib.c
++  links:
++    - https://bugzilla.tianocore.org/show_bug.cgi?id=4118
++
+-- 
+2.39.3
+

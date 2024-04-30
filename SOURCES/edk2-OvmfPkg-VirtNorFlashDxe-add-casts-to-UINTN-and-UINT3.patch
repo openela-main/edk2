@@ -1,0 +1,56 @@
+From 74d2d4b58efe72b931bd2979254cb0fa02a38276 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 16 Jan 2024 18:11:00 +0100
+Subject: [PATCH 1/6] OvmfPkg/VirtNorFlashDxe: add casts to UINTN and UINT32
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 52: OvmfPkg/VirtNorFlashDxe: backport more fixes.
+RH-Jira: RHEL-20963
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Acked-by: Miroslav Rezanina <mrezanin@redhat.com>
+RH-Commit: [1/6] ad54e96a5f20907ac591fcfcc0961d353953c4f1 (kraxel.rh/centos-src-edk2)
+
+This is needed to avoid bit operations being applied to signed integers.
+
+Suggested-by: László Érsek <lersek@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+Message-Id: <20240116171105.37831-2-kraxel@redhat.com>
+(cherry picked from commit 0395045ae307c43a41f72ca9a8bf4eb8f16b2fe0)
+---
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c | 2 +-
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlash.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+index 1afd60ce66..7f4743b003 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+@@ -581,7 +581,7 @@ NorFlashWriteSingleBlock (
+     // contents, while checking whether the old version had any bits cleared
+     // that we want to set. In that case, we will need to erase the block first.
+     for (CurOffset = 0; CurOffset < *NumBytes; CurOffset++) {
+-      if (~OrigData[CurOffset] & Buffer[CurOffset]) {
++      if (~(UINT32)OrigData[CurOffset] & (UINT32)Buffer[CurOffset]) {
+         goto DoErase;
+       }
+ 
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.h b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.h
+index b7f5d208b2..455eafacc2 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.h
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.h
+@@ -61,7 +61,7 @@
+ #define P30_MAX_BUFFER_SIZE_IN_BYTES  ((UINTN)128)
+ #define P30_MAX_BUFFER_SIZE_IN_WORDS  (P30_MAX_BUFFER_SIZE_IN_BYTES/((UINTN)4))
+ #define MAX_BUFFERED_PROG_ITERATIONS  10000000
+-#define BOUNDARY_OF_32_WORDS          0x7F
++#define BOUNDARY_OF_32_WORDS          ((UINTN)0x7F)
+ 
+ // CFI Addresses
+ #define P30_CFI_ADDR_QUERY_UNIQUE_QRY  0x10
+-- 
+2.39.3
+

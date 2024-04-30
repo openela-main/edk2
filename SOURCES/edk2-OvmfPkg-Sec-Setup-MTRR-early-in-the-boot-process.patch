@@ -1,0 +1,193 @@
+From 7b1298045185749369115719317dc92f58af92d7 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 30 Jan 2024 14:04:38 +0100
+Subject: [PATCH 6/9] OvmfPkg/Sec: Setup MTRR early in the boot process.
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 55: OvmfPkg/Sec: Setup MTRR early in the boot process.
+RH-Jira: RHEL-21704
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [1/4] c4061788d34f409944898b48642d610c259161f3 (kraxel.rh/centos-src-edk2)
+
+Specifically before running lzma uncompress of the main firmware volume.
+This is needed to make sure caching is enabled, otherwise the uncompress
+can be extremely slow.
+
+Adapt the ASSERTs and MTRR setup in PlatformInitLib to the changes.
+
+Background:  Depending on virtual machine configuration kvm may uses EPT
+memory types to apply guest MTRR settings.  In case MTRRs are disabled
+kvm will use the uncachable memory type for all mappings.  The
+vmx_get_mt_mask() function in the linux kernel handles this and can be
+found here:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/arch/x86/kvm/vmx/vmx.c?h=v6.7.1#n7580
+
+In most VM configurations kvm uses MTRR_TYPE_WRBACK unconditionally.  In
+case the VM has a mdev device assigned that is not the case though.
+
+Before commit e8aa4c6546ad ("UefiCpuPkg/ResetVector: Cache Disable
+should not be set by default in CR0") kvm also ended up using
+MTRR_TYPE_WRBACK due to KVM_X86_QUIRK_CD_NW_CLEARED.  After that commit
+kvm evaluates guest mtrr settings, which why setting up MTRRs early is
+important now.
+
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Message-ID: <20240130130441.772484-2-kraxel@redhat.com>
+
+[ kraxel: Downstream-only for now.  Timely upstream merge is unlikely
+          due to chinese holidays and rhel-9.4 deadlines are close.
+          QE regression testing passed.  So go with upstream posted
+          series v3 ]
+---
+ OvmfPkg/IntelTdx/Sec/SecMain.c              | 32 +++++++++++++++++++++
+ OvmfPkg/Library/PlatformInitLib/MemDetect.c | 10 +++----
+ OvmfPkg/Sec/SecMain.c                       | 32 +++++++++++++++++++++
+ 3 files changed, 69 insertions(+), 5 deletions(-)
+
+diff --git a/OvmfPkg/IntelTdx/Sec/SecMain.c b/OvmfPkg/IntelTdx/Sec/SecMain.c
+index 42a587adfa..0daddac0a0 100644
+--- a/OvmfPkg/IntelTdx/Sec/SecMain.c
++++ b/OvmfPkg/IntelTdx/Sec/SecMain.c
+@@ -27,6 +27,8 @@
+ #include <Library/TdxHelperLib.h>
+ #include <Library/CcProbeLib.h>
+ #include <Library/PeilessStartupLib.h>
++#include <Register/Intel/ArchitecturalMsr.h>
++#include <Register/Intel/Cpuid.h>
+ 
+ #define SEC_IDT_ENTRY_COUNT  34
+ 
+@@ -48,6 +50,31 @@ IA32_IDT_GATE_DESCRIPTOR  mIdtEntryTemplate = {
+   }
+ };
+ 
++//
++// Enable MTRR early, set default type to write back.
++// Needed to make sure caching is enabled,
++// without this lzma decompress can be very slow.
++//
++STATIC
++VOID
++SecMtrrSetup (
++  VOID
++  )
++{
++  CPUID_VERSION_INFO_EDX           Edx;
++  MSR_IA32_MTRR_DEF_TYPE_REGISTER  DefType;
++
++  AsmCpuid (CPUID_VERSION_INFO, NULL, NULL, NULL, &Edx.Uint32);
++  if (!Edx.Bits.MTRR) {
++    return;
++  }
++
++  DefType.Uint64    = AsmReadMsr64 (MSR_IA32_MTRR_DEF_TYPE);
++  DefType.Bits.Type = 6; /* write back */
++  DefType.Bits.E    = 1; /* enable */
++  AsmWriteMsr64 (MSR_IA32_MTRR_DEF_TYPE, DefType.Uint64);
++}
++
+ VOID
+ EFIAPI
+ SecCoreStartupWithStack (
+@@ -204,6 +231,11 @@ SecCoreStartupWithStack (
+   InitializeApicTimer (0, MAX_UINT32, TRUE, 5);
+   DisableApicTimerInterrupt ();
+ 
++  //
++  // Initialize MTRR
++  //
++  SecMtrrSetup ();
++
+   PeilessStartup (&SecCoreData);
+ 
+   ASSERT (FALSE);
+diff --git a/OvmfPkg/Library/PlatformInitLib/MemDetect.c b/OvmfPkg/Library/PlatformInitLib/MemDetect.c
+index 662e7e85bb..f8d7f5bf1c 100644
+--- a/OvmfPkg/Library/PlatformInitLib/MemDetect.c
++++ b/OvmfPkg/Library/PlatformInitLib/MemDetect.c
+@@ -1035,18 +1035,18 @@ PlatformQemuInitializeRam (
+     MtrrGetAllMtrrs (&MtrrSettings);
+ 
+     //
+-    // MTRRs disabled, fixed MTRRs disabled, default type is uncached
++    // See SecMtrrSetup(), default type should be write back
+     //
+-    ASSERT ((MtrrSettings.MtrrDefType & BIT11) == 0);
++    ASSERT ((MtrrSettings.MtrrDefType & BIT11) != 0);
+     ASSERT ((MtrrSettings.MtrrDefType & BIT10) == 0);
+-    ASSERT ((MtrrSettings.MtrrDefType & 0xFF) == 0);
++    ASSERT ((MtrrSettings.MtrrDefType & 0xFF) == MTRR_CACHE_WRITE_BACK);
+ 
+     //
+     // flip default type to writeback
+     //
+-    SetMem (&MtrrSettings.Fixed, sizeof MtrrSettings.Fixed, 0x06);
++    SetMem (&MtrrSettings.Fixed, sizeof MtrrSettings.Fixed, MTRR_CACHE_WRITE_BACK);
+     ZeroMem (&MtrrSettings.Variables, sizeof MtrrSettings.Variables);
+-    MtrrSettings.MtrrDefType |= BIT11 | BIT10 | 6;
++    MtrrSettings.MtrrDefType |= BIT10;
+     MtrrSetAllMtrrs (&MtrrSettings);
+ 
+     //
+diff --git a/OvmfPkg/Sec/SecMain.c b/OvmfPkg/Sec/SecMain.c
+index 31da5d0ace..3b7dc7205d 100644
+--- a/OvmfPkg/Sec/SecMain.c
++++ b/OvmfPkg/Sec/SecMain.c
+@@ -30,6 +30,8 @@
+ #include <Ppi/MpInitLibDep.h>
+ #include <Library/TdxHelperLib.h>
+ #include <Library/CcProbeLib.h>
++#include <Register/Intel/ArchitecturalMsr.h>
++#include <Register/Intel/Cpuid.h>
+ #include "AmdSev.h"
+ 
+ #define SEC_IDT_ENTRY_COUNT  34
+@@ -744,6 +746,31 @@ FindAndReportEntryPoints (
+   return;
+ }
+ 
++//
++// Enable MTRR early, set default type to write back.
++// Needed to make sure caching is enabled,
++// without this lzma decompress can be very slow.
++//
++STATIC
++VOID
++SecMtrrSetup (
++  VOID
++  )
++{
++  CPUID_VERSION_INFO_EDX           Edx;
++  MSR_IA32_MTRR_DEF_TYPE_REGISTER  DefType;
++
++  AsmCpuid (CPUID_VERSION_INFO, NULL, NULL, NULL, &Edx.Uint32);
++  if (!Edx.Bits.MTRR) {
++    return;
++  }
++
++  DefType.Uint64    = AsmReadMsr64 (MSR_IA32_MTRR_DEF_TYPE);
++  DefType.Bits.Type = 6; /* write back */
++  DefType.Bits.E    = 1; /* enable */
++  AsmWriteMsr64 (MSR_IA32_MTRR_DEF_TYPE, DefType.Uint64);
++}
++
+ VOID
+ EFIAPI
+ SecCoreStartupWithStack (
+@@ -942,6 +969,11 @@ SecCoreStartupWithStack (
+   InitializeApicTimer (0, MAX_UINT32, TRUE, 5);
+   DisableApicTimerInterrupt ();
+ 
++  //
++  // Initialize MTRR
++  //
++  SecMtrrSetup ();
++
+   //
+   // Initialize Debug Agent to support source level debug in SEC/PEI phases before memory ready.
+   //
+-- 
+2.39.3
+

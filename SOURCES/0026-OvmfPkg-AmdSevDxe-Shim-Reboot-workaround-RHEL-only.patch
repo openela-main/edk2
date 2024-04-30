@@ -1,7 +1,7 @@
-From 9f0b4df867e6a2d56838e4048be245eac3fcc18e Mon Sep 17 00:00:00 2001
+From 5870362631ee204936f495b8e60eb2611bb05c3b Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Wed, 16 Aug 2023 12:09:40 +0200
-Subject: [PATCH 3/3] OvmfPkg/AmdSevDxe: Shim Reboot workaround (RHEL only)
+Subject: [PATCH] OvmfPkg/AmdSevDxe: Shim Reboot workaround (RHEL only)
 
 RH-Author: Oliver Steffen <osteffen@redhat.com>
 RH-MergeRequest: 46: OvmfPkg/AmdSevDxe: Shim Reboot workaround (RHEL only)
@@ -17,6 +17,10 @@ guest that uses shim is booted with a vtpm device present.
 BZ 2218196
 
 Signed-off-by: Oliver Steffen <osteffen@redhat.com>
+
+patch_name: edk2-OvmfPkg-AmdSevDxe-Shim-Reboot-workaround-RHEL-only.patch
+present_in_specfile: true
+location_in_specfile: 44
 ---
  OvmfPkg/AmdSevDxe/AmdSevDxe.c   | 42 +++++++++++++++++++++++++++++++++
  OvmfPkg/AmdSevDxe/AmdSevDxe.inf |  2 ++
@@ -115,6 +119,3 @@ index e7c7d526c9..09cbd2b0ca 100644
  
  [Pcd]
    gUefiOvmfPkgTokenSpaceGuid.PcdOvmfHostBridgePciDevId
--- 
-2.39.3
-

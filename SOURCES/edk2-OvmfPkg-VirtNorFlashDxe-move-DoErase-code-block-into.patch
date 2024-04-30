@@ -1,0 +1,132 @@
+From 0429352edb21bd20b8192aec3f484361f4dc3b33 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 16 Jan 2024 18:11:05 +0100
+Subject: [PATCH 6/6] OvmfPkg/VirtNorFlashDxe: move DoErase code block into new
+ function
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 52: OvmfPkg/VirtNorFlashDxe: backport more fixes.
+RH-Jira: RHEL-20963
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Acked-by: Miroslav Rezanina <mrezanin@redhat.com>
+RH-Commit: [6/6] 9a25dbbd0d9881664f8ce30efb95c63099785204 (kraxel.rh/centos-src-edk2)
+
+Move the DoErase code block into a separate function, call the function
+instead of jumping around with goto.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Message-Id: <20240116171105.37831-7-kraxel@redhat.com>
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+(cherry picked from commit b481b00f593ef37695ee14271453320ed02a1256)
+---
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c | 76 ++++++++++++++++++--------
+ 1 file changed, 52 insertions(+), 24 deletions(-)
+
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+index 3d1d20daa1..e6aaed27ce 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+@@ -502,6 +502,38 @@ NorFlashRead (
+   return EFI_SUCCESS;
+ }
+ 
++STATIC
++EFI_STATUS
++NorFlashWriteSingleBlockWithErase (
++  IN        NOR_FLASH_INSTANCE  *Instance,
++  IN        EFI_LBA             Lba,
++  IN        UINTN               Offset,
++  IN OUT    UINTN               *NumBytes,
++  IN        UINT8               *Buffer
++  )
++{
++  EFI_STATUS  Status;
++
++  // Read NOR Flash data into shadow buffer
++  Status = NorFlashReadBlocks (Instance, Lba, Instance->BlockSize, Instance->ShadowBuffer);
++  if (EFI_ERROR (Status)) {
++    // Return one of the pre-approved error statuses
++    return EFI_DEVICE_ERROR;
++  }
++
++  // Put the data at the appropriate location inside the buffer area
++  CopyMem ((VOID *)((UINTN)Instance->ShadowBuffer + Offset), Buffer, *NumBytes);
++
++  // Write the modified buffer back to the NorFlash
++  Status = NorFlashWriteBlocks (Instance, Lba, Instance->BlockSize, Instance->ShadowBuffer);
++  if (EFI_ERROR (Status)) {
++    // Return one of the pre-approved error statuses
++    return EFI_DEVICE_ERROR;
++  }
++
++  return EFI_SUCCESS;
++}
++
+ /*
+   Write a full or portion of a block. It must not span block boundaries; that is,
+   Offset + *NumBytes <= Instance->BlockSize.
+@@ -607,7 +639,14 @@ NorFlashWriteSingleBlock (
+     // that we want to set. In that case, we will need to erase the block first.
+     for (CurOffset = 0; CurOffset < *NumBytes; CurOffset++) {
+       if (~(UINT32)OrigData[CurOffset] & (UINT32)Buffer[CurOffset]) {
+-        goto DoErase;
++        Status = NorFlashWriteSingleBlockWithErase (
++                   Instance,
++                   Lba,
++                   Offset,
++                   NumBytes,
++                   Buffer
++                   );
++        return Status;
+       }
+ 
+       OrigData[CurOffset] = Buffer[CurOffset];
+@@ -636,33 +675,22 @@ NorFlashWriteSingleBlock (
+         goto Exit;
+       }
+     }
+-
+-Exit:
+-    // Put device back into Read Array mode
+-    SEND_NOR_COMMAND (Instance->DeviceBaseAddress, 0, P30_CMD_READ_ARRAY);
+-
++  } else {
++    Status = NorFlashWriteSingleBlockWithErase (
++               Instance,
++               Lba,
++               Offset,
++               NumBytes,
++               Buffer
++               );
+     return Status;
+   }
+ 
+-DoErase:
+-  // Read NOR Flash data into shadow buffer
+-  Status = NorFlashReadBlocks (Instance, Lba, BlockSize, Instance->ShadowBuffer);
+-  if (EFI_ERROR (Status)) {
+-    // Return one of the pre-approved error statuses
+-    return EFI_DEVICE_ERROR;
+-  }
+-
+-  // Put the data at the appropriate location inside the buffer area
+-  CopyMem ((VOID *)((UINTN)Instance->ShadowBuffer + Offset), Buffer, *NumBytes);
+-
+-  // Write the modified buffer back to the NorFlash
+-  Status = NorFlashWriteBlocks (Instance, Lba, BlockSize, Instance->ShadowBuffer);
+-  if (EFI_ERROR (Status)) {
+-    // Return one of the pre-approved error statuses
+-    return EFI_DEVICE_ERROR;
+-  }
++Exit:
++  // Put device back into Read Array mode
++  SEND_NOR_COMMAND (Instance->DeviceBaseAddress, 0, P30_CMD_READ_ARRAY);
+ 
+-  return EFI_SUCCESS;
++  return Status;
+ }
+ 
+ EFI_STATUS
+-- 
+2.39.3
+

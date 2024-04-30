@@ -1,7 +1,7 @@
-From c536b7c67fe45bfa1bc27299ba0a584af572e80d Mon Sep 17 00:00:00 2001
+From aac73e5f62e2305e6578c9b22ae557741bf6532a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:25 +0200
-Subject: OvmfPkg: Remove TftpDynamicCommand from shell (RHEL only)
+Subject: [PATCH] OvmfPkg: Remove TftpDynamicCommand from shell (RHEL only)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -27,10 +27,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  6 files changed, 15 deletions(-)
 
 diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
-index 5762871fee..ed72cbf57e 100644
+index 07176ad930..0183511722 100644
 --- a/OvmfPkg/OvmfPkgIa32.dsc
 +++ b/OvmfPkg/OvmfPkgIa32.dsc
-@@ -904,10 +904,6 @@
+@@ -913,10 +913,6 @@
  !endif
  
  !if $(TOOL_CHAIN_TAG) != "XCODE5" && $(BUILD_SHELL) == TRUE
@@ -42,7 +42,7 @@ index 5762871fee..ed72cbf57e 100644
      <PcdsFixedAtBuild>
        gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
 diff --git a/OvmfPkg/OvmfPkgIa32.fdf b/OvmfPkg/OvmfPkgIa32.fdf
-index 9df41eae67..1d19e20e8a 100644
+index 97c808446e..cb95c842fa 100644
 --- a/OvmfPkg/OvmfPkgIa32.fdf
 +++ b/OvmfPkg/OvmfPkgIa32.fdf
 @@ -297,7 +297,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
@@ -54,10 +54,10 @@ index 9df41eae67..1d19e20e8a 100644
  INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
  !endif
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index dc5020a632..9b97e664d7 100644
+index ba7ed38412..66554b42ed 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
-@@ -918,10 +918,6 @@
+@@ -931,10 +931,6 @@
  !endif
  
  !if $(TOOL_CHAIN_TAG) != "XCODE5" && $(BUILD_SHELL) == TRUE
@@ -69,7 +69,7 @@ index dc5020a632..9b97e664d7 100644
      <PcdsFixedAtBuild>
        gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
 diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
-index e002846515..621772963f 100644
+index 6351ce645b..592f0fed82 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.fdf
 +++ b/OvmfPkg/OvmfPkgIa32X64.fdf
 @@ -298,7 +298,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
@@ -81,10 +81,10 @@ index e002846515..621772963f 100644
  INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
  !endif
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index e1e1df4b9d..8bf848c647 100644
+index 55f3315241..6d1d2bd39b 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
-@@ -992,10 +992,6 @@
+@@ -999,10 +999,6 @@
  !endif
  
  !if $(TOOL_CHAIN_TAG) != "XCODE5" && $(BUILD_SHELL) == TRUE
@@ -96,7 +96,7 @@ index e1e1df4b9d..8bf848c647 100644
      <PcdsFixedAtBuild>
        gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
 diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
-index e586632664..b1d6c23a93 100644
+index 558a944f20..70556f8ace 100644
 --- a/OvmfPkg/OvmfPkgX64.fdf
 +++ b/OvmfPkg/OvmfPkgX64.fdf
 @@ -323,7 +323,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
@@ -107,6 +107,3 @@ index e586632664..b1d6c23a93 100644
  INF  ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf
  INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
  !endif
--- 
-2.39.3
-

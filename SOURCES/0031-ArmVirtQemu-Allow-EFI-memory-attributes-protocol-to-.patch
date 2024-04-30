@@ -1,0 +1,169 @@
+From 0120fb7b5877ab40537fd17e64772f53bc89cd07 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Mon, 4 Dec 2023 10:41:08 +0100
+Subject: [PATCH] ArmVirtQemu: Allow EFI memory attributes protocol to be
+ disabled
+
+Shim's PE loader uses the EFI memory attributes protocol in a way that
+results in an immediate crash when invoking the loaded image, unless the
+base and size of its executable segment are both aligned to 4k.
+
+If this is not the case, it will strip the memory allocation of its
+executable permissions, but fail to add them back for the executable
+region, resulting in non-executable code. Unfortunately, the PE loader
+does not even bother invoking the protocol in this case (as it notices
+the misalignment), making it very hard for system firmware to work
+around this by attempting to infer the intent of the caller.
+
+So let's introduce a QEMU command line option to indicate that the
+protocol should not be exposed at all, and a PCD to set the default for
+this option when it is omitted.
+
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+Tested-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Gerd Hoffmann <kraxel@redhat.com>
+Link: https://gitlab.com/qemu-project/qemu/-/issues/1990
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+(cherry picked from commit cee7ba349c0c1ce489001a338a4e28555728b573)
+---
+ ArmVirtPkg/ArmVirtPkg.dec                     |  6 ++
+ .../PlatformBootManagerLib/PlatformBm.c       | 64 +++++++++++++++++++
+ .../PlatformBootManagerLib.inf                |  3 +
+ 3 files changed, 73 insertions(+)
+
+diff --git a/ArmVirtPkg/ArmVirtPkg.dec b/ArmVirtPkg/ArmVirtPkg.dec
+index 0f2d787327..313aebda90 100644
+--- a/ArmVirtPkg/ArmVirtPkg.dec
++++ b/ArmVirtPkg/ArmVirtPkg.dec
+@@ -68,3 +68,9 @@
+   # Cloud Hypervisor has no other way to pass Rsdp address to the guest except use a PCD.
+   #
+   gArmVirtTokenSpaceGuid.PcdCloudHvAcpiRsdpBaseAddress|0x0|UINT64|0x00000005
++
++  ##
++  # Whether the EFI memory attributes protocol should be uninstalled before
++  # invoking the OS loader. This may be needed to work around problematic
++  # builds of shim that use the protocol incorrectly.
++  gArmVirtTokenSpaceGuid.PcdUninstallMemAttrProtocol|FALSE|BOOLEAN|0x00000006
+diff --git a/ArmVirtPkg/Library/PlatformBootManagerLib/PlatformBm.c b/ArmVirtPkg/Library/PlatformBootManagerLib/PlatformBm.c
+index 85c01351b0..8e93f3cfed 100644
+--- a/ArmVirtPkg/Library/PlatformBootManagerLib/PlatformBm.c
++++ b/ArmVirtPkg/Library/PlatformBootManagerLib/PlatformBm.c
+@@ -16,6 +16,7 @@
+ #include <Library/PcdLib.h>
+ #include <Library/PlatformBmPrintScLib.h>
+ #include <Library/QemuBootOrderLib.h>
++#include <Library/QemuFwCfgSimpleParserLib.h>
+ #include <Library/TpmPlatformHierarchyLib.h>
+ #include <Library/UefiBootManagerLib.h>
+ #include <Protocol/DevicePath.h>
+@@ -1111,6 +1112,49 @@ PlatformBootManagerBeforeConsole (
+   FilterAndProcess (&gEfiPciIoProtocolGuid, IsVirtioPciSerial, SetupVirtioSerial);
+ }
+ 
++/**
++  Uninstall the EFI memory attribute protocol if it exists.
++**/
++STATIC
++VOID
++UninstallEfiMemoryAttributesProtocol (
++  VOID
++  )
++{
++  EFI_STATUS  Status;
++  EFI_HANDLE  Handle;
++  UINTN       Size;
++  VOID        *MemoryAttributeProtocol;
++
++  Size   = sizeof (Handle);
++  Status = gBS->LocateHandle (
++                  ByProtocol,
++                  &gEfiMemoryAttributeProtocolGuid,
++                  NULL,
++                  &Size,
++                  &Handle
++                  );
++
++  if (EFI_ERROR (Status)) {
++    ASSERT (Status == EFI_NOT_FOUND);
++    return;
++  }
++
++  Status = gBS->HandleProtocol (
++                  Handle,
++                  &gEfiMemoryAttributeProtocolGuid,
++                  &MemoryAttributeProtocol
++                  );
++  ASSERT_EFI_ERROR (Status);
++
++  Status = gBS->UninstallProtocolInterface (
++                  Handle,
++                  &gEfiMemoryAttributeProtocolGuid,
++                  MemoryAttributeProtocol
++                  );
++  ASSERT_EFI_ERROR (Status);
++}
++
+ /**
+   Do the platform specific action after the console is ready
+   Possible things that can be done in PlatformBootManagerAfterConsole:
+@@ -1129,12 +1173,32 @@ PlatformBootManagerAfterConsole (
+   )
+ {
+   RETURN_STATUS  Status;
++  BOOLEAN        Uninstall;
+ 
+   //
+   // Show the splash screen.
+   //
+   BootLogoEnableLogo ();
+ 
++  //
++  // Work around shim's terminally broken use of the EFI memory attributes
++  // protocol, by uninstalling it if requested on the QEMU command line.
++  //
++  // E.g.,
++  //       -fw_cfg opt/org.tianocore/UninstallMemAttrProtocol,string=y
++  //
++  Uninstall = FixedPcdGetBool (PcdUninstallMemAttrProtocol);
++  QemuFwCfgParseBool ("opt/org.tianocore/UninstallMemAttrProtocol", &Uninstall);
++  DEBUG ((
++    DEBUG_WARN,
++    "%a: %auninstalling EFI memory protocol\n",
++    __func__,
++    Uninstall ? "" : "not "
++    ));
++  if (Uninstall) {
++    UninstallEfiMemoryAttributesProtocol ();
++  }
++
+   //
+   // Process QEMU's -kernel command line option. The kernel booted this way
+   // will receive ACPI tables: in PlatformBootManagerBeforeConsole(), we
+diff --git a/ArmVirtPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf b/ArmVirtPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
+index 997eb1a442..70e4ebf94a 100644
+--- a/ArmVirtPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
++++ b/ArmVirtPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
+@@ -46,6 +46,7 @@
+   PcdLib
+   PlatformBmPrintScLib
+   QemuBootOrderLib
++  QemuFwCfgSimpleParserLib
+   QemuLoadImageLib
+   ReportStatusCodeLib
+   TpmPlatformHierarchyLib
+@@ -55,6 +56,7 @@
+   UefiRuntimeServicesTableLib
+ 
+ [FixedPcd]
++  gArmVirtTokenSpaceGuid.PcdUninstallMemAttrProtocol
+   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate
+   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultDataBits
+   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultParity
+@@ -73,5 +75,6 @@
+ [Protocols]
+   gEfiFirmwareVolume2ProtocolGuid
+   gEfiGraphicsOutputProtocolGuid
++  gEfiMemoryAttributeProtocolGuid
+   gEfiPciRootBridgeIoProtocolGuid
+   gVirtioDeviceProtocolGuid

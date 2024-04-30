@@ -1,0 +1,85 @@
+From 771ce5bae1eb03240b04dde05a7a40dcec3c8a10 Mon Sep 17 00:00:00 2001
+From: Laszlo Ersek <lersek@redhat.com>
+Date: Wed, 11 Jun 2014 20:45:26 +0200
+Subject: [PATCH] recreate / import ".distro/" directory
+
+This patch now unites the following downstream commits:
+
+- 18bd1193e7 .distro: simplify WORKSPACE setup
+- b00f3398c8 fix tpm build options
+- e032ab1675 spec: Centralize non-firmware %install files at the top
+- 8501863acc spec: Don't put build output in the top directory
+- e6ec0363d3 spec: Factor out OVMF_FLAGS and OVMF_SB_FLAGS
+- 596f34c8b6 spec: Use %make_build macro
+- 55169e466d spec: Replace RPM_BUILD_ROOT with %{buildroot}
+- 69c4c60920 spec: Split out build_iso() function
+- ed67da8c85 spec: Add %{qosb_testing} macro
+- 44519f5b94 spec: Move %check to between %install and %files
+- b37b334dc7 spec: Remove extra 'true' at end of %check
+- dd11149c3a spec: Add %{qemu_package} and %{qemu_binary}
+- 0f5d4ae0d5 spec: Move -D TPM_ENABLE to common CC_FLAGS
+- 84b3fd93f9 spec: Replace ifarch+else conditionals with build_XXX variables
+- e97f79e744 spec: Use %autosetup with our required git config options
+- 45a347a759 spec: don't conditionalize %package definitions
+- acfcfaea1e spec: Add BuildRequires: make
+- d917a93f6f spec: remove Group: and %defattr
+- f2d3be3ae3 redhat: build UefiShell.iso with xorriso rather than genisoimage
+- 3fb4a20f30 redhat: narrow the "qemu-kvm" BuildRequires down to "qemu-kvm-core"
+- bfb89c4ae5 redhat: drop Split tool from the edk2-tools subpackage
+- ac8be2e0ef redhat: refresh "Makefile.common" for the 8.5 rebase
+- 2bd2d18864 redhat: filter out jansson submodule removal hunks
+- f13d7899ed recreate / import "redhat/" directory
+
+Merged patches (edk2-stable202202):
+- 1a7b1c3b72 spec: adapt specfile to build option changes, disable tpm1
+- 96eb388be3 spec: build amdsev variant
+- ea34352d41 redhat: bump OpenSSL dist-git submodule to a75722161d20 / RHEL-8.5
+
+Merged patches (edk2-stable202208):
+- a60bf3fd10 Adding support for CentOS 9 build
+- d3f25d438c OvmfPkg: Update target machines config
+- d63f783930 openssl: jump to 8.7.0 branch (2022-07-22)
+- 39882ce96d qemu-ovmf-secureboot: Do not use submodule
+- 283ef4a67d ovmf-vars-generator: Use max cpu
+- b6887ef7e1 Update build target to RHEL 9.2.0
+
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+
+Merged patches (edk2-stable202305):
+- 5eef16bd65 remove amd-sev feature flag from secure boot builds (rh only)
+- cc9e1b6eaa build script update
+- 046c1f08e6 PcdDxeNxMemoryProtectionPolicy update
+- b9dc1b5365 add aarch64 qcow2 images
+- f4e2d6bf41 update json files
+- be03b42128 add libvirt version conflict
+- dce699b61d add dbx update blob (rh only)
+- d8b2407343 spec: apply dbx update (rh only)
+- a8a5ef95b5 dbx update, 2023-05-09, black lotus edition
+- 310e179053 json descriptors: explicitly set mode = split
+- additionally
+  - update frh.py, add new upstream submodules
+  - replace egrep with grep -E and fgrep with grep -F in downstream
+    scripts
+  - remove git commit sha from package version string
+
+Signed-off-by: Oliver Steffen <osteffen@redhat.com>
+
+Rebase to edk2-stable202311: squash commits:
+
+- 5b833f0c8d Update TargetRelease to support 9.4.0
+- 20024b4cbe Use fixed length for short hash for Makefile
+- 8618f7367e Updated TargetRelease content to support 9.4.0 only.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ sources | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 sources
+
+diff --git a/sources b/sources
+new file mode 100644
+index 0000000000..ea8c8ad50b
+--- /dev/null
++++ b/sources
+@@ -0,0 +1 @@
++SHA512 (edk2-ba91d0292e.tar.xz) = 3b21cc39671d28bfeb059da3683751cc5277c63a894b2a05bdfbd2bbe53545c34f04c229becf44f1563f89a738f37ae8f2333076d126a7e94d234bc4bb25454c

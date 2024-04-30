@@ -1,0 +1,162 @@
+From bb9d1831fd53d43889112a2e30a52b2c4504fdae Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Fri, 16 Feb 2024 10:48:05 -0500
+Subject: [PATCH 16/18] NetworkPkg: Dhcp6Dxe: Removes duplicate check and
+ replaces with macro
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 54: NetworkPkg: Dhcp6Dxe: SECURITY PATCH CVE-2023-45230 Patch
+RH-Jira: RHEL-21841 RHEL-21843 RHEL-21845 RHEL-21847 RHEL-21849 RHEL-21851 RHEL-21853
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [16/18] 61914482aa965883b1ec3f29cf6143b67e88742a
+
+JIRA: https://issues.redhat.com/browse/RHEL-21841
+CVE: CVE-2023-45229
+Upstream: Merged
+
+commit af3fad99d6088881562e50149f414f76a5be0140
+Author: Doug Flick <dougflick@microsoft.com>
+Date:   Tue Feb 13 10:46:01 2024 -0800
+
+    NetworkPkg: Dhcp6Dxe: Removes duplicate check and replaces with macro
+
+    Removes duplicate check after merge
+
+    >
+    >  //
+    >  // Verify the PacketCursor is within the packet
+    >  //
+    >  if (  (*PacketCursor < Packet->Dhcp6.Option)
+    >     || (*PacketCursor >= Packet->Dhcp6.Option + (Packet->Size -
+    sizeof (EFI_DHCP6_HEADER))))
+    >  {
+    >    return EFI_INVALID_PARAMETER;
+    >  }
+    >
+
+    Converts the check to a macro and replaces all instances of the check
+    with the macro
+
+    Cc: Saloni Kasbekar <saloni.kasbekar@intel.com>
+    Cc: Zachary Clark-williams <zachary.clark-williams@intel.com>
+    Signed-off-by: Doug Flick [MSFT] <doug.edk2@gmail.com>
+    Reviewed-by: Saloni Kasbekar <saloni.kasbekar@intel.com>
+    Reviewed-by: Leif Lindholm <quic_llindhol@quicinc.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ NetworkPkg/Dhcp6Dxe/Dhcp6Utility.c | 44 +++++++++++++-----------------
+ 1 file changed, 19 insertions(+), 25 deletions(-)
+
+diff --git a/NetworkPkg/Dhcp6Dxe/Dhcp6Utility.c b/NetworkPkg/Dhcp6Dxe/Dhcp6Utility.c
+index 705c665c51..e4e0725622 100644
+--- a/NetworkPkg/Dhcp6Dxe/Dhcp6Utility.c
++++ b/NetworkPkg/Dhcp6Dxe/Dhcp6Utility.c
+@@ -10,6 +10,16 @@
+ 
+ #include "Dhcp6Impl.h"
+ 
++//
++// Verifies the packet cursor is within the packet
++// otherwise it is invalid
++//
++#define IS_INVALID_PACKET_CURSOR(PacketCursor, Packet) \
++  (((*PacketCursor) < (Packet)->Dhcp6.Option) || \
++   ((*PacketCursor) >= (Packet)->Dhcp6.Option + ((Packet)->Size - sizeof(EFI_DHCP6_HEADER))) \
++  )                                                                            \
++
++
+ /**
+   Generate client Duid in the format of Duid-llt.
+ 
+@@ -638,9 +648,7 @@ Dhcp6AppendOption (
+   //
+   // Verify the PacketCursor is within the packet
+   //
+-  if (  (*PacketCursor < Packet->Dhcp6.Option)
+-     || (*PacketCursor >= Packet->Dhcp6.Option + (Packet->Size - sizeof (EFI_DHCP6_HEADER))))
+-  {
++  if (IS_INVALID_PACKET_CURSOR (PacketCursor, Packet)) {
+     return EFI_INVALID_PARAMETER;
+   }
+ 
+@@ -657,15 +665,6 @@ Dhcp6AppendOption (
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+-  //
+-  // Verify the PacketCursor is within the packet
+-  //
+-  if (  (*PacketCursor < Packet->Dhcp6.Option)
+-     || (*PacketCursor >= Packet->Dhcp6.Option + (Packet->Size - sizeof (EFI_DHCP6_HEADER))))
+-  {
+-    return EFI_INVALID_PARAMETER;
+-  }
+-
+   WriteUnaligned16 ((UINT16 *)*PacketCursor, OptType);
+   *PacketCursor += DHCP6_SIZE_OF_OPT_CODE;
+   WriteUnaligned16 ((UINT16 *)*PacketCursor, OptLen);
+@@ -744,9 +743,7 @@ Dhcp6AppendIaAddrOption (
+   //
+   // Verify the PacketCursor is within the packet
+   //
+-  if (  (*PacketCursor < Packet->Dhcp6.Option)
+-     || (*PacketCursor >= Packet->Dhcp6.Option + (Packet->Size - sizeof (EFI_DHCP6_HEADER))))
+-  {
++  if (IS_INVALID_PACKET_CURSOR (PacketCursor, Packet)) {
+     return EFI_INVALID_PARAMETER;
+   }
+ 
+@@ -877,9 +874,7 @@ Dhcp6AppendIaOption (
+   //
+   // Verify the PacketCursor is within the packet
+   //
+-  if (  (*PacketCursor < Packet->Dhcp6.Option)
+-     || (*PacketCursor >= Packet->Dhcp6.Option + (Packet->Size - sizeof (EFI_DHCP6_HEADER))))
+-  {
++  if (IS_INVALID_PACKET_CURSOR (PacketCursor, Packet)) {
+     return EFI_INVALID_PARAMETER;
+   }
+ 
+@@ -941,14 +936,14 @@ Dhcp6AppendIaOption (
+   }
+ 
+   //
+-  // Fill the value of Ia option length
++  // Update the packet length
+   //
+-  *Len = HTONS ((UINT16)(*PacketCursor - (UINT8 *)Len - 2));
++  Packet->Length += BytesNeeded;
+ 
+   //
+-  // Update the packet length
++  // Fill the value of Ia option length
+   //
+-  Packet->Length += BytesNeeded;
++  *Len = HTONS ((UINT16)(*PacketCursor - (UINT8 *)Len - 2));
+ 
+   return EFI_SUCCESS;
+ }
+@@ -957,6 +952,7 @@ Dhcp6AppendIaOption (
+   Append the appointed Elapsed time option to Buf, and move Buf to the end.
+ 
+   @param[in, out] Packet        A pointer to the packet, on success Packet->Length
++                                will be updated.
+   @param[in, out] PacketCursor  The pointer in the packet, on success PacketCursor
+                                 will be moved to the end of the option.
+   @param[in]      Instance      The pointer to the Dhcp6 instance.
+@@ -1012,9 +1008,7 @@ Dhcp6AppendETOption (
+   //
+   // Verify the PacketCursor is within the packet
+   //
+-  if (  (*PacketCursor < Packet->Dhcp6.Option)
+-     || (*PacketCursor >= Packet->Dhcp6.Option + (Packet->Size - sizeof (EFI_DHCP6_HEADER))))
+-  {
++  if (IS_INVALID_PACKET_CURSOR (PacketCursor, Packet)) {
+     return EFI_INVALID_PARAMETER;
+   }
+ 
+-- 
+2.39.3
+

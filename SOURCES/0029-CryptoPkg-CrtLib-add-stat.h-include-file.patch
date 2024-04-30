@@ -1,0 +1,28 @@
+From 192cc2b49dbccc59f5731e2abc120bed3e06cc32 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Mon, 28 Aug 2023 13:11:02 +0200
+Subject: [PATCH] CryptoPkg/CrtLib: add stat.h include file.
+
+Needed by rhel downstream openssl patches.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ CryptoPkg/Library/Include/sys/stat.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+ create mode 100644 CryptoPkg/Library/Include/sys/stat.h
+
+diff --git a/CryptoPkg/Library/Include/sys/stat.h b/CryptoPkg/Library/Include/sys/stat.h
+new file mode 100644
+index 0000000000..22247bb2db
+--- /dev/null
++++ b/CryptoPkg/Library/Include/sys/stat.h
+@@ -0,0 +1,9 @@
++/** @file
++  Include file to support building the third-party cryptographic library.
++
++Copyright (c) 2010 - 2017, Intel Corporation. All rights reserved.<BR>
++SPDX-License-Identifier: BSD-2-Clause-Patent
++
++**/
++
++#include <CrtLibSupport.h>

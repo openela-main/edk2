@@ -1,0 +1,74 @@
+From a82176278e664c3955197d1e076188471d88a422 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 16 Jan 2024 18:11:02 +0100
+Subject: [PATCH 3/6] OvmfPkg/VirtNorFlashDxe: add a loop for
+ NorFlashWriteBuffer calls.
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 52: OvmfPkg/VirtNorFlashDxe: backport more fixes.
+RH-Jira: RHEL-20963
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Acked-by: Miroslav Rezanina <mrezanin@redhat.com>
+RH-Commit: [3/6] 993426855451252f1126348e107e386b07314bfd (kraxel.rh/centos-src-edk2)
+
+Replace the two NorFlashWriteBuffer() calls with a loop containing a
+single NorFlashWriteBuffer() call.
+
+With the changes in place the code is able to handle updates larger
+than two P30_MAX_BUFFER_SIZE_IN_BYTES blocks, even though the patch
+does not actually change the size limit.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+Message-Id: <20240116171105.37831-4-kraxel@redhat.com>
+(cherry picked from commit 28ffd726894f11a587a6ac7f71a4c4af341e24d2)
+---
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c | 21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
+
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+index 88a4d2c23f..3d1343b381 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+@@ -521,6 +521,7 @@ NorFlashWriteSingleBlock (
+   UINTN       BlockAddress;
+   UINT8       *OrigData;
+   UINTN       Start, End;
++  UINT32      Index, Count;
+ 
+   DEBUG ((DEBUG_BLKIO, "NorFlashWriteSingleBlock(Parameters: Lba=%ld, Offset=0x%x, *NumBytes=0x%x, Buffer @ 0x%08x)\n", Lba, Offset, *NumBytes, Buffer));
+ 
+@@ -621,23 +622,17 @@ NorFlashWriteSingleBlock (
+       goto Exit;
+     }
+ 
+-    Status = NorFlashWriteBuffer (
+-               Instance,
+-               BlockAddress + Start,
+-               P30_MAX_BUFFER_SIZE_IN_BYTES,
+-               Instance->ShadowBuffer
+-               );
+-    if (EFI_ERROR (Status)) {
+-      goto Exit;
+-    }
+-
+-    if ((End - Start) > P30_MAX_BUFFER_SIZE_IN_BYTES) {
++    Count = (End - Start) / P30_MAX_BUFFER_SIZE_IN_BYTES;
++    for (Index = 0; Index < Count; Index++) {
+       Status = NorFlashWriteBuffer (
+                  Instance,
+-                 BlockAddress + Start + P30_MAX_BUFFER_SIZE_IN_BYTES,
++                 BlockAddress + Start + Index * P30_MAX_BUFFER_SIZE_IN_BYTES,
+                  P30_MAX_BUFFER_SIZE_IN_BYTES,
+-                 Instance->ShadowBuffer + P30_MAX_BUFFER_SIZE_IN_BYTES
++                 Instance->ShadowBuffer + Index * P30_MAX_BUFFER_SIZE_IN_BYTES
+                  );
++      if (EFI_ERROR (Status)) {
++        goto Exit;
++      }
+     }
+ 
+ Exit:
+-- 
+2.39.3
+

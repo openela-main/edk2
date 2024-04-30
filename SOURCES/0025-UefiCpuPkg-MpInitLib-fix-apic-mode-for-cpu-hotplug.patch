@@ -1,7 +1,7 @@
-From a920227615c895522739bbbf3a5fb7f6a470de86 Mon Sep 17 00:00:00 2001
+From 41089770963055b4bc9662ba4204d8ee7907fbcd Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 28 Feb 2023 15:47:00 +0100
-Subject: [PATCH 09/12] UefiCpuPkg/MpInitLib: fix apic mode for cpu hotplug
+Subject: [PATCH] UefiCpuPkg/MpInitLib: fix apic mode for cpu hotplug
 
 RH-Author: Gerd Hoffmann <kraxel@redhat.com>
 RH-MergeRequest: 42: UefiCpuPkg/MpInitLib: fix apic mode for cpu hotplug
@@ -13,15 +13,19 @@ In case the number of CPUs can in increase beyond 255
 due to CPU hotplug choose x2apic mode.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+
+patch_name: edk2-UefiCpuPkg-MpInitLib-fix-apic-mode-for-cpu-hotplug.patch
+present_in_specfile: true
+location_in_specfile: 38
 ---
  UefiCpuPkg/Library/MpInitLib/MpLib.c | 8 +++++++-
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/UefiCpuPkg/Library/MpInitLib/MpLib.c b/UefiCpuPkg/Library/MpInitLib/MpLib.c
-index f1f2840714..79fd8fb04d 100644
+index 9a6ec5db5c..14ecc62f2b 100644
 --- a/UefiCpuPkg/Library/MpInitLib/MpLib.c
 +++ b/UefiCpuPkg/Library/MpInitLib/MpLib.c
-@@ -526,7 +526,9 @@ CollectProcessorCount (
+@@ -527,7 +527,9 @@ CollectProcessorCount (
    //
    // Enable x2APIC mode if
    //  1. Number of CPU is greater than 255; or
@@ -32,7 +36,7 @@ index f1f2840714..79fd8fb04d 100644
    //
    X2Apic = FALSE;
    if (CpuMpData->CpuCount > 255) {
-@@ -534,6 +536,10 @@ CollectProcessorCount (
+@@ -535,6 +537,10 @@ CollectProcessorCount (
      // If there are more than 255 processor found, force to enable X2APIC
      //
      X2Apic = TRUE;
@@ -43,6 +47,3 @@ index f1f2840714..79fd8fb04d 100644
    } else {
      CpuInfoInHob = (CPU_INFO_IN_HOB *)(UINTN)CpuMpData->CpuInfoInHob;
      for (Index = 0; Index < CpuMpData->CpuCount; Index++) {
--- 
-2.39.3
-

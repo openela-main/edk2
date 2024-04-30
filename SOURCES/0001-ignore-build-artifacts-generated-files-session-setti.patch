@@ -1,0 +1,83 @@
+From 21816395a94558c8e5c97f13adbb5ffb909656b8 Mon Sep 17 00:00:00 2001
+From: Laszlo Ersek <lersek@redhat.com>
+Date: Wed, 11 Jun 2014 21:55:22 +0200
+Subject: [PATCH] ignore build artifacts, generated files, session settings etc
+ (RHEL only)
+
+Notes about the RHEL-8.3/20200603-ca407c7246bf [edk2-stable202005] ->
+RHEL-8.5/20210520-e1999b264f1f [edk2-stable202105] rebase:
+
+- no changes
+
+Notes about the RHEL-8.2/20190904-37eef91017ad [edk2-stable201908] ->
+RHEL-8.3/20200603-ca407c7246bf [edk2-stable202005] rebase:
+
+- refresh against upstream commit 48760409ccc8 (".gitignore: Ignore python
+  compiled files, extdeps, and vscode", 2019-11-11)
+
+- add ".AutoGenIdFile.txt" to "Conf/.gitignore", in response to upstream
+  commit 373298ca0d60 ("BaseTools: Fixed issue for IgnoreAutoGen",
+  2019-09-10)
+
+Notes about the RHEL-8.1/20190308-89910a39dcfd [edk2-stable201903] ->
+RHEL-8.2/20190904-37eef91017ad [edk2-stable201908] rebase:
+
+- no changes
+
+Notes about the RHEL-8.0/20180508-ee3198e672e2 ->
+RHEL-8.1/20190308-89910a39dcfd rebase:
+
+- no changes
+
+Notes about the RHEL-7.6/ovmf-20180508-2.gitee3198e672e2.el7 ->
+RHEL-8.0/20180508-ee3198e672e2 rebase:
+
+- reorder the rebase changelog in the commit message so that it reads like
+  a blog: place more recent entries near the top
+- no changes to the patch body
+
+Notes about the 20171011-92d07e48907f -> 20180508-ee3198e672e2 rebase:
+
+- no changes
+
+Notes about the 20170228-c325e41585e3 -> 20171011-92d07e48907f rebase:
+
+- Conflict resolution against upstream commit 112f4ada2e6b ("edk2: Add
+  .DS_Store to .gitignore for macOS", 2017-05-04), in the ".gitignore"
+  file.
+
+Notes about the 20160608b-988715a -> 20170228-c325e41585e3 rebase:
+
+- no changes
+
+Notes about the 9ece15a -> c9e5618 rebase:
+
+- Upstream added .gitignore files in the meanwhile, we just need some
+  light customization. In particular the Conf/ReadMe.txt file should not
+  be ignored, it is not generated.
+
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+(cherry picked from commit 3b9c914f2d6bff6274d5ed45fcf4c757ce27031b)
+(cherry picked from commit b66c3c6d11a834dc7cb3ab326f09c6a21c0b81e8)
+(cherry picked from commit c94381432988f6137de46772cbd4080d9832c9ad)
+(cherry picked from commit 730cc57005e4908fcee29109672284808b21ec1c)
+(cherry picked from commit 161184bcb55a670f8f7f8c4147825eb360b73794)
+(cherry picked from commit 4eec2bb2176f2deda2b2c44a6f2ea167c5a43433)
+(cherry picked from commit ea548c8d0c9d4cd5b8b5200eda8ff6ac220a6307)
+(cherry picked from commit 4872f69df8b0460fbbfcd75950d81fdcd213f8c0)
+---
+ Conf/.gitignore | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/Conf/.gitignore b/Conf/.gitignore
+index 5e4debcc10..8601fc0cee 100644
+--- a/Conf/.gitignore
++++ b/Conf/.gitignore
+@@ -1 +1,6 @@
+-*
++.AutoGenIdFile.txt
++.cache/
++BuildEnv.sh
++build_rule.txt
++target.txt
++tools_def.txt

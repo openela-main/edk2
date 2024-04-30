@@ -1,0 +1,111 @@
+From ef99dec08d51bad7be0f84942443a8a0e1412c87 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 16 Jan 2024 18:11:01 +0100
+Subject: [PATCH 2/6] OvmfPkg/VirtNorFlashDxe: clarify block write logic & fix
+ shadowbuffer reads
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 52: OvmfPkg/VirtNorFlashDxe: backport more fixes.
+RH-Jira: RHEL-20963
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Acked-by: Miroslav Rezanina <mrezanin@redhat.com>
+RH-Commit: [2/6] e2f2231fd1b7b702aa5372e790c1d2c06ca79f74 (kraxel.rh/centos-src-edk2)
+
+Introduce 'Start' and 'End' variables to make it easier to follow the
+logic and code flow.  Also add a ascii art diagram (based on a
+suggestion by Laszlo).
+
+This also fixes the 'Size' calculation for the NorFlashRead() call.
+Without this patch the code will read only one instead of two
+P30_MAX_BUFFER_SIZE_IN_BYTES blocks in case '*NumBytes' is smaller than
+P30_MAX_BUFFER_SIZE_IN_BYTES but 'Offset + *NumBytes' is not, i.e. the
+update range crosses a P30_MAX_BUFFER_SIZE_IN_BYTES boundary.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+Message-Id: <20240116171105.37831-3-kraxel@redhat.com>
+(cherry picked from commit 35d8ea8097794b522149688b5cfaf8364bc44d54)
+---
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c | 36 ++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
+
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+index 7f4743b003..88a4d2c23f 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+@@ -520,6 +520,7 @@ NorFlashWriteSingleBlock (
+   UINTN       BlockSize;
+   UINTN       BlockAddress;
+   UINT8       *OrigData;
++  UINTN       Start, End;
+ 
+   DEBUG ((DEBUG_BLKIO, "NorFlashWriteSingleBlock(Parameters: Lba=%ld, Offset=0x%x, *NumBytes=0x%x, Buffer @ 0x%08x)\n", Lba, Offset, *NumBytes, Buffer));
+ 
+@@ -555,7 +556,28 @@ NorFlashWriteSingleBlock (
+   // To avoid pathological cases were a 2 byte write is disregarded because it
+   // occurs right at a 128 byte buffered write alignment boundary, permit up to
+   // twice the max buffer size, and perform two writes if needed.
+-  if ((*NumBytes + (Offset & BOUNDARY_OF_32_WORDS)) <= (2 * P30_MAX_BUFFER_SIZE_IN_BYTES)) {
++  //
++  //    0               128              256
++  //    [----------------|----------------]
++  //    ^         ^             ^         ^
++  //    |         |             |         |
++  //    |         |             |        End, the next "word" boundary beyond
++  //    |         |             |        the (logical) update
++  //    |         |             |
++  //    |         |     (Offset & BOUNDARY_OF_32_WORDS) + NumBytes;
++  //    |         |     i.e., the relative offset inside (or just past)
++  //    |         |     the *double-word* such that it is the
++  //    |         |     *exclusive* end of the (logical) update.
++  //    |         |
++  //    |         Offset & BOUNDARY_OF_32_WORDS; i.e., Offset within the "word";
++  //    |         this is where the (logical) update is supposed to start
++  //    |
++  //    Start = Offset & ~BOUNDARY_OF_32_WORDS; i.e., Offset truncated to "word" boundary
++
++  Start = Offset & ~BOUNDARY_OF_32_WORDS;
++  End   = ALIGN_VALUE (Offset + *NumBytes, P30_MAX_BUFFER_SIZE_IN_BYTES);
++
++  if ((End - Start) <= (2 * P30_MAX_BUFFER_SIZE_IN_BYTES)) {
+     // Check to see if we need to erase before programming the data into NOR.
+     // If the destination bits are only changing from 1s to 0s we can just write.
+     // After a block is erased all bits in the block is set to 1.
+@@ -565,8 +587,8 @@ NorFlashWriteSingleBlock (
+     Status = NorFlashRead (
+                Instance,
+                Lba,
+-               Offset & ~BOUNDARY_OF_32_WORDS,
+-               (*NumBytes | BOUNDARY_OF_32_WORDS) + 1,
++               Start,
++               End - Start,
+                Instance->ShadowBuffer
+                );
+     if (EFI_ERROR (Status)) {
+@@ -601,7 +623,7 @@ NorFlashWriteSingleBlock (
+ 
+     Status = NorFlashWriteBuffer (
+                Instance,
+-               BlockAddress + (Offset & ~BOUNDARY_OF_32_WORDS),
++               BlockAddress + Start,
+                P30_MAX_BUFFER_SIZE_IN_BYTES,
+                Instance->ShadowBuffer
+                );
+@@ -609,12 +631,10 @@ NorFlashWriteSingleBlock (
+       goto Exit;
+     }
+ 
+-    if ((*NumBytes + (Offset & BOUNDARY_OF_32_WORDS)) > P30_MAX_BUFFER_SIZE_IN_BYTES) {
+-      BlockAddress += P30_MAX_BUFFER_SIZE_IN_BYTES;
+-
++    if ((End - Start) > P30_MAX_BUFFER_SIZE_IN_BYTES) {
+       Status = NorFlashWriteBuffer (
+                  Instance,
+-                 BlockAddress + (Offset & ~BOUNDARY_OF_32_WORDS),
++                 BlockAddress + Start + P30_MAX_BUFFER_SIZE_IN_BYTES,
+                  P30_MAX_BUFFER_SIZE_IN_BYTES,
+                  Instance->ShadowBuffer + P30_MAX_BUFFER_SIZE_IN_BYTES
+                  );
+-- 
+2.39.3
+
