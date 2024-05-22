@@ -1,0 +1,174 @@
+From f8691984227809170b702f6fd087add1f95ee8fe Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Tue, 5 Mar 2024 16:38:49 -0500
+Subject: [PATCH 1/2] EmbeddedPkg/Hob: Integer Overflow in CreateHob()
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 66: EmbeddedPkg/Hob: Integer Overflow in CreateHob()
+RH-Jira: RHEL-21158
+RH-Acked-by: Oliver Steffen <osteffen@redhat.com>
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [1/2] 301d3bfe82c39179fb85d510788831aa340212d9
+
+JIRA: https://issues.redhat.com/browse/RHEL-21158
+CVE: CVE-2022-36765
+Upstream: Merged
+
+commit aeaee8944f0eaacbf4cdf39279785b9ba4836bb6
+Author: Gua Guo <gua.guo@intel.com>
+Date:   Thu Jan 11 13:07:50 2024 +0800
+
+    EmbeddedPkg/Hob: Integer Overflow in CreateHob()
+
+    REF: https://bugzilla.tianocore.org/show_bug.cgi?id=4166
+
+    Fix integer overflow in various CreateHob instances.
+    Fixes: CVE-2022-36765
+
+    The CreateHob() function aligns the requested size to 8
+    performing the following operation:
+    ```
+    HobLength = (UINT16)((HobLength + 0x7) & (~0x7));
+    ```
+
+    No checks are performed to ensure this value doesn't
+    overflow, and could lead to CreateHob() returning a smaller
+    HOB than requested, which could lead to OOB HOB accesses.
+
+    Reported-by: Marc Beatove <mbeatove@google.com>
+    Cc: Leif Lindholm <quic_llindhol@quicinc.com>
+    Reviewed-by: Ard Biesheuvel <ardb+tianocore@kernel.org>
+    Cc: Abner Chang <abner.chang@amd.com>
+    Cc: John Mathew <john.mathews@intel.com>
+    Authored-by: Gerd Hoffmann <kraxel@redhat.com>
+    Signed-off-by: Gua Guo <gua.guo@intel.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ EmbeddedPkg/Library/PrePiHobLib/Hob.c | 47 +++++++++++++++++++++++++--
+ 1 file changed, 45 insertions(+), 2 deletions(-)
+
+diff --git a/EmbeddedPkg/Library/PrePiHobLib/Hob.c b/EmbeddedPkg/Library/PrePiHobLib/Hob.c
+index b5cc6c5d8f..f4c99369c6 100644
+--- a/EmbeddedPkg/Library/PrePiHobLib/Hob.c
++++ b/EmbeddedPkg/Library/PrePiHobLib/Hob.c
+@@ -112,6 +112,13 @@ CreateHob (
+ 
+   HandOffHob = GetHobList ();
+ 
++  //
++  // Check Length to avoid data overflow.
++  //
++  if (HobLength > MAX_UINT16 - 0x7) {
++    return NULL;
++  }
++
+   HobLength = (UINT16)((HobLength + 0x7) & (~0x7));
+ 
+   FreeMemory = HandOffHob->EfiFreeMemoryTop - HandOffHob->EfiFreeMemoryBottom;
+@@ -161,7 +168,10 @@ BuildResourceDescriptorHob (
+   EFI_HOB_RESOURCE_DESCRIPTOR  *Hob;
+ 
+   Hob = CreateHob (EFI_HOB_TYPE_RESOURCE_DESCRIPTOR, sizeof (EFI_HOB_RESOURCE_DESCRIPTOR));
+-  ASSERT(Hob != NULL);
++  ASSERT (Hob != NULL);
++  if (Hob == NULL) {
++    return;
++  }
+ 
+   Hob->ResourceType      = ResourceType;
+   Hob->ResourceAttribute = ResourceAttribute;
+@@ -403,6 +413,10 @@ BuildModuleHob (
+           ((ModuleLength & (EFI_PAGE_SIZE - 1)) == 0));
+ 
+   Hob = CreateHob (EFI_HOB_TYPE_MEMORY_ALLOCATION, sizeof (EFI_HOB_MEMORY_ALLOCATION_MODULE));
++  ASSERT (Hob != NULL);
++  if (Hob == NULL) {
++    return;
++  }
+ 
+   CopyGuid (&(Hob->MemoryAllocationHeader.Name), &gEfiHobMemoryAllocModuleGuid);
+   Hob->MemoryAllocationHeader.MemoryBaseAddress = MemoryAllocationModule;
+@@ -450,7 +464,12 @@ BuildGuidHob (
+   //
+   ASSERT (DataLength <= (0xffff - sizeof (EFI_HOB_GUID_TYPE)));
+ 
+-  Hob = CreateHob (EFI_HOB_TYPE_GUID_EXTENSION, (UINT16) (sizeof (EFI_HOB_GUID_TYPE) + DataLength));
++  Hob = CreateHob (EFI_HOB_TYPE_GUID_EXTENSION, (UINT16)(sizeof (EFI_HOB_GUID_TYPE) + DataLength));
++  ASSERT (Hob != NULL);
++  if (Hob == NULL) {
++    return NULL;
++  }
++
+   CopyGuid (&Hob->Name, Guid);
+   return Hob + 1;
+ }
+@@ -516,6 +535,10 @@ BuildFvHob (
+   EFI_HOB_FIRMWARE_VOLUME  *Hob;
+ 
+   Hob = CreateHob (EFI_HOB_TYPE_FV, sizeof (EFI_HOB_FIRMWARE_VOLUME));
++  ASSERT (Hob != NULL);
++  if (Hob == NULL) {
++    return;
++  }
+ 
+   Hob->BaseAddress = BaseAddress;
+   Hob->Length      = Length;
+@@ -548,6 +571,10 @@ BuildFv2Hob (
+   EFI_HOB_FIRMWARE_VOLUME2  *Hob;
+ 
+   Hob = CreateHob (EFI_HOB_TYPE_FV2, sizeof (EFI_HOB_FIRMWARE_VOLUME2));
++  ASSERT (Hob != NULL);
++  if (Hob == NULL) {
++    return;
++  }
+ 
+   Hob->BaseAddress = BaseAddress;
+   Hob->Length      = Length;
+@@ -589,6 +616,10 @@ BuildFv3Hob (
+   EFI_HOB_FIRMWARE_VOLUME3  *Hob;
+ 
+   Hob = CreateHob (EFI_HOB_TYPE_FV3, sizeof (EFI_HOB_FIRMWARE_VOLUME3));
++  ASSERT (Hob != NULL);
++  if (Hob == NULL) {
++    return;
++  }
+ 
+   Hob->BaseAddress          = BaseAddress;
+   Hob->Length               = Length;
+@@ -645,6 +676,10 @@ BuildCpuHob (
+   EFI_HOB_CPU  *Hob;
+ 
+   Hob = CreateHob (EFI_HOB_TYPE_CPU, sizeof (EFI_HOB_CPU));
++  ASSERT (Hob != NULL);
++  if (Hob == NULL) {
++    return;
++  }
+ 
+   Hob->SizeOfMemorySpace = SizeOfMemorySpace;
+   Hob->SizeOfIoSpace     = SizeOfIoSpace;
+@@ -681,6 +716,10 @@ BuildStackHob (
+           ((Length & (EFI_PAGE_SIZE - 1)) == 0));
+ 
+   Hob = CreateHob (EFI_HOB_TYPE_MEMORY_ALLOCATION, sizeof (EFI_HOB_MEMORY_ALLOCATION_STACK));
++  ASSERT (Hob != NULL);
++  if (Hob == NULL) {
++    return;
++  }
+ 
+   CopyGuid (&(Hob->AllocDescriptor.Name), &gEfiHobMemoryAllocStackGuid);
+   Hob->AllocDescriptor.MemoryBaseAddress = BaseAddress;
+@@ -761,6 +800,10 @@ BuildMemoryAllocationHob (
+           ((Length & (EFI_PAGE_SIZE - 1)) == 0));
+ 
+   Hob = CreateHob (EFI_HOB_TYPE_MEMORY_ALLOCATION, sizeof (EFI_HOB_MEMORY_ALLOCATION));
++  ASSERT (Hob != NULL);
++  if (Hob == NULL) {
++    return;
++  }
+ 
+   ZeroMem (&(Hob->AllocDescriptor.Name), sizeof (EFI_GUID));
+   Hob->AllocDescriptor.MemoryBaseAddress = BaseAddress;
+-- 
+2.39.3
+

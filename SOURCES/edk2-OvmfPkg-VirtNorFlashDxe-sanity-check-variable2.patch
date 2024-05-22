@@ -1,13 +1,13 @@
-From bfdee279c563129ad1847a081e9b675e322e0788 Mon Sep 17 00:00:00 2001
+From c4d2144caff4eddb7021752fce6c2dec6d5e1632 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 9 Jan 2024 12:29:02 +0100
-Subject: [PATCH 2/2] OvmfPkg/VirtNorFlashDxe: sanity-check variables
+Subject: [PATCH 10/18] OvmfPkg/VirtNorFlashDxe: sanity-check variables
 
 RH-Author: Gerd Hoffmann <None>
-RH-MergeRequest: 41: OvmfPkg/VirtNorFlashDxe: sanity-check variables
-RH-Jira: RHEL-20351
-RH-Acked-by: Jon Maloy <jmaloy@redhat.com>
-RH-Commit: [2/2] da1ecd33775421c2cd77e3b0c1bea94de3aca22d
+RH-MergeRequest: 43: OvmfPkg/VirtNorFlashDxe backport
+RH-Jira: RHEL-17587
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [12/20] 2ad3957478b82a4ca29249ceb9620f97c591a1fe
 
 Extend the ValidateFvHeader function, additionally to the header checks
 walk over the list of variables and sanity check them.
@@ -21,36 +21,36 @@ Reviewed-by: Laszlo Ersek <lersek@redhat.com>
 [lersek@redhat.com: fix StartId initialization/assignment coding style]
 (cherry picked from commit 4a443f73fd67ca8caaf0a3e1a01f8231b330d2e0)
 ---
- .../Drivers/NorFlashDxe/NorFlashDxe.inf       |   1 +
- .../Drivers/NorFlashDxe/NorFlashFvb.c         | 149 +++++++++++++++++-
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf |   1 +
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c   | 149 +++++++++++++++++++-
  2 files changed, 145 insertions(+), 5 deletions(-)
 
-diff --git a/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf b/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf
-index f8d4c27031..10388880a1 100644
---- a/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf
-+++ b/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf
-@@ -35,6 +35,7 @@
-   DebugLib
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf
+index 2a3d4a218e..f549400280 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf
+@@ -34,6 +34,7 @@
+   DxeServicesTableLib
    HobLib
-   NorFlashPlatformLib
+   IoLib
 +  SafeIntLib
-   UefiLib
-   UefiDriverEntryPoint
    UefiBootServicesTableLib
-diff --git a/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashFvb.c b/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashFvb.c
-index 904605cbbc..2a166c94a6 100644
---- a/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashFvb.c
-+++ b/ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashFvb.c
-@@ -13,6 +13,7 @@
- #include <Library/UefiLib.h>
+   UefiDriverEntryPoint
+   UefiLib
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c
+index c503272a2b..acc4a413ee 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c
+@@ -12,6 +12,7 @@
  #include <Library/BaseMemoryLib.h>
  #include <Library/MemoryAllocationLib.h>
+ #include <Library/PcdLib.h>
 +#include <Library/SafeIntLib.h>
+ #include <Library/UefiLib.h>
  
- #include <Guid/VariableFormat.h>
- #include <Guid/SystemNvDataGuid.h>
-@@ -166,11 +167,12 @@ ValidateFvHeader (
-   IN  NOR_FLASH_INSTANCE *Instance
+ #include <Guid/NvVarStoreFormatted.h>
+@@ -185,11 +186,12 @@ ValidateFvHeader (
+   IN  NOR_FLASH_INSTANCE  *Instance
    )
  {
 -  UINT16                      Checksum;
@@ -65,9 +65,9 @@ index 904605cbbc..2a166c94a6 100644
 +  UINTN                             VariableStoreLength;
 +  UINTN                             FvLength;
  
-   FwVolHeader = (EFI_FIRMWARE_VOLUME_HEADER*)Instance->RegionBaseAddress;
+   FwVolHeader = (EFI_FIRMWARE_VOLUME_HEADER *)Instance->RegionBaseAddress;
  
-@@ -223,6 +225,143 @@ ValidateFvHeader (
+@@ -258,6 +260,143 @@ ValidateFvHeader (
      return EFI_NOT_FOUND;
    }
  

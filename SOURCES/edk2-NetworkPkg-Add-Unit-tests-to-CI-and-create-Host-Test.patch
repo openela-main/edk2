@@ -1,17 +1,16 @@
-From c1fe45c210fc719f1eedc0b02c357b71d6584971 Mon Sep 17 00:00:00 2001
+From aa66757951e9880df4e21e191142400480aa3908 Mon Sep 17 00:00:00 2001
 From: Jon Maloy <jmaloy@redhat.com>
 Date: Thu, 8 Feb 2024 10:35:14 -0500
-Subject: [PATCH 2/3] NetworkPkg: : Add Unit tests to CI and create Host Test
+Subject: [PATCH 15/17] NetworkPkg: : Add Unit tests to CI and create Host Test
  DSC
 
 RH-Author: Jon Maloy <jmaloy@redhat.com>
-RH-MergeRequest: 51: NetworkPkg: Dhcp6Dxe: SECURITY PATCH CVE-2023-45230 Patch
-RH-Jira: RHEL-21993
-RH-Acked-by: Gerd Hoffmann <None>
+RH-MergeRequest: 50: CVE-2023-45230 and CVE-2023-45229
+RH-Jira: RHEL-21840 RHEL-21842
 RH-Acked-by: Oliver Steffen <osteffen@redhat.com>
-RH-Commit: [2/3] c2b221c465295c93b2a57064bb17aee08400aa52 (jmaloy/jons_fork)
+RH-Commit: [2/4] 6669306e2dbb5aa3e7691d57f4a61685b7cd57b2 (jmaloy/jons_fork)
 
-JIRA: https://issues.redhat.com/browse/RHEL-21993
+JIRA: https://issues.redhat.com/browse/RHEL-21842
 CVE: CVE-2023-45230
 Upstream: Merged
 

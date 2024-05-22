@@ -1,4 +1,4 @@
-From 2dbfc91269fd944aeb82e0f9178e0ab278ccf0da Mon Sep 17 00:00:00 2001
+From abe5b633eaae333190fb742af3fa15968f02a92e Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Tue, 9 Jan 2024 12:29:01 +0100
 Subject: [PATCH 1/2] OvmfPkg/VirtNorFlashDxe: stop accepting gEfiVariableGuid
@@ -7,10 +7,10 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 RH-Author: Gerd Hoffmann <None>
-RH-MergeRequest: 41: OvmfPkg/VirtNorFlashDxe: sanity-check variables
-RH-Jira: RHEL-20351
-RH-Acked-by: Jon Maloy <jmaloy@redhat.com>
-RH-Commit: [1/2] c39aca9d2933518dff4216f585fdfcc492f08673
+RH-MergeRequest: 42: OvmfPkg/VirtNorFlashDxe: sanity-check variables
+RH-Jira: RHEL-17587
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [1/2] 790f895bd180bc2c4b957a7a3c7d07e9107dd74b
 
 Only accept gEfiAuthenticatedVariableGuid when checking the variable
 store header in ValidateFvHeader().

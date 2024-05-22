@@ -1,0 +1,504 @@
+From 8cf16599ade30de07c9b51f90d2208046f74fee6 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Mon, 24 Oct 2022 17:12:08 +0200
+Subject: [PATCH 04/18] OvmfPkg/VirtNorFlashDxe: drop block I/O protocol
+ implementation
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 43: OvmfPkg/VirtNorFlashDxe backport
+RH-Jira: RHEL-17587
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [6/20] 6843078997a30c2818e0d53a90fb7f6accb89aaf
+
+We never boot from NOR flash, and generally rely on the firmware volume
+PI protocols to expose the contents. So drop the block I/O protocol
+implementation from VirtNorFlashDxe.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Sunil V L <sunilvl@ventanamicro.com>
+(cherry picked from commit 83f11f957240ead9b135a778316330762b0a3acb)
+---
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c      | 49 ++++++------------
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlash.h      | 54 ++------------------
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c   | 40 +++------------
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf |  1 -
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c   | 55 ++++++++-------------
+ 5 files changed, 45 insertions(+), 154 deletions(-)
+
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+index 1094d48f7d..f41d9d372f 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+@@ -366,10 +366,6 @@ NorFlashWriteBlocks (
+     return EFI_INVALID_PARAMETER;
+   }
+ 
+-  if (Instance->Media.ReadOnly == TRUE) {
+-    return EFI_WRITE_PROTECTED;
+-  }
+-
+   // We must have some bytes to read
+   DEBUG ((DEBUG_BLKIO, "NorFlashWriteBlocks: BufferSizeInBytes=0x%x\n", BufferSizeInBytes));
+   if (BufferSizeInBytes == 0) {
+@@ -377,22 +373,22 @@ NorFlashWriteBlocks (
+   }
+ 
+   // The size of the buffer must be a multiple of the block size
+-  DEBUG ((DEBUG_BLKIO, "NorFlashWriteBlocks: BlockSize in bytes =0x%x\n", Instance->Media.BlockSize));
+-  if ((BufferSizeInBytes % Instance->Media.BlockSize) != 0) {
++  DEBUG ((DEBUG_BLKIO, "NorFlashWriteBlocks: BlockSize in bytes =0x%x\n", Instance->BlockSize));
++  if ((BufferSizeInBytes % Instance->BlockSize) != 0) {
+     return EFI_BAD_BUFFER_SIZE;
+   }
+ 
+   // All blocks must be within the device
+-  NumBlocks = ((UINT32)BufferSizeInBytes) / Instance->Media.BlockSize;
++  NumBlocks = ((UINT32)BufferSizeInBytes) / Instance->BlockSize;
+ 
+-  DEBUG ((DEBUG_BLKIO, "NorFlashWriteBlocks: NumBlocks=%d, LastBlock=%ld, Lba=%ld.\n", NumBlocks, Instance->Media.LastBlock, Lba));
++  DEBUG ((DEBUG_BLKIO, "NorFlashWriteBlocks: NumBlocks=%d, LastBlock=%ld, Lba=%ld.\n", NumBlocks, Instance->LastBlock, Lba));
+ 
+-  if ((Lba + NumBlocks) > (Instance->Media.LastBlock + 1)) {
++  if ((Lba + NumBlocks) > (Instance->LastBlock + 1)) {
+     DEBUG ((DEBUG_ERROR, "NorFlashWriteBlocks: ERROR - Write will exceed last block.\n"));
+     return EFI_INVALID_PARAMETER;
+   }
+ 
+-  BlockSizeInWords = Instance->Media.BlockSize / 4;
++  BlockSizeInWords = Instance->BlockSize / 4;
+ 
+   // Because the target *Buffer is a pointer to VOID, we must put all the data into a pointer
+   // to a proper data type, so use *ReadBuffer
+@@ -489,8 +485,8 @@ NorFlashReadBlocks (
+     DEBUG_BLKIO,
+     "NorFlashReadBlocks: BufferSize=0x%xB BlockSize=0x%xB LastBlock=%ld, Lba=%ld.\n",
+     BufferSizeInBytes,
+-    Instance->Media.BlockSize,
+-    Instance->Media.LastBlock,
++    Instance->BlockSize,
++    Instance->LastBlock,
+     Lba
+     ));
+ 
+@@ -505,14 +501,14 @@ NorFlashReadBlocks (
+   }
+ 
+   // The size of the buffer must be a multiple of the block size
+-  if ((BufferSizeInBytes % Instance->Media.BlockSize) != 0) {
++  if ((BufferSizeInBytes % Instance->BlockSize) != 0) {
+     return EFI_BAD_BUFFER_SIZE;
+   }
+ 
+   // All blocks must be within the device
+-  NumBlocks = ((UINT32)BufferSizeInBytes) / Instance->Media.BlockSize;
++  NumBlocks = ((UINT32)BufferSizeInBytes) / Instance->BlockSize;
+ 
+-  if ((Lba + NumBlocks) > (Instance->Media.LastBlock + 1)) {
++  if ((Lba + NumBlocks) > (Instance->LastBlock + 1)) {
+     DEBUG ((DEBUG_ERROR, "NorFlashReadBlocks: ERROR - Read will exceed last block\n"));
+     return EFI_INVALID_PARAMETER;
+   }
+@@ -521,7 +517,7 @@ NorFlashReadBlocks (
+   StartAddress = GET_NOR_BLOCK_ADDRESS (
+                    Instance->RegionBaseAddress,
+                    Lba,
+-                   Instance->Media.BlockSize
++                   Instance->BlockSize
+                    );
+ 
+   // Put the device into Read Array mode
+@@ -554,7 +550,7 @@ NorFlashRead (
+     return EFI_SUCCESS;
+   }
+ 
+-  if (((Lba * Instance->Media.BlockSize) + Offset + BufferSizeInBytes) > Instance->Size) {
++  if (((Lba * Instance->BlockSize) + Offset + BufferSizeInBytes) > Instance->Size) {
+     DEBUG ((DEBUG_ERROR, "NorFlashRead: ERROR - Read will exceed device size.\n"));
+     return EFI_INVALID_PARAMETER;
+   }
+@@ -563,7 +559,7 @@ NorFlashRead (
+   StartAddress = GET_NOR_BLOCK_ADDRESS (
+                    Instance->RegionBaseAddress,
+                    Lba,
+-                   Instance->Media.BlockSize
++                   Instance->BlockSize
+                    );
+ 
+   // Put the device into Read Array mode
+@@ -577,7 +573,7 @@ NorFlashRead (
+ 
+ /*
+   Write a full or portion of a block. It must not span block boundaries; that is,
+-  Offset + *NumBytes <= Instance->Media.BlockSize.
++  Offset + *NumBytes <= Instance->BlockSize.
+ */
+ EFI_STATUS
+ NorFlashWriteSingleBlock (
+@@ -605,15 +601,8 @@ NorFlashWriteSingleBlock (
+ 
+   DEBUG ((DEBUG_BLKIO, "NorFlashWriteSingleBlock(Parameters: Lba=%ld, Offset=0x%x, *NumBytes=0x%x, Buffer @ 0x%08x)\n", Lba, Offset, *NumBytes, Buffer));
+ 
+-  // Detect WriteDisabled state
+-  if (Instance->Media.ReadOnly == TRUE) {
+-    DEBUG ((DEBUG_ERROR, "NorFlashWriteSingleBlock: ERROR - Can not write: Device is in WriteDisabled state.\n"));
+-    // It is in WriteDisabled state, return an error right away
+-    return EFI_ACCESS_DENIED;
+-  }
+-
+   // Cache the block size to avoid de-referencing pointers all the time
+-  BlockSize = Instance->Media.BlockSize;
++  BlockSize = Instance->BlockSize;
+ 
+   // The write must not span block boundaries.
+   // We need to check each variable individually because adding two large values together overflows.
+@@ -819,12 +808,6 @@ NorFlashVirtualNotifyEvent (
+     EfiConvertPointer (0x0, (VOID **)&mNorFlashInstances[Index]->DeviceBaseAddress);
+     EfiConvertPointer (0x0, (VOID **)&mNorFlashInstances[Index]->RegionBaseAddress);
+ 
+-    // Convert BlockIo protocol
+-    EfiConvertPointer (0x0, (VOID **)&mNorFlashInstances[Index]->BlockIoProtocol.FlushBlocks);
+-    EfiConvertPointer (0x0, (VOID **)&mNorFlashInstances[Index]->BlockIoProtocol.ReadBlocks);
+-    EfiConvertPointer (0x0, (VOID **)&mNorFlashInstances[Index]->BlockIoProtocol.Reset);
+-    EfiConvertPointer (0x0, (VOID **)&mNorFlashInstances[Index]->BlockIoProtocol.WriteBlocks);
+-
+     // Convert Fvb
+     EfiConvertPointer (0x0, (VOID **)&mNorFlashInstances[Index]->FvbProtocol.EraseBlocks);
+     EfiConvertPointer (0x0, (VOID **)&mNorFlashInstances[Index]->FvbProtocol.GetAttributes);
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.h b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.h
+index 7733ee02ee..b7f5d208b2 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.h
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.h
+@@ -14,7 +14,6 @@
+ 
+ #include <Guid/EventGroup.h>
+ 
+-#include <Protocol/BlockIo.h>
+ #include <Protocol/FirmwareVolumeBlock.h>
+ 
+ #include <Library/DebugLib.h>
+@@ -108,8 +107,7 @@
+ #define P30_CMD_READ_CONFIGURATION_REGISTER        0x0003
+ 
+ #define NOR_FLASH_SIGNATURE  SIGNATURE_32('n', 'o', 'r', '0')
+-#define INSTANCE_FROM_FVB_THIS(a)     CR(a, NOR_FLASH_INSTANCE, FvbProtocol, NOR_FLASH_SIGNATURE)
+-#define INSTANCE_FROM_BLKIO_THIS(a)   CR(a, NOR_FLASH_INSTANCE, BlockIoProtocol, NOR_FLASH_SIGNATURE)
++#define INSTANCE_FROM_FVB_THIS(a)  CR(a, NOR_FLASH_INSTANCE, FvbProtocol, NOR_FLASH_SIGNATURE)
+ 
+ typedef struct _NOR_FLASH_INSTANCE NOR_FLASH_INSTANCE;
+ 
+@@ -129,9 +127,8 @@ struct _NOR_FLASH_INSTANCE {
+   UINTN                                  RegionBaseAddress;
+   UINTN                                  Size;
+   EFI_LBA                                StartLba;
+-
+-  EFI_BLOCK_IO_PROTOCOL                  BlockIoProtocol;
+-  EFI_BLOCK_IO_MEDIA                     Media;
++  EFI_LBA                                LastBlock;
++  UINT32                                 BlockSize;
+ 
+   EFI_FIRMWARE_VOLUME_BLOCK2_PROTOCOL    FvbProtocol;
+   VOID                                   *ShadowBuffer;
+@@ -155,51 +152,6 @@ NorFlashWriteBuffer (
+   IN UINT32              *Buffer
+   );
+ 
+-//
+-// BlockIO Protocol function EFI_BLOCK_IO_PROTOCOL.Reset
+-//
+-EFI_STATUS
+-EFIAPI
+-NorFlashBlockIoReset (
+-  IN EFI_BLOCK_IO_PROTOCOL  *This,
+-  IN BOOLEAN                ExtendedVerification
+-  );
+-
+-//
+-// BlockIO Protocol function EFI_BLOCK_IO_PROTOCOL.ReadBlocks
+-//
+-EFI_STATUS
+-EFIAPI
+-NorFlashBlockIoReadBlocks (
+-  IN  EFI_BLOCK_IO_PROTOCOL  *This,
+-  IN  UINT32                 MediaId,
+-  IN  EFI_LBA                Lba,
+-  IN  UINTN                  BufferSizeInBytes,
+-  OUT VOID                   *Buffer
+-  );
+-
+-//
+-// BlockIO Protocol function EFI_BLOCK_IO_PROTOCOL.WriteBlocks
+-//
+-EFI_STATUS
+-EFIAPI
+-NorFlashBlockIoWriteBlocks (
+-  IN  EFI_BLOCK_IO_PROTOCOL  *This,
+-  IN  UINT32                 MediaId,
+-  IN  EFI_LBA                Lba,
+-  IN  UINTN                  BufferSizeInBytes,
+-  IN  VOID                   *Buffer
+-  );
+-
+-//
+-// BlockIO Protocol function EFI_BLOCK_IO_PROTOCOL.FlushBlocks
+-//
+-EFI_STATUS
+-EFIAPI
+-NorFlashBlockIoFlushBlocks (
+-  IN EFI_BLOCK_IO_PROTOCOL  *This
+-  );
+-
+ //
+ // NorFlashFvbDxe.c
+ //
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c
+index 4875b057d5..2ceda22635 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c
+@@ -34,29 +34,8 @@ NOR_FLASH_INSTANCE  mNorFlashInstanceTemplate = {
+   0, // RegionBaseAddress ... NEED TO BE FILLED
+   0, // Size ... NEED TO BE FILLED
+   0, // StartLba
+-
+-  {
+-    EFI_BLOCK_IO_PROTOCOL_REVISION2, // Revision
+-    NULL,                            // Media ... NEED TO BE FILLED
+-    NorFlashBlockIoReset,            // Reset;
+-    NorFlashBlockIoReadBlocks,       // ReadBlocks
+-    NorFlashBlockIoWriteBlocks,      // WriteBlocks
+-    NorFlashBlockIoFlushBlocks       // FlushBlocks
+-  }, // BlockIoProtocol
+-
+-  {
+-    0,     // MediaId ... NEED TO BE FILLED
+-    FALSE, // RemovableMedia
+-    TRUE,  // MediaPresent
+-    FALSE, // LogicalPartition
+-    FALSE, // ReadOnly
+-    FALSE, // WriteCaching;
+-    0,     // BlockSize ... NEED TO BE FILLED
+-    4,     //  IoAlign
+-    0,     // LastBlock ... NEED TO BE FILLED
+-    0,     // LowestAlignedLba
+-    1,     // LogicalBlocksPerPhysicalBlock
+-  }, // Media;
++  0, // LastBlock
++  0, // BlockSize
+ 
+   {
+     FvbGetAttributes,      // GetAttributes
+@@ -115,11 +94,8 @@ NorFlashCreateInstance (
+   Instance->DeviceBaseAddress = NorFlashDeviceBase;
+   Instance->RegionBaseAddress = NorFlashRegionBase;
+   Instance->Size              = NorFlashSize;
+-
+-  Instance->BlockIoProtocol.Media = &Instance->Media;
+-  Instance->Media.MediaId         = Index;
+-  Instance->Media.BlockSize       = BlockSize;
+-  Instance->Media.LastBlock       = (NorFlashSize / BlockSize)-1;
++  Instance->BlockSize         = BlockSize;
++  Instance->LastBlock         = (NorFlashSize / BlockSize) - 1;
+ 
+   CopyGuid (&Instance->DevicePath.Vendor.Guid, &gEfiCallerIdGuid);
+   Instance->DevicePath.Index = (UINT8)Index;
+@@ -136,8 +112,6 @@ NorFlashCreateInstance (
+                     &Instance->Handle,
+                     &gEfiDevicePathProtocolGuid,
+                     &Instance->DevicePath,
+-                    &gEfiBlockIoProtocolGuid,
+-                    &Instance->BlockIoProtocol,
+                     &gEfiFirmwareVolumeBlockProtocolGuid,
+                     &Instance->FvbProtocol,
+                     NULL
+@@ -151,8 +125,6 @@ NorFlashCreateInstance (
+                     &Instance->Handle,
+                     &gEfiDevicePathProtocolGuid,
+                     &Instance->DevicePath,
+-                    &gEfiBlockIoProtocolGuid,
+-                    &Instance->BlockIoProtocol,
+                     NULL
+                     );
+     if (EFI_ERROR (Status)) {
+@@ -434,7 +406,7 @@ NorFlashFvbInitialize (
+                                 PcdGet64 (PcdFlashNvStorageVariableBase64) : PcdGet32 (PcdFlashNvStorageVariableBase);
+ 
+   // Set the index of the first LBA for the FVB
+-  Instance->StartLba = (mFlashNvStorageVariableBase - Instance->RegionBaseAddress) / Instance->Media.BlockSize;
++  Instance->StartLba = (mFlashNvStorageVariableBase - Instance->RegionBaseAddress) / Instance->BlockSize;
+ 
+   BootMode = GetBootModeHob ();
+   if (BootMode == BOOT_WITH_DEFAULT_SETTINGS) {
+@@ -455,7 +427,7 @@ NorFlashFvbInitialize (
+       ));
+ 
+     // Erase all the NorFlash that is reserved for variable storage
+-    FvbNumLba = (PcdGet32 (PcdFlashNvStorageVariableSize) + PcdGet32 (PcdFlashNvStorageFtwWorkingSize) + PcdGet32 (PcdFlashNvStorageFtwSpareSize)) / Instance->Media.BlockSize;
++    FvbNumLba = (PcdGet32 (PcdFlashNvStorageVariableSize) + PcdGet32 (PcdFlashNvStorageFtwWorkingSize) + PcdGet32 (PcdFlashNvStorageFtwSpareSize)) / Instance->BlockSize;
+ 
+     Status = FvbEraseBlocks (&Instance->FvbProtocol, (EFI_LBA)0, FvbNumLba, EFI_LBA_LIST_TERMINATOR);
+     if (EFI_ERROR (Status)) {
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf
+index 53e9d58204..2a3d4a218e 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf
+@@ -19,7 +19,6 @@
+ [Sources.common]
+   VirtNorFlash.c
+   VirtNorFlash.h
+-  VirtNorFlashBlockIoDxe.c
+   VirtNorFlashDxe.c
+   VirtNorFlashFvb.c
+ 
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c
+index c824e0a0fb..cc5eefaaf3 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashFvb.c
+@@ -89,7 +89,7 @@ InitializeFvAndVariableStoreHeaders (
+   }
+ 
+   // Check if the size of the area is at least one block size
+-  if ((NvStorageVariableSize <= 0) || (NvStorageVariableSize / Instance->Media.BlockSize <= 0)) {
++  if ((NvStorageVariableSize <= 0) || (NvStorageVariableSize / Instance->BlockSize <= 0)) {
+     DEBUG ((
+       DEBUG_ERROR,
+       "%a: NvStorageVariableSize is 0x%x, should be atleast one block size\n",
+@@ -99,7 +99,7 @@ InitializeFvAndVariableStoreHeaders (
+     return EFI_INVALID_PARAMETER;
+   }
+ 
+-  if ((NvStorageFtwWorkingSize <= 0) || (NvStorageFtwWorkingSize / Instance->Media.BlockSize <= 0)) {
++  if ((NvStorageFtwWorkingSize <= 0) || (NvStorageFtwWorkingSize / Instance->BlockSize <= 0)) {
+     DEBUG ((
+       DEBUG_ERROR,
+       "%a: NvStorageFtwWorkingSize is 0x%x, should be atleast one block size\n",
+@@ -109,7 +109,7 @@ InitializeFvAndVariableStoreHeaders (
+     return EFI_INVALID_PARAMETER;
+   }
+ 
+-  if ((NvStorageFtwSpareSize <= 0) || (NvStorageFtwSpareSize / Instance->Media.BlockSize <= 0)) {
++  if ((NvStorageFtwSpareSize <= 0) || (NvStorageFtwSpareSize / Instance->BlockSize <= 0)) {
+     DEBUG ((
+       DEBUG_ERROR,
+       "%a: NvStorageFtwSpareSize is 0x%x, should be atleast one block size\n",
+@@ -120,9 +120,9 @@ InitializeFvAndVariableStoreHeaders (
+   }
+ 
+   // Ensure the Variable area Base Addresses are aligned on a block size boundaries
+-  if ((NvStorageVariableBase % Instance->Media.BlockSize != 0) ||
+-      (NvStorageFtwWorkingBase % Instance->Media.BlockSize != 0) ||
+-      (NvStorageFtwSpareBase % Instance->Media.BlockSize != 0))
++  if ((NvStorageVariableBase % Instance->BlockSize != 0) ||
++      (NvStorageFtwWorkingBase % Instance->BlockSize != 0) ||
++      (NvStorageFtwSpareBase % Instance->BlockSize != 0))
+   {
+     DEBUG ((DEBUG_ERROR, "%a: NvStorage Base addresses must be aligned to block size boundaries", __FUNCTION__));
+     return EFI_INVALID_PARAMETER;
+@@ -149,8 +149,8 @@ InitializeFvAndVariableStoreHeaders (
+                                                             );
+   FirmwareVolumeHeader->HeaderLength          = sizeof (EFI_FIRMWARE_VOLUME_HEADER) + sizeof (EFI_FV_BLOCK_MAP_ENTRY);
+   FirmwareVolumeHeader->Revision              = EFI_FVH_REVISION;
+-  FirmwareVolumeHeader->BlockMap[0].NumBlocks = Instance->Media.LastBlock + 1;
+-  FirmwareVolumeHeader->BlockMap[0].Length    = Instance->Media.BlockSize;
++  FirmwareVolumeHeader->BlockMap[0].NumBlocks = Instance->LastBlock + 1;
++  FirmwareVolumeHeader->BlockMap[0].Length    = Instance->BlockSize;
+   FirmwareVolumeHeader->BlockMap[1].NumBlocks = 0;
+   FirmwareVolumeHeader->BlockMap[1].Length    = 0;
+   FirmwareVolumeHeader->Checksum              = CalculateCheckSum16 ((UINT16 *)FirmwareVolumeHeader, FirmwareVolumeHeader->HeaderLength);
+@@ -284,9 +284,6 @@ FvbGetAttributes (
+   )
+ {
+   EFI_FVB_ATTRIBUTES_2  FlashFvbAttributes;
+-  NOR_FLASH_INSTANCE    *Instance;
+-
+-  Instance = INSTANCE_FROM_FVB_THIS (This);
+ 
+   FlashFvbAttributes = (EFI_FVB_ATTRIBUTES_2)(
+ 
+@@ -294,17 +291,12 @@ FvbGetAttributes (
+                                               EFI_FVB2_READ_STATUS      | // Reads are currently enabled
+                                               EFI_FVB2_STICKY_WRITE     | // A block erase is required to flip bits into EFI_FVB2_ERASE_POLARITY
+                                               EFI_FVB2_MEMORY_MAPPED    | // It is memory mapped
+-                                              EFI_FVB2_ERASE_POLARITY     // After erasure all bits take this value (i.e. '1')
++                                              EFI_FVB2_ERASE_POLARITY   | // After erasure all bits take this value (i.e. '1')
++                                              EFI_FVB2_WRITE_STATUS     | // Writes are currently enabled
++                                              EFI_FVB2_WRITE_ENABLED_CAP  // Writes may be enabled
+ 
+                                               );
+ 
+-  // Check if it is write protected
+-  if (Instance->Media.ReadOnly != TRUE) {
+-    FlashFvbAttributes = FlashFvbAttributes         |
+-                         EFI_FVB2_WRITE_STATUS      | // Writes are currently enabled
+-                         EFI_FVB2_WRITE_ENABLED_CAP;  // Writes may be enabled
+-  }
+-
+   *Attributes = FlashFvbAttributes;
+ 
+   DEBUG ((DEBUG_BLKIO, "FvbGetAttributes(0x%X)\n", *Attributes));
+@@ -418,15 +410,15 @@ FvbGetBlockSize (
+ 
+   Instance = INSTANCE_FROM_FVB_THIS (This);
+ 
+-  DEBUG ((DEBUG_BLKIO, "FvbGetBlockSize(Lba=%ld, BlockSize=0x%x, LastBlock=%ld)\n", Lba, Instance->Media.BlockSize, Instance->Media.LastBlock));
++  DEBUG ((DEBUG_BLKIO, "FvbGetBlockSize(Lba=%ld, BlockSize=0x%x, LastBlock=%ld)\n", Lba, Instance->BlockSize, Instance->LastBlock));
+ 
+-  if (Lba > Instance->Media.LastBlock) {
+-    DEBUG ((DEBUG_ERROR, "FvbGetBlockSize: ERROR - Parameter LBA %ld is beyond the last Lba (%ld).\n", Lba, Instance->Media.LastBlock));
++  if (Lba > Instance->LastBlock) {
++    DEBUG ((DEBUG_ERROR, "FvbGetBlockSize: ERROR - Parameter LBA %ld is beyond the last Lba (%ld).\n", Lba, Instance->LastBlock));
+     Status = EFI_INVALID_PARAMETER;
+   } else {
+     // This is easy because in this platform each NorFlash device has equal sized blocks.
+-    *BlockSize      = (UINTN)Instance->Media.BlockSize;
+-    *NumberOfBlocks = (UINTN)(Instance->Media.LastBlock - Lba + 1);
++    *BlockSize      = (UINTN)Instance->BlockSize;
++    *NumberOfBlocks = (UINTN)(Instance->LastBlock - Lba + 1);
+ 
+     DEBUG ((DEBUG_BLKIO, "FvbGetBlockSize: *BlockSize=0x%x, *NumberOfBlocks=0x%x.\n", *BlockSize, *NumberOfBlocks));
+ 
+@@ -498,7 +490,7 @@ FvbRead (
+   TempStatus = EFI_SUCCESS;
+ 
+   // Cache the block size to avoid de-referencing pointers all the time
+-  BlockSize = Instance->Media.BlockSize;
++  BlockSize = Instance->BlockSize;
+ 
+   DEBUG ((DEBUG_BLKIO, "FvbRead: Check if (Offset=0x%x + NumBytes=0x%x) <= BlockSize=0x%x\n", Offset, *NumBytes, BlockSize));
+ 
+@@ -669,13 +661,6 @@ FvbEraseBlocks (
+ 
+   Status = EFI_SUCCESS;
+ 
+-  // Detect WriteDisabled state
+-  if (Instance->Media.ReadOnly == TRUE) {
+-    // Firmware volume is in WriteDisabled state
+-    DEBUG ((DEBUG_ERROR, "FvbEraseBlocks: ERROR - Device is in WriteDisabled state.\n"));
+-    return EFI_ACCESS_DENIED;
+-  }
+-
+   // Before erasing, check the entire list of parameters to ensure all specified blocks are valid
+ 
+   VA_START (Args, This);
+@@ -698,9 +683,9 @@ FvbEraseBlocks (
+       "FvbEraseBlocks: Check if: ( StartingLba=%ld + NumOfLba=%Lu - 1 ) > LastBlock=%ld.\n",
+       Instance->StartLba + StartingLba,
+       (UINT64)NumOfLba,
+-      Instance->Media.LastBlock
++      Instance->LastBlock
+       ));
+-    if ((NumOfLba == 0) || ((Instance->StartLba + StartingLba + NumOfLba - 1) > Instance->Media.LastBlock)) {
++    if ((NumOfLba == 0) || ((Instance->StartLba + StartingLba + NumOfLba - 1) > Instance->LastBlock)) {
+       VA_END (Args);
+       DEBUG ((DEBUG_ERROR, "FvbEraseBlocks: ERROR - Lba range goes past the last Lba.\n"));
+       Status = EFI_INVALID_PARAMETER;
+@@ -733,7 +718,7 @@ FvbEraseBlocks (
+       BlockAddress = GET_NOR_BLOCK_ADDRESS (
+                        Instance->RegionBaseAddress,
+                        Instance->StartLba + StartingLba,
+-                       Instance->Media.BlockSize
++                       Instance->BlockSize
+                        );
+ 
+       // Erase it
+-- 
+2.41.0
+

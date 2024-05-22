@@ -1,0 +1,149 @@
+From 9ef10bbe9a03f22aa5c5ff659012794d37ef9839 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Mon, 24 Oct 2022 18:41:22 +0200
+Subject: [PATCH 17/18] ArmVirtPkg/ArmVirtQemu: migrate to OVMF's
+ VirtNorFlashDxe
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 43: OvmfPkg/VirtNorFlashDxe backport
+RH-Jira: RHEL-17587
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [19/20] 2160140b0ea566451ab723e941d2ab91e1ad874e
+
+Switch to the virt specific NorFlashDxe driver implementation that was
+added recently.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Sunil V L <sunilvl@ventanamicro.com>
+(cherry picked from commit b92298af8218dd074c231947bc95f2be94af663c)
+---
+ ArmVirtPkg/ArmVirtQemu.dsc                           |  4 ++--
+ ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc                 |  2 +-
+ ArmVirtPkg/ArmVirtQemuKernel.dsc                     |  4 ++--
+ ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.c | 12 ++++++------
+ .../Library/NorFlashQemuLib/NorFlashQemuLib.inf      |  4 ++--
+ 5 files changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/ArmVirtPkg/ArmVirtQemu.dsc b/ArmVirtPkg/ArmVirtQemu.dsc
+index e6fad9f066..2b23becf30 100644
+--- a/ArmVirtPkg/ArmVirtQemu.dsc
++++ b/ArmVirtPkg/ArmVirtQemu.dsc
+@@ -67,7 +67,7 @@
+   ArmPlatformLib|ArmPlatformPkg/Library/ArmPlatformLibNull/ArmPlatformLibNull.inf
+ 
+   TimerLib|ArmPkg/Library/ArmArchTimerLib/ArmArchTimerLib.inf
+-  NorFlashPlatformLib|ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.inf
++  VirtNorFlashPlatformLib|ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.inf
+ 
+   CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
+   BootLogoLib|MdeModulePkg/Library/BootLogoLib/BootLogoLib.inf
+@@ -400,7 +400,7 @@
+     <LibraryClasses>
+       NULL|ArmVirtPkg/Library/ArmVirtTimerFdtClientLib/ArmVirtTimerFdtClientLib.inf
+   }
+-  ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf
++  OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf
+   MdeModulePkg/Universal/WatchdogTimerDxe/WatchdogTimer.inf
+ 
+   #
+diff --git a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
+index f6a538df72..7c655d384d 100644
+--- a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
++++ b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
+@@ -73,7 +73,7 @@ READ_LOCK_STATUS   = TRUE
+ 
+   INF ArmPkg/Drivers/ArmGic/ArmGicDxe.inf
+   INF ArmPkg/Drivers/TimerDxe/TimerDxe.inf
+-  INF ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf
++  INF OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf
+   INF MdeModulePkg/Universal/WatchdogTimerDxe/WatchdogTimer.inf
+ 
+   #
+diff --git a/ArmVirtPkg/ArmVirtQemuKernel.dsc b/ArmVirtPkg/ArmVirtQemuKernel.dsc
+index 656c9d99a3..344e2c4ed9 100644
+--- a/ArmVirtPkg/ArmVirtQemuKernel.dsc
++++ b/ArmVirtPkg/ArmVirtQemuKernel.dsc
+@@ -65,7 +65,7 @@
+   ArmVirtMemInfoLib|ArmVirtPkg/Library/QemuVirtMemInfoLib/QemuVirtMemInfoLib.inf
+ 
+   TimerLib|ArmPkg/Library/ArmArchTimerLib/ArmArchTimerLib.inf
+-  NorFlashPlatformLib|ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.inf
++  VirtNorFlashPlatformLib|ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.inf
+ 
+   CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
+   BootLogoLib|MdeModulePkg/Library/BootLogoLib/BootLogoLib.inf
+@@ -329,7 +329,7 @@
+     <LibraryClasses>
+       NULL|ArmVirtPkg/Library/ArmVirtTimerFdtClientLib/ArmVirtTimerFdtClientLib.inf
+   }
+-  ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashDxe.inf
++  OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf
+   MdeModulePkg/Universal/WatchdogTimerDxe/WatchdogTimer.inf
+ 
+   #
+diff --git a/ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.c b/ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.c
+index 271d7f0efb..93a2fed40f 100644
+--- a/ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.c
++++ b/ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.c
+@@ -8,8 +8,8 @@
+ 
+ #include <Library/BaseLib.h>
+ #include <Library/DebugLib.h>
+-#include <Library/NorFlashPlatformLib.h>
+ #include <Library/UefiBootServicesTableLib.h>
++#include <Library/VirtNorFlashPlatformLib.h>
+ 
+ #include <Protocol/FdtClient.h>
+ 
+@@ -18,19 +18,19 @@
+ #define MAX_FLASH_BANKS        4
+ 
+ EFI_STATUS
+-NorFlashPlatformInitialization (
++VirtNorFlashPlatformInitialization (
+   VOID
+   )
+ {
+   return EFI_SUCCESS;
+ }
+ 
+-NOR_FLASH_DESCRIPTION mNorFlashDevices[MAX_FLASH_BANKS];
++STATIC VIRT_NOR_FLASH_DESCRIPTION  mNorFlashDevices[MAX_FLASH_BANKS];
+ 
+ EFI_STATUS
+-NorFlashPlatformGetDevices (
+-  OUT NOR_FLASH_DESCRIPTION   **NorFlashDescriptions,
+-  OUT UINT32                  *Count
++VirtNorFlashPlatformGetDevices (
++  OUT VIRT_NOR_FLASH_DESCRIPTION  **NorFlashDescriptions,
++  OUT UINT32                      *Count
+   )
+ {
+   FDT_CLIENT_PROTOCOL         *FdtClient;
+diff --git a/ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.inf b/ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.inf
+index 4c3683bf5d..a6b5865be9 100644
+--- a/ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.inf
++++ b/ArmVirtPkg/Library/NorFlashQemuLib/NorFlashQemuLib.inf
+@@ -14,17 +14,17 @@
+   FILE_GUID                      = 339B7829-4C5F-4EFC-B2DD-5050E530DECE
+   MODULE_TYPE                    = DXE_DRIVER
+   VERSION_STRING                 = 1.0
+-  LIBRARY_CLASS                  = NorFlashPlatformLib
++  LIBRARY_CLASS                  = VirtNorFlashPlatformLib
+ 
+ [Sources.common]
+   NorFlashQemuLib.c
+ 
+ [Packages]
+   MdePkg/MdePkg.dec
+-  ArmPlatformPkg/ArmPlatformPkg.dec
+   ArmPkg/ArmPkg.dec
+   ArmVirtPkg/ArmVirtPkg.dec
+   EmbeddedPkg/EmbeddedPkg.dec
++  OvmfPkg/OvmfPkg.dec
+ 
+ [LibraryClasses]
+   BaseLib
+-- 
+2.41.0
+

@@ -1,0 +1,89 @@
+From 20ba071dabad6b0f5663083a017799b7a6e684c5 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Mon, 24 Oct 2022 17:34:09 +0200
+Subject: [PATCH 05/18] OvmfPkg/VirtNorFlashDxe: avoid array mode switch after
+ each word write
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 43: OvmfPkg/VirtNorFlashDxe backport
+RH-Jira: RHEL-17587
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [7/20] 274f2ed71a6d5d3f6497129ee3c62f494cc2f067
+
+NorFlashWriteSingleWord() switches into programming mode and back into
+array mode for every single word that it writes. Under KVM, this
+involves tearing down the read-only memslot, and setting it up again,
+which is costly and unnecessary.
+
+Instead, move the array mode switch into the callers, and only make the
+switch when the writing is done.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Sunil V L <sunilvl@ventanamicro.com>
+(cherry picked from commit ca01e6216a8d1a26c69018e216d1dc3f88a819a4)
+---
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c    | 12 +++---------
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c |  3 +++
+ 2 files changed, 6 insertions(+), 9 deletions(-)
+
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+index f41d9d372f..0a5c5d48c7 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+@@ -205,9 +205,6 @@ NorFlashWriteSingleWord (
+     SEND_NOR_COMMAND (Instance->DeviceBaseAddress, 0, P30_CMD_CLEAR_STATUS_REGISTER);
+   }
+ 
+-  // Put device back into Read Array mode
+-  SEND_NOR_COMMAND (Instance->DeviceBaseAddress, 0, P30_CMD_READ_ARRAY);
+-
+   return Status;
+ }
+ 
+@@ -286,8 +283,7 @@ NorFlashWriteBuffer (
+ 
+   // The buffer was not available for writing
+   if (WaitForBuffer == 0) {
+-    Status = EFI_DEVICE_ERROR;
+-    goto EXIT;
++    return EFI_DEVICE_ERROR;
+   }
+ 
+   // From now on we work in 32-bit words
+@@ -337,10 +333,6 @@ NorFlashWriteBuffer (
+     SEND_NOR_COMMAND (Instance->DeviceBaseAddress, 0, P30_CMD_CLEAR_STATUS_REGISTER);
+   }
+ 
+-EXIT:
+-  // Put device back into Read Array mode
+-  SEND_NOR_COMMAND (Instance->DeviceBaseAddress, 0, P30_CMD_READ_ARRAY);
+-
+   return Status;
+ }
+ 
+@@ -739,6 +731,8 @@ NorFlashWriteSingleBlock (
+       }
+ 
+       TempStatus = NorFlashWriteSingleWord (Instance, WordAddr, WordToWrite);
++      // Put device back into Read Array mode
++      SEND_NOR_COMMAND (Instance->DeviceBaseAddress, 0, P30_CMD_READ_ARRAY);
+       if (EFI_ERROR (TempStatus)) {
+         return EFI_DEVICE_ERROR;
+       }
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c
+index 2ceda22635..f9a41f6aab 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c
+@@ -280,6 +280,9 @@ NorFlashWriteFullBlock (
+   }
+ 
+ EXIT:
++  // Put device back into Read Array mode
++  SEND_NOR_COMMAND (Instance->DeviceBaseAddress, 0, P30_CMD_READ_ARRAY);
++
+   if (!EfiAtRuntime ()) {
+     // Interruptions can resume.
+     gBS->RestoreTPL (OriginalTPL);
+-- 
+2.41.0
+

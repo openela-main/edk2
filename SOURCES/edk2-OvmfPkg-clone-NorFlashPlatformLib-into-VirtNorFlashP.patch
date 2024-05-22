@@ -1,0 +1,80 @@
+From 59fb955aa77b75345f7828bf9f83764adf4bed46 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Mon, 24 Oct 2022 18:35:10 +0200
+Subject: [PATCH 18/18] OvmfPkg: clone NorFlashPlatformLib into
+ VirtNorFlashPlatformLib
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 43: OvmfPkg/VirtNorFlashDxe backport
+RH-Jira: RHEL-17587
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [20/20] 50ea104b99a997d7d08c1fdef617df1d930ffae6
+
+Create a new library class in Ovmf that duplicates the existing
+NorFlashPlatformLib, but which will be tied to the VirtNorFlashDxe
+driver that will be introduced in a subsequent patch. This allows us to
+retire the original from ArmPlatformPkg.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Sunil V L <sunilvl@ventanamicro.com>
+(cherry picked from commit 16bf588b604a9f190accb71ada715b81756c94e2)
+---
+ .../Include/Library/VirtNorFlashPlatformLib.h | 30 +++++++++++++++++++
+ OvmfPkg/OvmfPkg.dec                           |  4 +++
+ 2 files changed, 34 insertions(+)
+ create mode 100644 OvmfPkg/Include/Library/VirtNorFlashPlatformLib.h
+
+diff --git a/OvmfPkg/Include/Library/VirtNorFlashPlatformLib.h b/OvmfPkg/Include/Library/VirtNorFlashPlatformLib.h
+new file mode 100644
+index 0000000000..8f5b5e972d
+--- /dev/null
++++ b/OvmfPkg/Include/Library/VirtNorFlashPlatformLib.h
+@@ -0,0 +1,30 @@
++/** @file
++
++ Copyright (c) 2011-2012, ARM Ltd. All rights reserved.<BR>
++
++ SPDX-License-Identifier: BSD-2-Clause-Patent
++
++ **/
++
++#ifndef __VIRT_NOR_FLASH_PLATFORM_LIB__
++#define __VIRT_NOR_FLASH_PLATFORM_LIB__
++
++typedef struct {
++  UINTN    DeviceBaseAddress;       // Start address of the Device Base Address (DBA)
++  UINTN    RegionBaseAddress;       // Start address of one single region
++  UINTN    Size;
++  UINTN    BlockSize;
++} VIRT_NOR_FLASH_DESCRIPTION;
++
++EFI_STATUS
++VirtNorFlashPlatformInitialization (
++  VOID
++  );
++
++EFI_STATUS
++VirtNorFlashPlatformGetDevices (
++  OUT VIRT_NOR_FLASH_DESCRIPTION  **NorFlashDescriptions,
++  OUT UINT32                      *Count
++  );
++
++#endif /* __VIRT_NOR_FLASH_PLATFORM_LIB__ */
+diff --git a/OvmfPkg/OvmfPkg.dec b/OvmfPkg/OvmfPkg.dec
+index 340d83f794..e65ebd81c8 100644
+--- a/OvmfPkg/OvmfPkg.dec
++++ b/OvmfPkg/OvmfPkg.dec
+@@ -97,6 +97,10 @@
+   #                  transports.
+   VirtioMmioDeviceLib|Include/Library/VirtioMmioDeviceLib.h
+ 
++  ##  @libraryclass  Provides a Nor flash interface.
++  #
++  VirtNorFlashPlatformLib|Include/Library/VirtNorFlashPlatformLib.h
++
+   ##  @libraryclass  Invoke Xen hypercalls
+   #
+   XenHypercallLib|Include/Library/XenHypercallLib.h
+-- 
+2.41.0
+

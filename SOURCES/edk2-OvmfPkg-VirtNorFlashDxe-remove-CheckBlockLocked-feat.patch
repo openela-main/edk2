@@ -1,0 +1,94 @@
+From 03e0a729a5c3ebcab8806d136cd8908627bd91c9 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Mon, 24 Oct 2022 16:45:02 +0200
+Subject: [PATCH 02/18] OvmfPkg/VirtNorFlashDxe: remove CheckBlockLocked
+ feature
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 43: OvmfPkg/VirtNorFlashDxe backport
+RH-Jira: RHEL-17587
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [4/20] 990bdf373801df8107d8a6ec4db3fb93e5a6ad68
+
+We inherited a feature from the ArmPlatformPkg version of this driver
+that never gets enabled. Let's remove it.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Sunil V L <sunilvl@ventanamicro.com>
+(cherry picked from commit 0a64106c566273ff8ef951d56ddfa972fe65bd6c)
+---
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c      | 35 +++++----------------
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf |  3 --
+ 2 files changed, 8 insertions(+), 30 deletions(-)
+
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+index 12fa720dad..59a562efdf 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+@@ -65,35 +65,16 @@ NorFlashUnlockSingleBlock (
+   // Raise the Task Priority Level to TPL_NOTIFY to serialise all its operations
+   // and to protect shared data structures.
+ 
+-  if (FeaturePcdGet (PcdNorFlashCheckBlockLocked) == TRUE) {
+-    do {
+-      // Request a lock setup
+-      SEND_NOR_COMMAND (BlockAddress, 0, P30_CMD_LOCK_BLOCK_SETUP);
++  // Request a lock setup
++  SEND_NOR_COMMAND (BlockAddress, 0, P30_CMD_LOCK_BLOCK_SETUP);
+ 
+-      // Request an unlock
+-      SEND_NOR_COMMAND (BlockAddress, 0, P30_CMD_UNLOCK_BLOCK);
++  // Request an unlock
++  SEND_NOR_COMMAND (BlockAddress, 0, P30_CMD_UNLOCK_BLOCK);
+ 
+-      // Send command for reading device id
+-      SEND_NOR_COMMAND (BlockAddress, 2, P30_CMD_READ_DEVICE_ID);
+-
+-      // Read block lock status
+-      LockStatus = MmioRead32 (CREATE_NOR_ADDRESS (BlockAddress, 2));
+-
+-      // Decode block lock status
+-      LockStatus = FOLD_32BIT_INTO_16BIT (LockStatus);
+-    } while ((LockStatus & 0x1) == 1);
+-  } else {
+-    // Request a lock setup
+-    SEND_NOR_COMMAND (BlockAddress, 0, P30_CMD_LOCK_BLOCK_SETUP);
+-
+-    // Request an unlock
+-    SEND_NOR_COMMAND (BlockAddress, 0, P30_CMD_UNLOCK_BLOCK);
+-
+-    // Wait until the status register gives us the all clear
+-    do {
+-      LockStatus = NorFlashReadStatusRegister (Instance, BlockAddress);
+-    } while ((LockStatus & P30_SR_BIT_WRITE) != P30_SR_BIT_WRITE);
+-  }
++  // Wait until the status register gives us the all clear
++  do {
++    LockStatus = NorFlashReadStatusRegister (Instance, BlockAddress);
++  } while ((LockStatus & P30_SR_BIT_WRITE) != P30_SR_BIT_WRITE);
+ 
+   // Put device back into Read Array mode
+   SEND_NOR_COMMAND (BlockAddress, 0, P30_CMD_READ_ARRAY);
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf
+index 1bf50e4823..53e9d58204 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.inf
+@@ -24,7 +24,6 @@
+   VirtNorFlashFvb.c
+ 
+ [Packages]
+-  ArmPlatformPkg/ArmPlatformPkg.dec
+   EmbeddedPkg/EmbeddedPkg.dec
+   MdePkg/MdePkg.dec
+   MdeModulePkg/MdeModulePkg.dec
+@@ -66,7 +65,5 @@
+   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase
+   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize
+ 
+-  gArmPlatformTokenSpaceGuid.PcdNorFlashCheckBlockLocked
+-
+ [Depex]
+   gEfiCpuArchProtocolGuid
+-- 
+2.41.0
+

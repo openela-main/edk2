@@ -1,0 +1,150 @@
+From e65da48afdabc9a5cba1c212b4323898b91ef2a4 Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Mon, 24 Oct 2022 18:16:18 +0200
+Subject: [PATCH 07/18] OvmfPkg/VirtNorFlashDxe: use EFI_MEMORY_WC and drop
+ AlignedCopyMem()
+
+RH-Author: Gerd Hoffmann <None>
+RH-MergeRequest: 43: OvmfPkg/VirtNorFlashDxe backport
+RH-Jira: RHEL-17587
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [9/20] 0c01619eff8282d08e05fae8c37175b944449f59
+
+NOR flash emulation under KVM involves switching between two modes,
+where array mode is backed by a read-only memslot, and programming mode
+is fully emulated, i.e., the memory region is not backed by anything,
+and the faulting accesses are forwarded to the VMM by the hypervisor,
+which translates them into NOR flash programming commands.
+
+Normally, we are limited to the use of device attributes when mapping
+such regions, given that the programming mode has MMIO semantics.
+However, when running under KVM, the chosen memory attributes only take
+effect when in array mode, since no memory mapping exists otherwise.
+
+This means we can tune the memory mapping so it behaves a bit more like
+a ROM, by switching to EFI_MEMORY_WC attributes. This means we no longer
+need a special CopyMem() implementation that avoids unaligned accesses
+at all cost.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Sunil V L <sunilvl@ventanamicro.com>
+(cherry picked from commit 789a723285533f35652ebd6029976e2ddc955655)
+---
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c    | 65 +----------------------
+ OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c |  4 +-
+ 2 files changed, 4 insertions(+), 65 deletions(-)
+
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+index 0343131a54..1afd60ce66 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlash.c
+@@ -401,67 +401,6 @@ NorFlashWriteBlocks (
+   return Status;
+ }
+ 
+-#define BOTH_ALIGNED(a, b, align)  ((((UINTN)(a) | (UINTN)(b)) & ((align) - 1)) == 0)
+-
+-/**
+-  Copy Length bytes from Source to Destination, using aligned accesses only.
+-  Note that this implementation uses memcpy() semantics rather then memmove()
+-  semantics, i.e., SourceBuffer and DestinationBuffer should not overlap.
+-
+-  @param  DestinationBuffer The target of the copy request.
+-  @param  SourceBuffer      The place to copy from.
+-  @param  Length            The number of bytes to copy.
+-
+-  @return Destination
+-
+-**/
+-STATIC
+-VOID *
+-AlignedCopyMem (
+-  OUT     VOID        *DestinationBuffer,
+-  IN      CONST VOID  *SourceBuffer,
+-  IN      UINTN       Length
+-  )
+-{
+-  UINT8         *Destination8;
+-  CONST UINT8   *Source8;
+-  UINT32        *Destination32;
+-  CONST UINT32  *Source32;
+-  UINT64        *Destination64;
+-  CONST UINT64  *Source64;
+-
+-  if (BOTH_ALIGNED (DestinationBuffer, SourceBuffer, 8) && (Length >= 8)) {
+-    Destination64 = DestinationBuffer;
+-    Source64      = SourceBuffer;
+-    while (Length >= 8) {
+-      *Destination64++ = *Source64++;
+-      Length          -= 8;
+-    }
+-
+-    Destination8 = (UINT8 *)Destination64;
+-    Source8      = (CONST UINT8 *)Source64;
+-  } else if (BOTH_ALIGNED (DestinationBuffer, SourceBuffer, 4) && (Length >= 4)) {
+-    Destination32 = DestinationBuffer;
+-    Source32      = SourceBuffer;
+-    while (Length >= 4) {
+-      *Destination32++ = *Source32++;
+-      Length          -= 4;
+-    }
+-
+-    Destination8 = (UINT8 *)Destination32;
+-    Source8      = (CONST UINT8 *)Source32;
+-  } else {
+-    Destination8 = DestinationBuffer;
+-    Source8      = SourceBuffer;
+-  }
+-
+-  while (Length-- != 0) {
+-    *Destination8++ = *Source8++;
+-  }
+-
+-  return DestinationBuffer;
+-}
+-
+ EFI_STATUS
+ NorFlashReadBlocks (
+   IN NOR_FLASH_INSTANCE  *Instance,
+@@ -516,7 +455,7 @@ NorFlashReadBlocks (
+   SEND_NOR_COMMAND (Instance->DeviceBaseAddress, 0, P30_CMD_READ_ARRAY);
+ 
+   // Readout the data
+-  AlignedCopyMem (Buffer, (VOID *)StartAddress, BufferSizeInBytes);
++  CopyMem (Buffer, (VOID *)StartAddress, BufferSizeInBytes);
+ 
+   return EFI_SUCCESS;
+ }
+@@ -558,7 +497,7 @@ NorFlashRead (
+   SEND_NOR_COMMAND (Instance->DeviceBaseAddress, 0, P30_CMD_READ_ARRAY);
+ 
+   // Readout the data
+-  AlignedCopyMem (Buffer, (VOID *)(StartAddress + Offset), BufferSizeInBytes);
++  CopyMem (Buffer, (VOID *)(StartAddress + Offset), BufferSizeInBytes);
+ 
+   return EFI_SUCCESS;
+ }
+diff --git a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c
+index f9a41f6aab..ff3121af2a 100644
+--- a/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c
++++ b/OvmfPkg/VirtNorFlashDxe/VirtNorFlashDxe.c
+@@ -394,14 +394,14 @@ NorFlashFvbInitialize (
+                   EfiGcdMemoryTypeMemoryMappedIo,
+                   Instance->DeviceBaseAddress,
+                   RuntimeMmioRegionSize,
+-                  EFI_MEMORY_UC | EFI_MEMORY_RUNTIME
++                  EFI_MEMORY_WC | EFI_MEMORY_RUNTIME
+                   );
+   ASSERT_EFI_ERROR (Status);
+ 
+   Status = gDS->SetMemorySpaceAttributes (
+                   Instance->DeviceBaseAddress,
+                   RuntimeMmioRegionSize,
+-                  EFI_MEMORY_UC | EFI_MEMORY_RUNTIME
++                  EFI_MEMORY_WC | EFI_MEMORY_RUNTIME
+                   );
+   ASSERT_EFI_ERROR (Status);
+ 
+-- 
+2.41.0
+

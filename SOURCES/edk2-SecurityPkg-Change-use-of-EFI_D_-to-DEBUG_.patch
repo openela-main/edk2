@@ -1,0 +1,2923 @@
+From a026f3bb9ee971b281638b5d4e6daf0bddf32103 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Wed, 7 Feb 2024 11:56:37 -0500
+Subject: [PATCH 01/17] SecurityPkg: Change use of EFI_D_* to DEBUG_*
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 44: edk2: heap buffer overflow in Tcg2MeasureGptTable()
+RH-Jira: RHEL-21154 RHEL-21156
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [1/13] 651bdf05edd106945ec4d5e18b4f08dc0e28055c (jmaloy/jons_fork)
+
+JIRA: https://issues.redhat.com/browse/RHEL-21154
+CVE: CVE-2022-36763
+Upstream: Merged
+
+commit 292b44b682d88e6605645ec61ca7081c0a31b059
+Author: Michael D Kinney <michael.d.kinney@intel.com>
+Date:   Tue Nov 16 19:21:36 2021 -0800
+
+    SecurityPkg: Change use of EFI_D_* to DEBUG_*
+
+    REF: https://bugzilla.tianocore.org/show_bug.cgi?id=3739
+
+    Update all use of EFI_D_* defines in DEBUG() macros to DEBUG_* defines.
+
+    Cc: Andrew Fish <afish@apple.com>
+    Cc: Leif Lindholm <leif@nuviainc.com>
+    Cc: Michael Kubacki <michael.kubacki@microsoft.com>
+    Signed-off-by: Michael D Kinney <michael.d.kinney@intel.com>
+    Reviewed-by: Jian J Wang <jian.j.wang@intel.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ SecurityPkg/Hash2DxeCrypto/Driver.c           |   2 +-
+ .../Library/AuthVariableLib/AuthService.c     |   2 +-
+ .../Library/AuthVariableLib/AuthVariableLib.c |  16 +-
+ .../DxeImageVerificationLib/Measurement.c     |   8 +-
+ .../DxeTcg2PhysicalPresenceLib.c              |  36 ++--
+ .../DxeTcgPhysicalPresenceLib.c               |  13 +-
+ .../DxeTpm2MeasureBootLib.c                   |  14 +-
+ .../DxeTpmMeasureBootLib.c                    |   4 +-
+ SecurityPkg/Library/HashLibTpm2/HashLibTpm2.c |  12 +-
+ .../Library/Tpm12CommandLib/Tpm12Pcr.c        |   2 +-
+ .../Tpm12CommandLib/Tpm12PhysicalPresence.c   |   2 +-
+ .../Library/Tpm12DeviceLibDTpm/Tpm12Tis.c     |  24 +--
+ .../Tpm12DeviceLibTcg/Tpm12DeviceLibTcg.c     |   4 +-
+ .../Library/Tpm2CommandLib/Tpm2Context.c      |   5 +-
+ .../Tpm2CommandLib/Tpm2DictionaryAttack.c     |   8 +-
+ .../Tpm2EnhancedAuthorization.c               |  16 +-
+ SecurityPkg/Library/Tpm2CommandLib/Tpm2Help.c |   2 +-
+ .../Library/Tpm2CommandLib/Tpm2Hierarchy.c    |  40 ++--
+ .../Library/Tpm2CommandLib/Tpm2Integrity.c    |  42 ++--
+ .../Tpm2CommandLib/Tpm2Miscellaneous.c        |   4 +-
+ .../Library/Tpm2CommandLib/Tpm2NVStorage.c    |  36 ++--
+ .../Library/Tpm2CommandLib/Tpm2Sequences.c    |  26 +--
+ .../Library/Tpm2CommandLib/Tpm2Session.c      |   6 +-
+ .../Library/Tpm2CommandLib/Tpm2Startup.c      |   4 +-
+ .../Library/Tpm2DeviceLibDTpm/Tpm2Ptp.c       |  50 ++---
+ .../Library/Tpm2DeviceLibDTpm/Tpm2Tis.c       |  24 +--
+ .../Tpm2DeviceLibRouterPei.c                  |   2 +-
+ .../Tpm2DeviceLibTcg2/Tpm2DeviceLibTcg2.c     |   4 +-
+ .../Tcg/MemoryOverwriteControl/TcgMor.c       |  20 +-
+ .../TcgMorLockSmm.c                           |   3 +-
+ SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigDriver.c |   4 +-
+ SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigImpl.c   |   2 +-
+ SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigPeim.c   |   6 +-
+ SecurityPkg/Tcg/Tcg2Config/TpmDetection.c     |   6 +-
+ SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.c             | 188 +++++++++---------
+ SecurityPkg/Tcg/Tcg2Pei/Tcg2Pei.c             |  22 +-
+ SecurityPkg/Tcg/Tcg2Smm/Tcg2Smm.c             |   9 +-
+ .../Tcg/TcgConfigDxe/TcgConfigDriver.c        |   4 +-
+ SecurityPkg/Tcg/TcgDxe/TcgDxe.c               |  28 +--
+ SecurityPkg/Tcg/TcgPei/TcgPei.c               |   8 +-
+ SecurityPkg/Tcg/TcgSmm/TcgSmm.c               |  19 +-
+ .../SecureBootConfigImpl.c                    |  16 +-
+ 42 files changed, 368 insertions(+), 375 deletions(-)
+
+diff --git a/SecurityPkg/Hash2DxeCrypto/Driver.c b/SecurityPkg/Hash2DxeCrypto/Driver.c
+index 4627061a28..0d123b2a2f 100644
+--- a/SecurityPkg/Hash2DxeCrypto/Driver.c
++++ b/SecurityPkg/Hash2DxeCrypto/Driver.c
+@@ -142,7 +142,7 @@ Hash2ServiceBindingDestroyChild (
+     }
+   }
+   if (Instance == NULL) {
+-    DEBUG ((EFI_D_ERROR, "Hash2ServiceBindingDestroyChild - Invalid handle\n"));
++    DEBUG ((DEBUG_ERROR, "Hash2ServiceBindingDestroyChild - Invalid handle\n"));
+     return EFI_UNSUPPORTED;
+   }
+ 
+diff --git a/SecurityPkg/Library/AuthVariableLib/AuthService.c b/SecurityPkg/Library/AuthVariableLib/AuthService.c
+index 4fb609504d..aa9ebaf3be 100644
+--- a/SecurityPkg/Library/AuthVariableLib/AuthService.c
++++ b/SecurityPkg/Library/AuthVariableLib/AuthService.c
+@@ -1752,7 +1752,7 @@ CleanCertsFromDb (
+                         AuthVariableInfo.Attributes | EFI_VARIABLE_NON_VOLATILE
+                         );
+         CertCleaned = TRUE;
+-        DEBUG((EFI_D_INFO, "Recovery!! Cert for Auth Variable %s Guid %g is removed for consistency\n", VariableName, &AuthVarGuid));
++        DEBUG((DEBUG_INFO, "Recovery!! Cert for Auth Variable %s Guid %g is removed for consistency\n", VariableName, &AuthVarGuid));
+         FreePool(VariableName);
+         break;
+       }
+diff --git a/SecurityPkg/Library/AuthVariableLib/AuthVariableLib.c b/SecurityPkg/Library/AuthVariableLib/AuthVariableLib.c
+index 122b3b0bf4..7f31458edb 100644
+--- a/SecurityPkg/Library/AuthVariableLib/AuthVariableLib.c
++++ b/SecurityPkg/Library/AuthVariableLib/AuthVariableLib.c
+@@ -153,9 +153,9 @@ AuthVariableLibInitialize (
+ 
+   Status = AuthServiceInternalFindVariable (EFI_PLATFORM_KEY_NAME, &gEfiGlobalVariableGuid, (VOID **) &Data, &DataSize);
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_INFO, "Variable %s does not exist.\n", EFI_PLATFORM_KEY_NAME));
++    DEBUG ((DEBUG_INFO, "Variable %s does not exist.\n", EFI_PLATFORM_KEY_NAME));
+   } else {
+-    DEBUG ((EFI_D_INFO, "Variable %s exists.\n", EFI_PLATFORM_KEY_NAME));
++    DEBUG ((DEBUG_INFO, "Variable %s exists.\n", EFI_PLATFORM_KEY_NAME));
+   }
+ 
+   //
+@@ -238,9 +238,9 @@ AuthVariableLibInitialize (
+     return Status;
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "Variable %s is %x\n", EFI_SETUP_MODE_NAME, mPlatformMode));
+-  DEBUG ((EFI_D_INFO, "Variable %s is %x\n", EFI_SECURE_BOOT_MODE_NAME, SecureBootMode));
+-  DEBUG ((EFI_D_INFO, "Variable %s is %x\n", EFI_SECURE_BOOT_ENABLE_NAME, SecureBootEnable));
++  DEBUG ((DEBUG_INFO, "Variable %s is %x\n", EFI_SETUP_MODE_NAME, mPlatformMode));
++  DEBUG ((DEBUG_INFO, "Variable %s is %x\n", EFI_SECURE_BOOT_MODE_NAME, SecureBootMode));
++  DEBUG ((DEBUG_INFO, "Variable %s is %x\n", EFI_SECURE_BOOT_ENABLE_NAME, SecureBootEnable));
+ 
+   //
+   // Initialize "CustomMode" in STANDARD_SECURE_BOOT_MODE state.
+@@ -257,7 +257,7 @@ AuthVariableLibInitialize (
+     return Status;
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "Variable %s is %x\n", EFI_CUSTOM_MODE_NAME, CustomMode));
++  DEBUG ((DEBUG_INFO, "Variable %s is %x\n", EFI_CUSTOM_MODE_NAME, CustomMode));
+ 
+   //
+   // Check "certdb" variable's existence.
+@@ -289,7 +289,7 @@ AuthVariableLibInitialize (
+     //
+     Status = CleanCertsFromDb();
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "Clean up CertDB fail! Status %x\n", Status));
++      DEBUG ((DEBUG_ERROR, "Clean up CertDB fail! Status %x\n", Status));
+       return Status;
+     }
+   }
+@@ -347,7 +347,7 @@ AuthVariableLibInitialize (
+     return Status;
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "Variable %s is %x\n", EFI_VENDOR_KEYS_VARIABLE_NAME, mVendorKeyState));
++  DEBUG ((DEBUG_INFO, "Variable %s is %x\n", EFI_VENDOR_KEYS_VARIABLE_NAME, mVendorKeyState));
+ 
+   AuthVarLibContextOut->StructVersion = AUTH_VAR_LIB_CONTEXT_OUT_STRUCT_VERSION;
+   AuthVarLibContextOut->StructSize = sizeof (AUTH_VAR_LIB_CONTEXT_OUT);
+diff --git a/SecurityPkg/Library/DxeImageVerificationLib/Measurement.c b/SecurityPkg/Library/DxeImageVerificationLib/Measurement.c
+index 86d8eb4840..351107785d 100644
+--- a/SecurityPkg/Library/DxeImageVerificationLib/Measurement.c
++++ b/SecurityPkg/Library/DxeImageVerificationLib/Measurement.c
+@@ -253,8 +253,8 @@ MeasureVariable (
+      VarSize
+      );
+ 
+-  DEBUG ((EFI_D_INFO, "DxeImageVerification: MeasureVariable (Pcr - %x, EventType - %x, ", (UINTN)7, (UINTN)EV_EFI_VARIABLE_AUTHORITY));
+-  DEBUG ((EFI_D_INFO, "VariableName - %s, VendorGuid - %g)\n", VarName, VendorGuid));
++  DEBUG ((DEBUG_INFO, "DxeImageVerification: MeasureVariable (Pcr - %x, EventType - %x, ", (UINTN)7, (UINTN)EV_EFI_VARIABLE_AUTHORITY));
++  DEBUG ((DEBUG_INFO, "VariableName - %s, VendorGuid - %g)\n", VarName, VendorGuid));
+ 
+   Status = TpmMeasureAndLogData (
+              7,
+@@ -295,7 +295,7 @@ SecureBootHook (
+   }
+ 
+   if (IsDataMeasured (VariableName, VendorGuid, Data, DataSize)) {
+-    DEBUG ((EFI_D_ERROR, "MeasureSecureAuthorityVariable - IsDataMeasured\n"));
++    DEBUG ((DEBUG_ERROR, "MeasureSecureAuthorityVariable - IsDataMeasured\n"));
+     return ;
+   }
+ 
+@@ -305,7 +305,7 @@ SecureBootHook (
+              Data,
+              DataSize
+              );
+-  DEBUG ((EFI_D_INFO, "MeasureBootPolicyVariable - %r\n", Status));
++  DEBUG ((DEBUG_INFO, "MeasureBootPolicyVariable - %r\n", Status));
+ 
+   if (!EFI_ERROR (Status)) {
+     AddDataMeasured (VariableName, VendorGuid, Data, DataSize);
+diff --git a/SecurityPkg/Library/DxeTcg2PhysicalPresenceLib/DxeTcg2PhysicalPresenceLib.c b/SecurityPkg/Library/DxeTcg2PhysicalPresenceLib/DxeTcg2PhysicalPresenceLib.c
+index 1e00476509..fce5c0af50 100644
+--- a/SecurityPkg/Library/DxeTcg2PhysicalPresenceLib/DxeTcg2PhysicalPresenceLib.c
++++ b/SecurityPkg/Library/DxeTcg2PhysicalPresenceLib/DxeTcg2PhysicalPresenceLib.c
+@@ -84,15 +84,15 @@ Tpm2CommandClear (
+     CopyMem (LocalAuthSession.hmac.buffer, PlatformAuth->buffer, PlatformAuth->size);
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "Tpm2ClearControl ... \n"));
++  DEBUG ((DEBUG_INFO, "Tpm2ClearControl ... \n"));
+   Status = Tpm2ClearControl (TPM_RH_PLATFORM, AuthSession, NO);
+-  DEBUG ((EFI_D_INFO, "Tpm2ClearControl - %r\n", Status));
++  DEBUG ((DEBUG_INFO, "Tpm2ClearControl - %r\n", Status));
+   if (EFI_ERROR (Status)) {
+     goto Done;
+   }
+-  DEBUG ((EFI_D_INFO, "Tpm2Clear ... \n"));
++  DEBUG ((DEBUG_INFO, "Tpm2Clear ... \n"));
+   Status = Tpm2Clear (TPM_RH_PLATFORM, AuthSession);
+-  DEBUG ((EFI_D_INFO, "Tpm2Clear - %r\n", Status));
++  DEBUG ((DEBUG_INFO, "Tpm2Clear - %r\n", Status));
+ 
+ Done:
+   ZeroMem (&LocalAuthSession.hmac, sizeof(LocalAuthSession.hmac));
+@@ -126,7 +126,7 @@ Tpm2CommandChangeEps (
+   }
+ 
+   Status = Tpm2ChangeEPS (TPM_RH_PLATFORM, AuthSession);
+-  DEBUG ((EFI_D_INFO, "Tpm2ChangeEPS - %r\n", Status));
++  DEBUG ((DEBUG_INFO, "Tpm2ChangeEPS - %r\n", Status));
+ 
+   ZeroMem(&LocalAuthSession.hmac, sizeof(LocalAuthSession.hmac));
+   return Status;
+@@ -913,7 +913,7 @@ Tcg2PhysicalPresenceLibProcessRequest (
+                                      &gEfiTcg2PhysicalPresenceGuid
+                                      );
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "[TPM2] Error when lock variable %s, Status = %r\n", TCG2_PHYSICAL_PRESENCE_FLAGS_VARIABLE, Status));
++      DEBUG ((DEBUG_ERROR, "[TPM2] Error when lock variable %s, Status = %r\n", TCG2_PHYSICAL_PRESENCE_FLAGS_VARIABLE, Status));
+       ASSERT_EFI_ERROR (Status);
+     }
+   }
+@@ -922,7 +922,7 @@ Tcg2PhysicalPresenceLibProcessRequest (
+   // Check S4 resume
+   //
+   if (GetBootModeHob () == BOOT_ON_S4_RESUME) {
+-    DEBUG ((EFI_D_INFO, "S4 Resume, Skip TPM PP process!\n"));
++    DEBUG ((DEBUG_INFO, "S4 Resume, Skip TPM PP process!\n"));
+     return ;
+   }
+ 
+@@ -947,7 +947,7 @@ Tcg2PhysicalPresenceLibProcessRequest (
+                       &PpiFlags
+                       );
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "[TPM2] Set physical presence flag failed, Status = %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "[TPM2] Set physical presence flag failed, Status = %r\n", Status));
+       return ;
+     }
+     DEBUG((DEBUG_INFO, "[TPM2] Initial physical presence flags value is 0x%x\n", PpiFlags.PPFlags));
+@@ -975,18 +975,18 @@ Tcg2PhysicalPresenceLibProcessRequest (
+                       &TcgPpData
+                       );
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "[TPM2] Set physical presence variable failed, Status = %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "[TPM2] Set physical presence variable failed, Status = %r\n", Status));
+       return ;
+     }
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "[TPM2] Flags=%x, PPRequest=%x (LastPPRequest=%x)\n", PpiFlags.PPFlags, TcgPpData.PPRequest, TcgPpData.LastPPRequest));
++  DEBUG ((DEBUG_INFO, "[TPM2] Flags=%x, PPRequest=%x (LastPPRequest=%x)\n", PpiFlags.PPFlags, TcgPpData.PPRequest, TcgPpData.LastPPRequest));
+ 
+   //
+   // Execute pending TPM request.
+   //
+   Tcg2ExecutePendingTpmRequest (PlatformAuth, &TcgPpData, &PpiFlags);
+-  DEBUG ((EFI_D_INFO, "[TPM2] PPResponse = %x (LastPPRequest=%x, Flags=%x)\n", TcgPpData.PPResponse, TcgPpData.LastPPRequest, PpiFlags.PPFlags));
++  DEBUG ((DEBUG_INFO, "[TPM2] PPResponse = %x (LastPPRequest=%x, Flags=%x)\n", TcgPpData.PPResponse, TcgPpData.LastPPRequest, PpiFlags.PPFlags));
+ 
+ }
+ 
+@@ -1016,7 +1016,7 @@ Tcg2PhysicalPresenceLibNeedUserConfirm(
+   // Check S4 resume
+   //
+   if (GetBootModeHob () == BOOT_ON_S4_RESUME) {
+-    DEBUG ((EFI_D_INFO, "S4 Resume, Skip TPM PP process!\n"));
++    DEBUG ((DEBUG_INFO, "S4 Resume, Skip TPM PP process!\n"));
+     return FALSE;
+   }
+ 
+@@ -1092,7 +1092,7 @@ Tcg2PhysicalPresenceLibReturnOperationResponseToOsFunction (
+   UINTN                             DataSize;
+   EFI_TCG2_PHYSICAL_PRESENCE        PpData;
+ 
+-  DEBUG ((EFI_D_INFO, "[TPM2] ReturnOperationResponseToOsFunction\n"));
++  DEBUG ((DEBUG_INFO, "[TPM2] ReturnOperationResponseToOsFunction\n"));
+ 
+   //
+   // Get the Physical Presence variable
+@@ -1108,7 +1108,7 @@ Tcg2PhysicalPresenceLibReturnOperationResponseToOsFunction (
+   if (EFI_ERROR (Status)) {
+     *MostRecentRequest = 0;
+     *Response          = 0;
+-    DEBUG ((EFI_D_ERROR, "[TPM2] Get PP variable failure! Status = %r\n", Status));
++    DEBUG ((DEBUG_ERROR, "[TPM2] Get PP variable failure! Status = %r\n", Status));
+     return TCG_PP_RETURN_TPM_OPERATION_RESPONSE_FAILURE;
+   }
+ 
+@@ -1143,7 +1143,7 @@ Tcg2PhysicalPresenceLibSubmitRequestToPreOSFunction (
+   EFI_TCG2_PHYSICAL_PRESENCE        PpData;
+   EFI_TCG2_PHYSICAL_PRESENCE_FLAGS  Flags;
+ 
+-  DEBUG ((EFI_D_INFO, "[TPM2] SubmitRequestToPreOSFunction, Request = %x, %x\n", OperationRequest, RequestParameter));
++  DEBUG ((DEBUG_INFO, "[TPM2] SubmitRequestToPreOSFunction, Request = %x, %x\n", OperationRequest, RequestParameter));
+ 
+   //
+   // Get the Physical Presence variable
+@@ -1157,7 +1157,7 @@ Tcg2PhysicalPresenceLibSubmitRequestToPreOSFunction (
+                   &PpData
+                   );
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "[TPM2] Get PP variable failure! Status = %r\n", Status));
++    DEBUG ((DEBUG_ERROR, "[TPM2] Get PP variable failure! Status = %r\n", Status));
+     return TCG_PP_SUBMIT_REQUEST_TO_PREOS_GENERAL_FAILURE;
+   }
+ 
+@@ -1179,7 +1179,7 @@ Tcg2PhysicalPresenceLibSubmitRequestToPreOSFunction (
+                     &PpData
+                     );
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "[TPM2] Set PP variable failure! Status = %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "[TPM2] Set PP variable failure! Status = %r\n", Status));
+       return TCG_PP_SUBMIT_REQUEST_TO_PREOS_GENERAL_FAILURE;
+     }
+   }
+@@ -1217,7 +1217,7 @@ Tcg2PhysicalPresenceLibGetManagementFlags (
+   EFI_TCG2_PHYSICAL_PRESENCE_FLAGS  PpiFlags;
+   UINTN                             DataSize;
+ 
+-  DEBUG ((EFI_D_INFO, "[TPM2] GetManagementFlags\n"));
++  DEBUG ((DEBUG_INFO, "[TPM2] GetManagementFlags\n"));
+ 
+   DataSize = sizeof (EFI_TCG2_PHYSICAL_PRESENCE_FLAGS);
+   Status = gRT->GetVariable (
+diff --git a/SecurityPkg/Library/DxeTcgPhysicalPresenceLib/DxeTcgPhysicalPresenceLib.c b/SecurityPkg/Library/DxeTcgPhysicalPresenceLib/DxeTcgPhysicalPresenceLib.c
+index ba1abe9e08..ab7f664c7a 100644
+--- a/SecurityPkg/Library/DxeTcgPhysicalPresenceLib/DxeTcgPhysicalPresenceLib.c
++++ b/SecurityPkg/Library/DxeTcgPhysicalPresenceLib/DxeTcgPhysicalPresenceLib.c
+@@ -1203,11 +1203,11 @@ TcgPhysicalPresenceLibProcessRequest (
+                       &PpiFlags
+                       );
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "[TPM] Set physical presence flag failed, Status = %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "[TPM] Set physical presence flag failed, Status = %r\n", Status));
+       return ;
+     }
+   }
+-  DEBUG ((EFI_D_INFO, "[TPM] PpiFlags = %x\n", PpiFlags.PPFlags));
++  DEBUG ((DEBUG_INFO, "[TPM] PpiFlags = %x\n", PpiFlags.PPFlags));
+ 
+   //
+   // This flags variable controls whether physical presence is required for TPM command.
+@@ -1221,7 +1221,7 @@ TcgPhysicalPresenceLibProcessRequest (
+                                      &gEfiPhysicalPresenceGuid
+                                      );
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "[TPM] Error when lock variable %s, Status = %r\n", PHYSICAL_PRESENCE_FLAGS_VARIABLE, Status));
++      DEBUG ((DEBUG_ERROR, "[TPM] Error when lock variable %s, Status = %r\n", PHYSICAL_PRESENCE_FLAGS_VARIABLE, Status));
+       ASSERT_EFI_ERROR (Status);
+     }
+   }
+@@ -1248,12 +1248,12 @@ TcgPhysicalPresenceLibProcessRequest (
+                       &TcgPpData
+                       );
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "[TPM] Set physical presence variable failed, Status = %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "[TPM] Set physical presence variable failed, Status = %r\n", Status));
+       return;
+     }
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "[TPM] Flags=%x, PPRequest=%x\n", PpiFlags.PPFlags, TcgPpData.PPRequest));
++  DEBUG ((DEBUG_INFO, "[TPM] Flags=%x, PPRequest=%x\n", PpiFlags.PPFlags, TcgPpData.PPRequest));
+ 
+   if (TcgPpData.PPRequest == PHYSICAL_PRESENCE_NO_ACTION) {
+     //
+@@ -1292,7 +1292,7 @@ TcgPhysicalPresenceLibProcessRequest (
+   // Execute pending TPM request.
+   //
+   ExecutePendingTpmRequest (TcgProtocol, &TcgPpData, PpiFlags);
+-  DEBUG ((EFI_D_INFO, "[TPM] PPResponse = %x\n", TcgPpData.PPResponse));
++  DEBUG ((DEBUG_INFO, "[TPM] PPResponse = %x\n", TcgPpData.PPResponse));
+ 
+   //
+   // Lock physical presence.
+@@ -1397,4 +1397,3 @@ TcgPhysicalPresenceLibNeedUserConfirm(
+ 
+   return FALSE;
+ }
+-
+diff --git a/SecurityPkg/Library/DxeTpm2MeasureBootLib/DxeTpm2MeasureBootLib.c b/SecurityPkg/Library/DxeTpm2MeasureBootLib/DxeTpm2MeasureBootLib.c
+index 92eac71580..a531385f81 100644
+--- a/SecurityPkg/Library/DxeTpm2MeasureBootLib/DxeTpm2MeasureBootLib.c
++++ b/SecurityPkg/Library/DxeTpm2MeasureBootLib/DxeTpm2MeasureBootLib.c
+@@ -164,7 +164,7 @@ Tcg2MeasureGptTable (
+                      (UINT8 *)PrimaryHeader
+                      );
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "Failed to Read Partition Table Header!\n"));
++    DEBUG ((DEBUG_ERROR, "Failed to Read Partition Table Header!\n"));
+     FreePool (PrimaryHeader);
+     return EFI_DEVICE_ERROR;
+   }
+@@ -334,7 +334,7 @@ Tcg2MeasurePeImage (
+       break;
+     default:
+       DEBUG ((
+-        EFI_D_ERROR,
++        DEBUG_ERROR,
+         "Tcg2MeasurePeImage: Unknown subsystem type %d",
+         ImageType
+         ));
+@@ -441,7 +441,7 @@ DxeTpm2MeasureBootHandler (
+     // Tcg2 protocol is not installed. So, TPM2 is not present.
+     // Don't do any measurement, and directly return EFI_SUCCESS.
+     //
+-    DEBUG ((EFI_D_VERBOSE, "DxeTpm2MeasureBootHandler - Tcg2 - %r\n", Status));
++    DEBUG ((DEBUG_VERBOSE, "DxeTpm2MeasureBootHandler - Tcg2 - %r\n", Status));
+     return EFI_SUCCESS;
+   }
+ 
+@@ -454,7 +454,7 @@ DxeTpm2MeasureBootHandler (
+     //
+     // TPM device doesn't work or activate.
+     //
+-    DEBUG ((EFI_D_ERROR, "DxeTpm2MeasureBootHandler (%r) - TPMPresentFlag - %x\n", Status, ProtocolCapability.TPMPresentFlag));
++    DEBUG ((DEBUG_ERROR, "DxeTpm2MeasureBootHandler (%r) - TPMPresentFlag - %x\n", Status, ProtocolCapability.TPMPresentFlag));
+     return EFI_SUCCESS;
+   }
+ 
+@@ -503,7 +503,7 @@ DxeTpm2MeasureBootHandler (
+             // Measure GPT disk.
+             //
+             Status = Tcg2MeasureGptTable (Tcg2Protocol, Handle);
+-            DEBUG ((EFI_D_INFO, "DxeTpm2MeasureBootHandler - Tcg2MeasureGptTable - %r\n", Status));
++            DEBUG ((DEBUG_INFO, "DxeTpm2MeasureBootHandler - Tcg2MeasureGptTable - %r\n", Status));
+             if (!EFI_ERROR (Status)) {
+               //
+               // GPT disk check done.
+@@ -654,7 +654,7 @@ DxeTpm2MeasureBootHandler (
+                ImageContext.ImageType,
+                DevicePathNode
+                );
+-    DEBUG ((EFI_D_INFO, "DxeTpm2MeasureBootHandler - Tcg2MeasurePeImage - %r\n", Status));
++    DEBUG ((DEBUG_INFO, "DxeTpm2MeasureBootHandler - Tcg2MeasurePeImage - %r\n", Status));
+   }
+ 
+   //
+@@ -665,7 +665,7 @@ Finish:
+     FreePool (OrigDevicePathNode);
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "DxeTpm2MeasureBootHandler - %r\n", Status));
++  DEBUG ((DEBUG_INFO, "DxeTpm2MeasureBootHandler - %r\n", Status));
+ 
+   return Status;
+ }
+diff --git a/SecurityPkg/Library/DxeTpmMeasureBootLib/DxeTpmMeasureBootLib.c b/SecurityPkg/Library/DxeTpmMeasureBootLib/DxeTpmMeasureBootLib.c
+index d990eb2ad3..4e74cd9db6 100644
+--- a/SecurityPkg/Library/DxeTpmMeasureBootLib/DxeTpmMeasureBootLib.c
++++ b/SecurityPkg/Library/DxeTpmMeasureBootLib/DxeTpmMeasureBootLib.c
+@@ -164,7 +164,7 @@ TcgMeasureGptTable (
+                      (UINT8 *)PrimaryHeader
+                      );
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "Failed to Read Partition Table Header!\n"));
++    DEBUG ((DEBUG_ERROR, "Failed to Read Partition Table Header!\n"));
+     FreePool (PrimaryHeader);
+     return EFI_DEVICE_ERROR;
+   }
+@@ -355,7 +355,7 @@ TcgMeasurePeImage (
+       break;
+     default:
+       DEBUG ((
+-        EFI_D_ERROR,
++        DEBUG_ERROR,
+         "TcgMeasurePeImage: Unknown subsystem type %d",
+         ImageType
+         ));
+diff --git a/SecurityPkg/Library/HashLibTpm2/HashLibTpm2.c b/SecurityPkg/Library/HashLibTpm2/HashLibTpm2.c
+index bd24958505..876b15fad4 100644
+--- a/SecurityPkg/Library/HashLibTpm2/HashLibTpm2.c
++++ b/SecurityPkg/Library/HashLibTpm2/HashLibTpm2.c
+@@ -237,7 +237,7 @@ HashAndExtend (
+   TPM2B_EVENT        EventData;
+   TPM2B_DIGEST       Result;
+ 
+-  DEBUG((EFI_D_VERBOSE, "\n HashAndExtend Entry \n"));
++  DEBUG((DEBUG_VERBOSE, "\n HashAndExtend Entry \n"));
+ 
+   SequenceHandle = 0xFFFFFFFF; // Know bad value
+ 
+@@ -257,7 +257,7 @@ HashAndExtend (
+   if (EFI_ERROR(Status)) {
+     return EFI_DEVICE_ERROR;
+   }
+-  DEBUG((EFI_D_VERBOSE, "\n Tpm2HashSequenceStart Success \n"));
++  DEBUG((DEBUG_VERBOSE, "\n Tpm2HashSequenceStart Success \n"));
+ 
+   Buffer = (UINT8 *)(UINTN)DataToHash;
+   for (HashLen = DataToHashLen; HashLen > sizeof(HashBuffer.buffer); HashLen -= sizeof(HashBuffer.buffer)) {
+@@ -271,7 +271,7 @@ HashAndExtend (
+       return EFI_DEVICE_ERROR;
+     }
+   }
+-  DEBUG((EFI_D_VERBOSE, "\n Tpm2SequenceUpdate Success \n"));
++  DEBUG((DEBUG_VERBOSE, "\n Tpm2SequenceUpdate Success \n"));
+ 
+   HashBuffer.size = (UINT16)HashLen;
+   CopyMem(HashBuffer.buffer, Buffer, (UINTN)HashLen);
+@@ -289,7 +289,7 @@ HashAndExtend (
+     if (EFI_ERROR(Status)) {
+       return EFI_DEVICE_ERROR;
+     }
+-    DEBUG((EFI_D_VERBOSE, "\n Tpm2EventSequenceComplete Success \n"));
++    DEBUG((DEBUG_VERBOSE, "\n Tpm2EventSequenceComplete Success \n"));
+   } else {
+     Status = Tpm2SequenceComplete (
+                SequenceHandle,
+@@ -299,7 +299,7 @@ HashAndExtend (
+     if (EFI_ERROR(Status)) {
+       return EFI_DEVICE_ERROR;
+     }
+-    DEBUG((EFI_D_VERBOSE, "\n Tpm2SequenceComplete Success \n"));
++    DEBUG((DEBUG_VERBOSE, "\n Tpm2SequenceComplete Success \n"));
+ 
+     DigestList->count = 1;
+     DigestList->digests[0].hashAlg = AlgoId;
+@@ -311,7 +311,7 @@ HashAndExtend (
+     if (EFI_ERROR(Status)) {
+       return EFI_DEVICE_ERROR;
+     }
+-    DEBUG((EFI_D_VERBOSE, "\n Tpm2PcrExtend Success \n"));
++    DEBUG((DEBUG_VERBOSE, "\n Tpm2PcrExtend Success \n"));
+   }
+ 
+   return EFI_SUCCESS;
+diff --git a/SecurityPkg/Library/Tpm12CommandLib/Tpm12Pcr.c b/SecurityPkg/Library/Tpm12CommandLib/Tpm12Pcr.c
+index 562cf582de..4fbcb3617c 100644
+--- a/SecurityPkg/Library/Tpm12CommandLib/Tpm12Pcr.c
++++ b/SecurityPkg/Library/Tpm12CommandLib/Tpm12Pcr.c
+@@ -69,7 +69,7 @@ Tpm12Extend (
+   }
+ 
+   if (SwapBytes32(Response.Hdr.returnCode) != TPM_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm12Extend: Response Code error! 0x%08x\r\n", SwapBytes32(Response.Hdr.returnCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm12Extend: Response Code error! 0x%08x\r\n", SwapBytes32(Response.Hdr.returnCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+diff --git a/SecurityPkg/Library/Tpm12CommandLib/Tpm12PhysicalPresence.c b/SecurityPkg/Library/Tpm12CommandLib/Tpm12PhysicalPresence.c
+index 208bff594d..6714d17d8e 100644
+--- a/SecurityPkg/Library/Tpm12CommandLib/Tpm12PhysicalPresence.c
++++ b/SecurityPkg/Library/Tpm12CommandLib/Tpm12PhysicalPresence.c
+@@ -58,7 +58,7 @@ Tpm12PhysicalPresence (
+   }
+ 
+   if (SwapBytes32(Response.returnCode) != TPM_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm12PhysicalPresence: Response Code error! 0x%08x\r\n", SwapBytes32(Response.returnCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm12PhysicalPresence: Response Code error! 0x%08x\r\n", SwapBytes32(Response.returnCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+diff --git a/SecurityPkg/Library/Tpm12DeviceLibDTpm/Tpm12Tis.c b/SecurityPkg/Library/Tpm12DeviceLibDTpm/Tpm12Tis.c
+index f858090479..b8218f122d 100644
+--- a/SecurityPkg/Library/Tpm12DeviceLibDTpm/Tpm12Tis.c
++++ b/SecurityPkg/Library/Tpm12DeviceLibDTpm/Tpm12Tis.c
+@@ -266,22 +266,22 @@ Tpm12TisTpmCommand (
+   DEBUG_CODE (
+     UINTN  DebugSize;
+ 
+-    DEBUG ((EFI_D_VERBOSE, "Tpm12TisTpmCommand Send - "));
++    DEBUG ((DEBUG_VERBOSE, "Tpm12TisTpmCommand Send - "));
+     if (SizeIn > 0x100) {
+       DebugSize = 0x40;
+     } else {
+       DebugSize = SizeIn;
+     }
+     for (Index = 0; Index < DebugSize; Index++) {
+-      DEBUG ((EFI_D_VERBOSE, "%02x ", BufferIn[Index]));
++      DEBUG ((DEBUG_VERBOSE, "%02x ", BufferIn[Index]));
+     }
+     if (DebugSize != SizeIn) {
+-      DEBUG ((EFI_D_VERBOSE, "...... "));
++      DEBUG ((DEBUG_VERBOSE, "...... "));
+       for (Index = SizeIn - 0x20; Index < SizeIn; Index++) {
+-        DEBUG ((EFI_D_VERBOSE, "%02x ", BufferIn[Index]));
++        DEBUG ((DEBUG_VERBOSE, "%02x ", BufferIn[Index]));
+       }
+     }
+-    DEBUG ((EFI_D_VERBOSE, "\n"));
++    DEBUG ((DEBUG_VERBOSE, "\n"));
+   );
+   TpmOutSize = 0;
+ 
+@@ -352,11 +352,11 @@ Tpm12TisTpmCommand (
+     }
+   }
+   DEBUG_CODE (
+-    DEBUG ((EFI_D_VERBOSE, "Tpm12TisTpmCommand ReceiveHeader - "));
++    DEBUG ((DEBUG_VERBOSE, "Tpm12TisTpmCommand ReceiveHeader - "));
+     for (Index = 0; Index < sizeof (TPM_RSP_COMMAND_HDR); Index++) {
+-      DEBUG ((EFI_D_VERBOSE, "%02x ", BufferOut[Index]));
++      DEBUG ((DEBUG_VERBOSE, "%02x ", BufferOut[Index]));
+     }
+-    DEBUG ((EFI_D_VERBOSE, "\n"));
++    DEBUG ((DEBUG_VERBOSE, "\n"));
+   );
+   //
+   // Check the response data header (tag, parasize and returncode)
+@@ -364,7 +364,7 @@ Tpm12TisTpmCommand (
+   CopyMem (&Data16, BufferOut, sizeof (UINT16));
+   RspTag = SwapBytes16 (Data16);
+   if (RspTag != TPM_TAG_RSP_COMMAND && RspTag != TPM_TAG_RSP_AUTH1_COMMAND && RspTag != TPM_TAG_RSP_AUTH2_COMMAND) {
+-    DEBUG ((EFI_D_ERROR, "TPM12: Response tag error - current tag value is %x\n", RspTag));
++    DEBUG ((DEBUG_ERROR, "TPM12: Response tag error - current tag value is %x\n", RspTag));
+     Status = EFI_UNSUPPORTED;
+     goto Exit;
+   }
+@@ -396,11 +396,11 @@ Tpm12TisTpmCommand (
+   }
+ Exit:
+   DEBUG_CODE (
+-    DEBUG ((EFI_D_VERBOSE, "Tpm12TisTpmCommand Receive - "));
++    DEBUG ((DEBUG_VERBOSE, "Tpm12TisTpmCommand Receive - "));
+     for (Index = 0; Index < TpmOutSize; Index++) {
+-      DEBUG ((EFI_D_VERBOSE, "%02x ", BufferOut[Index]));
++      DEBUG ((DEBUG_VERBOSE, "%02x ", BufferOut[Index]));
+     }
+-    DEBUG ((EFI_D_VERBOSE, "\n"));
++    DEBUG ((DEBUG_VERBOSE, "\n"));
+   );
+   MmioWrite8((UINTN)&TisReg->Status, TIS_PC_STS_READY);
+   return Status;
+diff --git a/SecurityPkg/Library/Tpm12DeviceLibTcg/Tpm12DeviceLibTcg.c b/SecurityPkg/Library/Tpm12DeviceLibTcg/Tpm12DeviceLibTcg.c
+index f975b1bc8a..2869f9ec83 100644
+--- a/SecurityPkg/Library/Tpm12DeviceLibTcg/Tpm12DeviceLibTcg.c
++++ b/SecurityPkg/Library/Tpm12DeviceLibTcg/Tpm12DeviceLibTcg.c
+@@ -47,7 +47,7 @@ Tpm12SubmitCommand (
+       //
+       // TCG protocol is not installed. So, TPM12 is not present.
+       //
+-      DEBUG ((EFI_D_ERROR, "Tpm12SubmitCommand - TCG - %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "Tpm12SubmitCommand - TCG - %r\n", Status));
+       return EFI_NOT_FOUND;
+     }
+   }
+@@ -91,7 +91,7 @@ Tpm12RequestUseTpm (
+       //
+       // TCG protocol is not installed. So, TPM12 is not present.
+       //
+-      DEBUG ((EFI_D_ERROR, "Tpm12RequestUseTpm - TCG - %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "Tpm12RequestUseTpm - TCG - %r\n", Status));
+       return EFI_NOT_FOUND;
+     }
+   }
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Context.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Context.c
+index 80b15a51f0..f284f8d21a 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Context.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Context.c
+@@ -67,14 +67,13 @@ Tpm2FlushContext (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2FlushContext - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2FlushContext - RecvBufferSize Error - %x\n", RecvBufferSize));
+     return EFI_DEVICE_ERROR;
+   }
+   if (SwapBytes32(RecvBuffer.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2FlushContext - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2FlushContext - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+   return EFI_SUCCESS;
+ }
+-
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2DictionaryAttack.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2DictionaryAttack.c
+index f502113873..2f830e0aea 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2DictionaryAttack.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2DictionaryAttack.c
+@@ -102,12 +102,12 @@ Tpm2DictionaryAttackLockReset (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2DictionaryAttackLockReset - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2DictionaryAttackLockReset - RecvBufferSize Error - %x\n", RecvBufferSize));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+   if (SwapBytes32(RecvBuffer.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2DictionaryAttackLockReset - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2DictionaryAttackLockReset - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+@@ -193,12 +193,12 @@ Tpm2DictionaryAttackParameters (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2DictionaryAttackParameters - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2DictionaryAttackParameters - RecvBufferSize Error - %x\n", RecvBufferSize));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+   if (SwapBytes32(RecvBuffer.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2DictionaryAttackParameters - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2DictionaryAttackParameters - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2EnhancedAuthorization.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2EnhancedAuthorization.c
+index 61c6367262..0404c0f321 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2EnhancedAuthorization.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2EnhancedAuthorization.c
+@@ -159,12 +159,12 @@ Tpm2PolicySecret (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PolicySecret - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2PolicySecret - RecvBufferSize Error - %x\n", RecvBufferSize));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+   if (SwapBytes32(RecvBuffer.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PolicySecret - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2PolicySecret - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+@@ -263,11 +263,11 @@ Tpm2PolicyOR (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PolicyOR - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2PolicyOR - RecvBufferSize Error - %x\n", RecvBufferSize));
+     return EFI_DEVICE_ERROR;
+   }
+   if (SwapBytes32(RecvBuffer.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PolicyOR - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2PolicyOR - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+@@ -318,11 +318,11 @@ Tpm2PolicyCommandCode (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PolicyCommandCode - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2PolicyCommandCode - RecvBufferSize Error - %x\n", RecvBufferSize));
+     return EFI_DEVICE_ERROR;
+   }
+   if (SwapBytes32(RecvBuffer.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PolicyCommandCode - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2PolicyCommandCode - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+@@ -373,11 +373,11 @@ Tpm2PolicyGetDigest (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PolicyGetDigest - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2PolicyGetDigest - RecvBufferSize Error - %x\n", RecvBufferSize));
+     return EFI_DEVICE_ERROR;
+   }
+   if (SwapBytes32(RecvBuffer.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PolicyGetDigest - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2PolicyGetDigest - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Help.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Help.c
+index 36c240d122..13eeb6ec18 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Help.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Help.c
+@@ -266,7 +266,7 @@ CopyDigestListToBuffer (
+   Buffer = (UINT8 *)Buffer + sizeof(DigestList->count);
+   for (Index = 0; Index < DigestList->count; Index++) {
+     if (!IsHashAlgSupportedInHashAlgorithmMask(DigestList->digests[Index].hashAlg, HashAlgorithmMask)) {
+-      DEBUG ((EFI_D_ERROR, "WARNING: TPM2 Event log has HashAlg unsupported by PCR bank (0x%x)\n", DigestList->digests[Index].hashAlg));
++      DEBUG ((DEBUG_ERROR, "WARNING: TPM2 Event log has HashAlg unsupported by PCR bank (0x%x)\n", DigestList->digests[Index].hashAlg));
+       continue;
+     }
+     CopyMem (Buffer, &DigestList->digests[Index].hashAlg, sizeof(DigestList->digests[Index].hashAlg));
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Hierarchy.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Hierarchy.c
+index dc36963c0e..043d358a06 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Hierarchy.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Hierarchy.c
+@@ -184,12 +184,12 @@ Tpm2SetPrimaryPolicy (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2SetPrimaryPolicy - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2SetPrimaryPolicy - RecvBufferSize Error - %x\n", RecvBufferSize));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+   if (SwapBytes32(RecvBuffer.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2SetPrimaryPolicy - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2SetPrimaryPolicy - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+@@ -252,7 +252,7 @@ Tpm2Clear (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "Clear: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "Clear: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -262,7 +262,7 @@ Tpm2Clear (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "Clear: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "Clear: Response size too large! %d\r\n", RespSize));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -271,7 +271,7 @@ Tpm2Clear (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Clear: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Clear: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+@@ -346,7 +346,7 @@ Tpm2ClearControl (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "ClearControl: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "ClearControl: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -356,7 +356,7 @@ Tpm2ClearControl (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "ClearControl: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "ClearControl: Response size too large! %d\r\n", RespSize));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -365,7 +365,7 @@ Tpm2ClearControl (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "ClearControl: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "ClearControl: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+@@ -459,7 +459,7 @@ Tpm2HierarchyChangeAuth (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "HierarchyChangeAuth: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "HierarchyChangeAuth: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -469,7 +469,7 @@ Tpm2HierarchyChangeAuth (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "HierarchyChangeAuth: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "HierarchyChangeAuth: Response size too large! %d\r\n", RespSize));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -478,7 +478,7 @@ Tpm2HierarchyChangeAuth (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG((EFI_D_ERROR,"HierarchyChangeAuth: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG((DEBUG_ERROR,"HierarchyChangeAuth: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+@@ -557,7 +557,7 @@ Tpm2ChangeEPS (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "ChangeEPS: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "ChangeEPS: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -567,7 +567,7 @@ Tpm2ChangeEPS (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "ChangeEPS: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "ChangeEPS: Response size too large! %d\r\n", RespSize));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -576,7 +576,7 @@ Tpm2ChangeEPS (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG((EFI_D_ERROR,"ChangeEPS: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG((DEBUG_ERROR,"ChangeEPS: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+@@ -655,7 +655,7 @@ Tpm2ChangePPS (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "ChangePPS: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "ChangePPS: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -665,7 +665,7 @@ Tpm2ChangePPS (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "ChangePPS: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "ChangePPS: Response size too large! %d\r\n", RespSize));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -674,7 +674,7 @@ Tpm2ChangePPS (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG((EFI_D_ERROR,"ChangePPS: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG((DEBUG_ERROR,"ChangePPS: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+@@ -763,7 +763,7 @@ Tpm2HierarchyControl (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "HierarchyControl: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "HierarchyControl: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -773,7 +773,7 @@ Tpm2HierarchyControl (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "HierarchyControl: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "HierarchyControl: Response size too large! %d\r\n", RespSize));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -782,7 +782,7 @@ Tpm2HierarchyControl (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG((EFI_D_ERROR,"HierarchyControl: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG((DEBUG_ERROR,"HierarchyControl: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Integrity.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Integrity.c
+index ddb15178fb..8c87de0b0c 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Integrity.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Integrity.c
+@@ -130,7 +130,7 @@ Tpm2PcrExtend (
+     Buffer += sizeof(UINT16);
+     DigestSize = GetHashSizeFromAlgo (Digests->digests[Index].hashAlg);
+     if (DigestSize == 0) {
+-      DEBUG ((EFI_D_ERROR, "Unknown hash algorithm %d\r\n", Digests->digests[Index].hashAlg));
++      DEBUG ((DEBUG_ERROR, "Unknown hash algorithm %d\r\n", Digests->digests[Index].hashAlg));
+       return EFI_DEVICE_ERROR;
+     }
+     CopyMem(
+@@ -151,7 +151,7 @@ Tpm2PcrExtend (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrExtend: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrExtend: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+@@ -160,7 +160,7 @@ Tpm2PcrExtend (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrExtend: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrExtend: Response size too large! %d\r\n", RespSize));
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+@@ -168,7 +168,7 @@ Tpm2PcrExtend (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrExtend: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrExtend: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+@@ -246,7 +246,7 @@ Tpm2PcrEvent (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrEvent: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrEvent: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+@@ -255,7 +255,7 @@ Tpm2PcrEvent (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrEvent: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrEvent: Response size too large! %d\r\n", RespSize));
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+@@ -263,7 +263,7 @@ Tpm2PcrEvent (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrEvent: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrEvent: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+@@ -284,7 +284,7 @@ Tpm2PcrEvent (
+     Buffer += sizeof(UINT16);
+     DigestSize = GetHashSizeFromAlgo (Digests->digests[Index].hashAlg);
+     if (DigestSize == 0) {
+-      DEBUG ((EFI_D_ERROR, "Unknown hash algorithm %d\r\n", Digests->digests[Index].hashAlg));
++      DEBUG ((DEBUG_ERROR, "Unknown hash algorithm %d\r\n", Digests->digests[Index].hashAlg));
+       return EFI_DEVICE_ERROR;
+     }
+     CopyMem(
+@@ -353,11 +353,11 @@ Tpm2PcrRead (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrRead - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrRead - RecvBufferSize Error - %x\n", RecvBufferSize));
+     return EFI_DEVICE_ERROR;
+   }
+   if (SwapBytes32(RecvBuffer.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrRead - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrRead - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+     return EFI_NOT_FOUND;
+   }
+ 
+@@ -369,7 +369,7 @@ Tpm2PcrRead (
+   // PcrUpdateCounter
+   //
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER) + sizeof(RecvBuffer.PcrUpdateCounter)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrRead - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrRead - RecvBufferSize Error - %x\n", RecvBufferSize));
+     return EFI_DEVICE_ERROR;
+   }
+   *PcrUpdateCounter = SwapBytes32(RecvBuffer.PcrUpdateCounter);
+@@ -378,7 +378,7 @@ Tpm2PcrRead (
+   // PcrSelectionOut
+   //
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER) + sizeof(RecvBuffer.PcrUpdateCounter) + sizeof(RecvBuffer.PcrSelectionOut.count)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrRead - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrRead - RecvBufferSize Error - %x\n", RecvBufferSize));
+     return EFI_DEVICE_ERROR;
+   }
+   PcrSelectionOut->count = SwapBytes32(RecvBuffer.PcrSelectionOut.count);
+@@ -388,7 +388,7 @@ Tpm2PcrRead (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER) + sizeof(RecvBuffer.PcrUpdateCounter) + sizeof(RecvBuffer.PcrSelectionOut.count) + sizeof(RecvBuffer.PcrSelectionOut.pcrSelections[0]) * PcrSelectionOut->count) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrRead - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrRead - RecvBufferSize Error - %x\n", RecvBufferSize));
+     return EFI_DEVICE_ERROR;
+   }
+   for (Index = 0; Index < PcrSelectionOut->count; Index++) {
+@@ -513,7 +513,7 @@ Tpm2PcrAllocate (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrAllocate: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrAllocate: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -523,7 +523,7 @@ Tpm2PcrAllocate (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2PcrAllocate: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2PcrAllocate: Response size too large! %d\r\n", RespSize));
+     Status = EFI_BUFFER_TOO_SMALL;
+     goto Done;
+   }
+@@ -532,7 +532,7 @@ Tpm2PcrAllocate (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG((EFI_D_ERROR,"Tpm2PcrAllocate: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG((DEBUG_ERROR,"Tpm2PcrAllocate: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+@@ -673,15 +673,15 @@ Tpm2PcrAllocateBanks (
+              &SizeNeeded,
+              &SizeAvailable
+              );
+-  DEBUG ((EFI_D_INFO, "Tpm2PcrAllocateBanks call Tpm2PcrAllocate - %r\n", Status));
++  DEBUG ((DEBUG_INFO, "Tpm2PcrAllocateBanks call Tpm2PcrAllocate - %r\n", Status));
+   if (EFI_ERROR (Status)) {
+     goto Done;
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "AllocationSuccess - %02x\n", AllocationSuccess));
+-  DEBUG ((EFI_D_INFO, "MaxPCR            - %08x\n", MaxPCR));
+-  DEBUG ((EFI_D_INFO, "SizeNeeded        - %08x\n", SizeNeeded));
+-  DEBUG ((EFI_D_INFO, "SizeAvailable     - %08x\n", SizeAvailable));
++  DEBUG ((DEBUG_INFO, "AllocationSuccess - %02x\n", AllocationSuccess));
++  DEBUG ((DEBUG_INFO, "MaxPCR            - %08x\n", MaxPCR));
++  DEBUG ((DEBUG_INFO, "SizeNeeded        - %08x\n", SizeNeeded));
++  DEBUG ((DEBUG_INFO, "SizeAvailable     - %08x\n", SizeAvailable));
+ 
+ Done:
+   ZeroMem(&LocalAuthSession.hmac, sizeof(LocalAuthSession.hmac));
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Miscellaneous.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Miscellaneous.c
+index 32bff45844..1afc562998 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Miscellaneous.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Miscellaneous.c
+@@ -96,12 +96,12 @@ Tpm2SetAlgorithmSet (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2SetAlgorithmSet - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2SetAlgorithmSet - RecvBufferSize Error - %x\n", RecvBufferSize));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+   if (SwapBytes32(RecvBuffer.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2SetAlgorithmSet - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2SetAlgorithmSet - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2NVStorage.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2NVStorage.c
+index 87572de201..fb46af0fed 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2NVStorage.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2NVStorage.c
+@@ -200,12 +200,12 @@ Tpm2NvReadPublic (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvReadPublic - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvReadPublic - RecvBufferSize Error - %x\n", RecvBufferSize));
+     return EFI_DEVICE_ERROR;
+   }
+   ResponseCode = SwapBytes32(RecvBuffer.Header.responseCode);
+   if (ResponseCode != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvReadPublic - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvReadPublic - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+   }
+   switch (ResponseCode) {
+   case TPM_RC_SUCCESS:
+@@ -220,7 +220,7 @@ Tpm2NvReadPublic (
+   }
+ 
+   if (RecvBufferSize <= sizeof (TPM2_RESPONSE_HEADER) + sizeof (UINT16) + sizeof(UINT16)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvReadPublic - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvReadPublic - RecvBufferSize Error - %x\n", RecvBufferSize));
+     return EFI_NOT_FOUND;
+   }
+ 
+@@ -240,7 +240,7 @@ Tpm2NvReadPublic (
+   }
+ 
+   if (RecvBufferSize != sizeof(TPM2_RESPONSE_HEADER) + sizeof(UINT16) + NvPublicSize + sizeof(UINT16) + NvNameSize) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvReadPublic - RecvBufferSize Error - NvPublicSize %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvReadPublic - RecvBufferSize Error - NvPublicSize %x\n", RecvBufferSize));
+     return EFI_NOT_FOUND;
+   }
+ 
+@@ -354,14 +354,14 @@ Tpm2NvDefineSpace (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvDefineSpace - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvDefineSpace - RecvBufferSize Error - %x\n", RecvBufferSize));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+ 
+   ResponseCode = SwapBytes32(RecvBuffer.Header.responseCode);
+   if (ResponseCode != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvDefineSpace - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvDefineSpace - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+   }
+   switch (ResponseCode) {
+   case TPM_RC_SUCCESS:
+@@ -462,14 +462,14 @@ Tpm2NvUndefineSpace (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvUndefineSpace - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvUndefineSpace - RecvBufferSize Error - %x\n", RecvBufferSize));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+ 
+   ResponseCode = SwapBytes32(RecvBuffer.Header.responseCode);
+   if (ResponseCode != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvUndefineSpace - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvUndefineSpace - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+   }
+   switch (ResponseCode) {
+   case TPM_RC_SUCCESS:
+@@ -577,13 +577,13 @@ Tpm2NvRead (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvRead - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvRead - RecvBufferSize Error - %x\n", RecvBufferSize));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+   ResponseCode = SwapBytes32(RecvBuffer.Header.responseCode);
+   if (ResponseCode != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvRead - responseCode - %x\n", ResponseCode));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvRead - responseCode - %x\n", ResponseCode));
+   }
+   switch (ResponseCode) {
+   case TPM_RC_SUCCESS:
+@@ -723,13 +723,13 @@ Tpm2NvWrite (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvWrite - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvWrite - RecvBufferSize Error - %x\n", RecvBufferSize));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+   ResponseCode = SwapBytes32(RecvBuffer.Header.responseCode);
+   if (ResponseCode != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvWrite - responseCode - %x\n", ResponseCode));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvWrite - responseCode - %x\n", ResponseCode));
+   }
+   switch (ResponseCode) {
+   case TPM_RC_SUCCESS:
+@@ -843,14 +843,14 @@ Tpm2NvReadLock (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvReadLock - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvReadLock - RecvBufferSize Error - %x\n", RecvBufferSize));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+ 
+   ResponseCode = SwapBytes32(RecvBuffer.Header.responseCode);
+   if (ResponseCode != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvReadLock - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvReadLock - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+   }
+   switch (ResponseCode) {
+   case TPM_RC_SUCCESS:
+@@ -930,14 +930,14 @@ Tpm2NvWriteLock (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvWriteLock - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvWriteLock - RecvBufferSize Error - %x\n", RecvBufferSize));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+ 
+   ResponseCode = SwapBytes32(RecvBuffer.Header.responseCode);
+   if (ResponseCode != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvWriteLock - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvWriteLock - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+   }
+   switch (ResponseCode) {
+   case TPM_RC_SUCCESS:
+@@ -1014,14 +1014,14 @@ Tpm2NvGlobalWriteLock (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvGlobalWriteLock - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvGlobalWriteLock - RecvBufferSize Error - %x\n", RecvBufferSize));
+     Status = EFI_DEVICE_ERROR;
+     goto Done;
+   }
+ 
+   ResponseCode = SwapBytes32(RecvBuffer.Header.responseCode);
+   if (ResponseCode != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2NvGlobalWriteLock - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2NvGlobalWriteLock - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+   }
+   switch (ResponseCode) {
+   case TPM_RC_SUCCESS:
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Sequences.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Sequences.c
+index 201c2170fc..3d99f0615c 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Sequences.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Sequences.c
+@@ -134,7 +134,7 @@ Tpm2HashSequenceStart (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "HashSequenceStart: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "HashSequenceStart: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+@@ -143,7 +143,7 @@ Tpm2HashSequenceStart (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "HashSequenceStart: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "HashSequenceStart: Response size too large! %d\r\n", RespSize));
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+@@ -151,7 +151,7 @@ Tpm2HashSequenceStart (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "HashSequenceStart: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "HashSequenceStart: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+@@ -231,7 +231,7 @@ Tpm2SequenceUpdate (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "SequenceUpdate: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "SequenceUpdate: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+@@ -240,7 +240,7 @@ Tpm2SequenceUpdate (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "SequenceUpdate: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "SequenceUpdate: Response size too large! %d\r\n", RespSize));
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+@@ -248,7 +248,7 @@ Tpm2SequenceUpdate (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "SequenceUpdate: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "SequenceUpdate: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+@@ -340,7 +340,7 @@ Tpm2EventSequenceComplete (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "EventSequenceComplete: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "EventSequenceComplete: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+@@ -349,7 +349,7 @@ Tpm2EventSequenceComplete (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "EventSequenceComplete: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "EventSequenceComplete: Response size too large! %d\r\n", RespSize));
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+@@ -357,7 +357,7 @@ Tpm2EventSequenceComplete (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "EventSequenceComplete: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "EventSequenceComplete: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+@@ -382,7 +382,7 @@ Tpm2EventSequenceComplete (
+ 
+     DigestSize = GetHashSizeFromAlgo (Results->digests[Index].hashAlg);
+     if (DigestSize == 0) {
+-      DEBUG ((EFI_D_ERROR, "EventSequenceComplete: Unknown hash algorithm %d\r\n", Results->digests[Index].hashAlg));
++      DEBUG ((DEBUG_ERROR, "EventSequenceComplete: Unknown hash algorithm %d\r\n", Results->digests[Index].hashAlg));
+       return EFI_DEVICE_ERROR;
+     }
+     CopyMem(
+@@ -466,7 +466,7 @@ Tpm2SequenceComplete (
+   }
+ 
+   if (ResultBufSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "SequenceComplete: Failed ExecuteCommand: Buffer Too Small\r\n"));
++    DEBUG ((DEBUG_ERROR, "SequenceComplete: Failed ExecuteCommand: Buffer Too Small\r\n"));
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+@@ -475,7 +475,7 @@ Tpm2SequenceComplete (
+   //
+   RespSize = SwapBytes32(Res.Header.paramSize);
+   if (RespSize > sizeof(Res)) {
+-    DEBUG ((EFI_D_ERROR, "SequenceComplete: Response size too large! %d\r\n", RespSize));
++    DEBUG ((DEBUG_ERROR, "SequenceComplete: Response size too large! %d\r\n", RespSize));
+     return EFI_BUFFER_TOO_SMALL;
+   }
+ 
+@@ -483,7 +483,7 @@ Tpm2SequenceComplete (
+   // Fail if command failed
+   //
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "SequenceComplete: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "SequenceComplete: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Session.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Session.c
+index 57367432df..4ca616188c 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Session.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Session.c
+@@ -124,7 +124,7 @@ Tpm2StartAuthSession (
+     break;
+   default:
+     ASSERT (FALSE);
+-    DEBUG ((EFI_D_ERROR, "Tpm2StartAuthSession - Symmetric->algorithm - %x\n", Symmetric->algorithm));
++    DEBUG ((DEBUG_ERROR, "Tpm2StartAuthSession - Symmetric->algorithm - %x\n", Symmetric->algorithm));
+     return EFI_UNSUPPORTED;
+   }
+ 
+@@ -144,11 +144,11 @@ Tpm2StartAuthSession (
+   }
+ 
+   if (RecvBufferSize < sizeof (TPM2_RESPONSE_HEADER)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2StartAuthSession - RecvBufferSize Error - %x\n", RecvBufferSize));
++    DEBUG ((DEBUG_ERROR, "Tpm2StartAuthSession - RecvBufferSize Error - %x\n", RecvBufferSize));
+     return EFI_DEVICE_ERROR;
+   }
+   if (SwapBytes32(RecvBuffer.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2StartAuthSession - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2StartAuthSession - responseCode - %x\n", SwapBytes32(RecvBuffer.Header.responseCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Startup.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Startup.c
+index 41f2367ba2..645ac49b87 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Startup.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Startup.c
+@@ -77,7 +77,7 @@ Tpm2Startup (
+     DEBUG ((DEBUG_INFO, "TPM2Startup: TPM_RC_INITIALIZE\n"));
+     return EFI_SUCCESS;
+   default:
+-    DEBUG ((EFI_D_ERROR, "Tpm2Startup: Response Code error! 0x%08x\r\n", ResponseCode));
++    DEBUG ((DEBUG_ERROR, "Tpm2Startup: Response Code error! 0x%08x\r\n", ResponseCode));
+     return EFI_DEVICE_ERROR;
+   }
+ }
+@@ -113,7 +113,7 @@ Tpm2Shutdown (
+   }
+ 
+   if (SwapBytes32(Res.Header.responseCode) != TPM_RC_SUCCESS) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2Shutdown: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
++    DEBUG ((DEBUG_ERROR, "Tpm2Shutdown: Response Code error! 0x%08x\r\n", SwapBytes32(Res.Header.responseCode)));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+diff --git a/SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2Ptp.c b/SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2Ptp.c
+index f1f8091683..edde7f8e15 100644
+--- a/SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2Ptp.c
++++ b/SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2Ptp.c
+@@ -154,22 +154,22 @@ PtpCrbTpmCommand (
+   DEBUG_CODE (
+     UINTN  DebugSize;
+ 
+-    DEBUG ((EFI_D_VERBOSE, "PtpCrbTpmCommand Send - "));
++    DEBUG ((DEBUG_VERBOSE, "PtpCrbTpmCommand Send - "));
+     if (SizeIn > 0x100) {
+       DebugSize = 0x40;
+     } else {
+       DebugSize = SizeIn;
+     }
+     for (Index = 0; Index < DebugSize; Index++) {
+-      DEBUG ((EFI_D_VERBOSE, "%02x ", BufferIn[Index]));
++      DEBUG ((DEBUG_VERBOSE, "%02x ", BufferIn[Index]));
+     }
+     if (DebugSize != SizeIn) {
+-      DEBUG ((EFI_D_VERBOSE, "...... "));
++      DEBUG ((DEBUG_VERBOSE, "...... "));
+       for (Index = SizeIn - 0x20; Index < SizeIn; Index++) {
+-        DEBUG ((EFI_D_VERBOSE, "%02x ", BufferIn[Index]));
++        DEBUG ((DEBUG_VERBOSE, "%02x ", BufferIn[Index]));
+       }
+     }
+-    DEBUG ((EFI_D_VERBOSE, "\n"));
++    DEBUG ((DEBUG_VERBOSE, "\n"));
+   );
+   TpmOutSize         = 0;
+ 
+@@ -286,11 +286,11 @@ PtpCrbTpmCommand (
+     BufferOut[Index] = MmioRead8 ((UINTN)&CrbReg->CrbDataBuffer[Index]);
+   }
+   DEBUG_CODE (
+-    DEBUG ((EFI_D_VERBOSE, "PtpCrbTpmCommand ReceiveHeader - "));
++    DEBUG ((DEBUG_VERBOSE, "PtpCrbTpmCommand ReceiveHeader - "));
+     for (Index = 0; Index < sizeof (TPM2_RESPONSE_HEADER); Index++) {
+-      DEBUG ((EFI_D_VERBOSE, "%02x ", BufferOut[Index]));
++      DEBUG ((DEBUG_VERBOSE, "%02x ", BufferOut[Index]));
+     }
+-    DEBUG ((EFI_D_VERBOSE, "\n"));
++    DEBUG ((DEBUG_VERBOSE, "\n"));
+   );
+   //
+   // Check the response data header (tag, parasize and returncode)
+@@ -298,7 +298,7 @@ PtpCrbTpmCommand (
+   CopyMem (&Data16, BufferOut, sizeof (UINT16));
+   // TPM2 should not use this RSP_COMMAND
+   if (SwapBytes16 (Data16) == TPM_ST_RSP_COMMAND) {
+-    DEBUG ((EFI_D_ERROR, "TPM2: TPM_ST_RSP error - %x\n", TPM_ST_RSP_COMMAND));
++    DEBUG ((DEBUG_ERROR, "TPM2: TPM_ST_RSP error - %x\n", TPM_ST_RSP_COMMAND));
+     Status = EFI_UNSUPPORTED;
+     goto GoIdle_Exit;
+   }
+@@ -321,11 +321,11 @@ PtpCrbTpmCommand (
+   }
+ 
+   DEBUG_CODE (
+-    DEBUG ((EFI_D_VERBOSE, "PtpCrbTpmCommand Receive - "));
++    DEBUG ((DEBUG_VERBOSE, "PtpCrbTpmCommand Receive - "));
+     for (Index = 0; Index < TpmOutSize; Index++) {
+-      DEBUG ((EFI_D_VERBOSE, "%02x ", BufferOut[Index]));
++      DEBUG ((DEBUG_VERBOSE, "%02x ", BufferOut[Index]));
+     }
+-    DEBUG ((EFI_D_VERBOSE, "\n"));
++    DEBUG ((DEBUG_VERBOSE, "\n"));
+   );
+ 
+ GoReady_Exit:
+@@ -494,36 +494,36 @@ DumpPtpInfo (
+   //
+   // Dump InterfaceId Register for PTP
+   //
+-  DEBUG ((EFI_D_INFO, "InterfaceId - 0x%08x\n", InterfaceId.Uint32));
+-  DEBUG ((EFI_D_INFO, "  InterfaceType    - 0x%02x\n", InterfaceId.Bits.InterfaceType));
++  DEBUG ((DEBUG_INFO, "InterfaceId - 0x%08x\n", InterfaceId.Uint32));
++  DEBUG ((DEBUG_INFO, "  InterfaceType    - 0x%02x\n", InterfaceId.Bits.InterfaceType));
+   if (InterfaceId.Bits.InterfaceType != PTP_INTERFACE_IDENTIFIER_INTERFACE_TYPE_TIS) {
+-    DEBUG ((EFI_D_INFO, "  InterfaceVersion - 0x%02x\n", InterfaceId.Bits.InterfaceVersion));
+-    DEBUG ((EFI_D_INFO, "  CapFIFO          - 0x%x\n", InterfaceId.Bits.CapFIFO));
+-    DEBUG ((EFI_D_INFO, "  CapCRB           - 0x%x\n", InterfaceId.Bits.CapCRB));
++    DEBUG ((DEBUG_INFO, "  InterfaceVersion - 0x%02x\n", InterfaceId.Bits.InterfaceVersion));
++    DEBUG ((DEBUG_INFO, "  CapFIFO          - 0x%x\n", InterfaceId.Bits.CapFIFO));
++    DEBUG ((DEBUG_INFO, "  CapCRB           - 0x%x\n", InterfaceId.Bits.CapCRB));
+   }
+ 
+   //
+   // Dump Capability Register for TIS and FIFO
+   //
+-  DEBUG ((EFI_D_INFO, "InterfaceCapability - 0x%08x\n", InterfaceCapability.Uint32));
++  DEBUG ((DEBUG_INFO, "InterfaceCapability - 0x%08x\n", InterfaceCapability.Uint32));
+   if ((InterfaceId.Bits.InterfaceType == PTP_INTERFACE_IDENTIFIER_INTERFACE_TYPE_TIS) ||
+       (InterfaceId.Bits.InterfaceType == PTP_INTERFACE_IDENTIFIER_INTERFACE_TYPE_FIFO)) {
+-    DEBUG ((EFI_D_INFO, "  InterfaceVersion - 0x%x\n", InterfaceCapability.Bits.InterfaceVersion));
++    DEBUG ((DEBUG_INFO, "  InterfaceVersion - 0x%x\n", InterfaceCapability.Bits.InterfaceVersion));
+   }
+ 
+   //
+   // Dump StatusEx Register for PTP FIFO
+   //
+-  DEBUG ((EFI_D_INFO, "StatusEx - 0x%02x\n", StatusEx));
++  DEBUG ((DEBUG_INFO, "StatusEx - 0x%02x\n", StatusEx));
+   if (InterfaceCapability.Bits.InterfaceVersion == INTERFACE_CAPABILITY_INTERFACE_VERSION_PTP) {
+-    DEBUG ((EFI_D_INFO, "  TpmFamily - 0x%x\n", (StatusEx & PTP_FIFO_STS_EX_TPM_FAMILY) >> PTP_FIFO_STS_EX_TPM_FAMILY_OFFSET));
++    DEBUG ((DEBUG_INFO, "  TpmFamily - 0x%x\n", (StatusEx & PTP_FIFO_STS_EX_TPM_FAMILY) >> PTP_FIFO_STS_EX_TPM_FAMILY_OFFSET));
+   }
+ 
+   Vid = 0xFFFF;
+   Did = 0xFFFF;
+   Rid = 0xFF;
+   PtpInterface = GetCachedPtpInterface ();
+-  DEBUG ((EFI_D_INFO, "PtpInterface - %x\n", PtpInterface));
++  DEBUG ((DEBUG_INFO, "PtpInterface - %x\n", PtpInterface));
+   switch (PtpInterface) {
+   case Tpm2PtpInterfaceCrb:
+     Vid = MmioRead16 ((UINTN)&((PTP_CRB_REGISTERS *)Register)->Vid);
+@@ -539,9 +539,9 @@ DumpPtpInfo (
+   default:
+     break;
+   }
+-  DEBUG ((EFI_D_INFO, "VID - 0x%04x\n", Vid));
+-  DEBUG ((EFI_D_INFO, "DID - 0x%04x\n", Did));
+-  DEBUG ((EFI_D_INFO, "RID - 0x%02x\n", Rid));
++  DEBUG ((DEBUG_INFO, "VID - 0x%04x\n", Vid));
++  DEBUG ((DEBUG_INFO, "DID - 0x%04x\n", Did));
++  DEBUG ((DEBUG_INFO, "RID - 0x%02x\n", Rid));
+ }
+ 
+ /**
+diff --git a/SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2Tis.c b/SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2Tis.c
+index 9a809612b3..e3bef8dfe4 100644
+--- a/SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2Tis.c
++++ b/SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2Tis.c
+@@ -221,22 +221,22 @@ Tpm2TisTpmCommand (
+   DEBUG_CODE (
+     UINTN  DebugSize;
+ 
+-    DEBUG ((EFI_D_VERBOSE, "Tpm2TisTpmCommand Send - "));
++    DEBUG ((DEBUG_VERBOSE, "Tpm2TisTpmCommand Send - "));
+     if (SizeIn > 0x100) {
+       DebugSize = 0x40;
+     } else {
+       DebugSize = SizeIn;
+     }
+     for (Index = 0; Index < DebugSize; Index++) {
+-      DEBUG ((EFI_D_VERBOSE, "%02x ", BufferIn[Index]));
++      DEBUG ((DEBUG_VERBOSE, "%02x ", BufferIn[Index]));
+     }
+     if (DebugSize != SizeIn) {
+-      DEBUG ((EFI_D_VERBOSE, "...... "));
++      DEBUG ((DEBUG_VERBOSE, "...... "));
+       for (Index = SizeIn - 0x20; Index < SizeIn; Index++) {
+-        DEBUG ((EFI_D_VERBOSE, "%02x ", BufferIn[Index]));
++        DEBUG ((DEBUG_VERBOSE, "%02x ", BufferIn[Index]));
+       }
+     }
+-    DEBUG ((EFI_D_VERBOSE, "\n"));
++    DEBUG ((DEBUG_VERBOSE, "\n"));
+   );
+   TpmOutSize = 0;
+ 
+@@ -333,11 +333,11 @@ Tpm2TisTpmCommand (
+     }
+   }
+   DEBUG_CODE (
+-    DEBUG ((EFI_D_VERBOSE, "Tpm2TisTpmCommand ReceiveHeader - "));
++    DEBUG ((DEBUG_VERBOSE, "Tpm2TisTpmCommand ReceiveHeader - "));
+     for (Index = 0; Index < sizeof (TPM2_RESPONSE_HEADER); Index++) {
+-      DEBUG ((EFI_D_VERBOSE, "%02x ", BufferOut[Index]));
++      DEBUG ((DEBUG_VERBOSE, "%02x ", BufferOut[Index]));
+     }
+-    DEBUG ((EFI_D_VERBOSE, "\n"));
++    DEBUG ((DEBUG_VERBOSE, "\n"));
+   );
+   //
+   // Check the response data header (tag,parasize and returncode )
+@@ -345,7 +345,7 @@ Tpm2TisTpmCommand (
+   CopyMem (&Data16, BufferOut, sizeof (UINT16));
+   // TPM2 should not use this RSP_COMMAND
+   if (SwapBytes16 (Data16) == TPM_ST_RSP_COMMAND) {
+-    DEBUG ((EFI_D_ERROR, "TPM2: TPM_ST_RSP error - %x\n", TPM_ST_RSP_COMMAND));
++    DEBUG ((DEBUG_ERROR, "TPM2: TPM_ST_RSP error - %x\n", TPM_ST_RSP_COMMAND));
+     Status = EFI_UNSUPPORTED;
+     goto Exit;
+   }
+@@ -377,11 +377,11 @@ Tpm2TisTpmCommand (
+   }
+ Exit:
+   DEBUG_CODE (
+-    DEBUG ((EFI_D_VERBOSE, "Tpm2TisTpmCommand Receive - "));
++    DEBUG ((DEBUG_VERBOSE, "Tpm2TisTpmCommand Receive - "));
+     for (Index = 0; Index < TpmOutSize; Index++) {
+-      DEBUG ((EFI_D_VERBOSE, "%02x ", BufferOut[Index]));
++      DEBUG ((DEBUG_VERBOSE, "%02x ", BufferOut[Index]));
+     }
+-    DEBUG ((EFI_D_VERBOSE, "\n"));
++    DEBUG ((DEBUG_VERBOSE, "\n"));
+   );
+   MmioWrite8((UINTN)&TisReg->Status, TIS_PC_STS_READY);
+   return Status;
+diff --git a/SecurityPkg/Library/Tpm2DeviceLibRouter/Tpm2DeviceLibRouterPei.c b/SecurityPkg/Library/Tpm2DeviceLibRouter/Tpm2DeviceLibRouterPei.c
+index 2e77d35433..e24ef08515 100644
+--- a/SecurityPkg/Library/Tpm2DeviceLibRouter/Tpm2DeviceLibRouterPei.c
++++ b/SecurityPkg/Library/Tpm2DeviceLibRouter/Tpm2DeviceLibRouterPei.c
+@@ -123,7 +123,7 @@ Tpm2RegisterTpm2DeviceLib (
+     //
+     // In PEI phase, there will be shadow driver dispatched again.
+     //
+-    DEBUG ((EFI_D_INFO, "Tpm2RegisterTpm2DeviceLib - Override\n"));
++    DEBUG ((DEBUG_INFO, "Tpm2RegisterTpm2DeviceLib - Override\n"));
+     CopyMem (Tpm2DeviceInterface, Tpm2Device, sizeof(*Tpm2Device));
+     return EFI_SUCCESS;
+   } else {
+diff --git a/SecurityPkg/Library/Tpm2DeviceLibTcg2/Tpm2DeviceLibTcg2.c b/SecurityPkg/Library/Tpm2DeviceLibTcg2/Tpm2DeviceLibTcg2.c
+index c34c417093..9d12695a62 100644
+--- a/SecurityPkg/Library/Tpm2DeviceLibTcg2/Tpm2DeviceLibTcg2.c
++++ b/SecurityPkg/Library/Tpm2DeviceLibTcg2/Tpm2DeviceLibTcg2.c
+@@ -46,7 +46,7 @@ Tpm2SubmitCommand (
+       //
+       // Tcg2 protocol is not installed. So, TPM2 is not present.
+       //
+-      DEBUG ((EFI_D_ERROR, "Tpm2SubmitCommand - Tcg2 - %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "Tpm2SubmitCommand - Tcg2 - %r\n", Status));
+       return EFI_NOT_FOUND;
+     }
+   }
+@@ -90,7 +90,7 @@ Tpm2RequestUseTpm (
+       //
+       // Tcg2 protocol is not installed. So, TPM2 is not present.
+       //
+-      DEBUG ((EFI_D_ERROR, "Tpm2RequestUseTpm - Tcg2 - %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "Tpm2RequestUseTpm - Tcg2 - %r\n", Status));
+       return EFI_NOT_FOUND;
+     }
+   }
+diff --git a/SecurityPkg/Tcg/MemoryOverwriteControl/TcgMor.c b/SecurityPkg/Tcg/MemoryOverwriteControl/TcgMor.c
+index 32b64a31d1..e5dd06ebcf 100644
+--- a/SecurityPkg/Tcg/MemoryOverwriteControl/TcgMor.c
++++ b/SecurityPkg/Tcg/MemoryOverwriteControl/TcgMor.c
+@@ -40,7 +40,7 @@ OnReadyToBoot (
+   //
+   // Clear MOR_CLEAR_MEMORY_BIT
+   //
+-  DEBUG ((EFI_D_INFO, "TcgMor: Clear MorClearMemory bit\n"));
++  DEBUG ((DEBUG_INFO, "TcgMor: Clear MorClearMemory bit\n"));
+   mMorControl &= 0xFE;
+ 
+   DataSize = sizeof (mMorControl);
+@@ -168,7 +168,7 @@ InitiateTPerReset (
+       // Found a  TCG device.
+       //
+       TcgFlag = TRUE;
+-      DEBUG ((EFI_D_INFO, "This device is a TCG protocol device\n"));
++      DEBUG ((DEBUG_INFO, "This device is a TCG protocol device\n"));
+       break;
+     }
+ 
+@@ -177,13 +177,13 @@ InitiateTPerReset (
+       // Found a IEEE 1667 device.
+       //
+       IeeeFlag = TRUE;
+-      DEBUG ((EFI_D_INFO, "This device is a IEEE 1667 protocol device\n"));
++      DEBUG ((DEBUG_INFO, "This device is a IEEE 1667 protocol device\n"));
+       break;
+     }
+   }
+ 
+   if (!TcgFlag && !IeeeFlag) {
+-    DEBUG ((EFI_D_INFO, "Neither a TCG nor IEEE 1667 protocol device is found\n"));
++    DEBUG ((DEBUG_INFO, "Neither a TCG nor IEEE 1667 protocol device is found\n"));
+     goto Exit;
+   }
+ 
+@@ -203,9 +203,9 @@ InitiateTPerReset (
+                     );
+ 
+     if (!EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_INFO, "Send TPer Reset Command Successfully !\n"));
++      DEBUG ((DEBUG_INFO, "Send TPer Reset Command Successfully !\n"));
+     } else {
+-      DEBUG ((EFI_D_INFO, "Send TPer Reset Command Fail !\n"));
++      DEBUG ((DEBUG_INFO, "Send TPer Reset Command Fail !\n"));
+     }
+   }
+ 
+@@ -213,7 +213,7 @@ InitiateTPerReset (
+     //
+     // TBD : Perform a TPer Reset via IEEE 1667 Protocol
+     //
+-    DEBUG ((EFI_D_INFO, "IEEE 1667 Protocol didn't support yet!\n"));
++    DEBUG ((DEBUG_INFO, "IEEE 1667 Protocol didn't support yet!\n"));
+   }
+ 
+ Exit:
+@@ -336,7 +336,7 @@ MorDriverEntryPoint (
+                     DataSize,
+                     &mMorControl
+                     );
+-    DEBUG ((EFI_D_INFO, "TcgMor: Create MOR variable! Status = %r\n", Status));
++    DEBUG ((DEBUG_INFO, "TcgMor: Create MOR variable! Status = %r\n", Status));
+   } else {
+     //
+     // Create a Ready To Boot Event and Clear the MorControl bit in the call back function.
+@@ -355,7 +355,7 @@ MorDriverEntryPoint (
+     //
+     // Register EFI_END_OF_DXE_EVENT_GROUP_GUID event.
+     //
+-    DEBUG ((EFI_D_INFO, "TcgMor: Create EndofDxe Event for Mor TPer Reset!\n"));
++    DEBUG ((DEBUG_INFO, "TcgMor: Create EndofDxe Event for Mor TPer Reset!\n"));
+     Status = gBS->CreateEventEx (
+                     EVT_NOTIFY_SIGNAL,
+                     TPL_CALLBACK,
+@@ -371,5 +371,3 @@ MorDriverEntryPoint (
+ 
+   return Status;
+ }
+-
+-
+diff --git a/SecurityPkg/Tcg/MemoryOverwriteRequestControlLock/TcgMorLockSmm.c b/SecurityPkg/Tcg/MemoryOverwriteRequestControlLock/TcgMorLockSmm.c
+index 8c92317313..8e775cb96c 100644
+--- a/SecurityPkg/Tcg/MemoryOverwriteRequestControlLock/TcgMorLockSmm.c
++++ b/SecurityPkg/Tcg/MemoryOverwriteRequestControlLock/TcgMorLockSmm.c
+@@ -123,7 +123,7 @@ MorLockDriverEntryPointSmm (
+   //
+   // This driver link to Smm Variable driver
+   //
+-  DEBUG ((EFI_D_INFO, "MorLockDriverEntryPointSmm\n"));
++  DEBUG ((DEBUG_INFO, "MorLockDriverEntryPointSmm\n"));
+ 
+   Status = gSmst->SmmLocateProtocol (
+                   &gEfiSmmVariableProtocolGuid,
+@@ -149,4 +149,3 @@ MorLockDriverEntryPointSmm (
+ 
+   return Status;
+ }
+-
+diff --git a/SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigDriver.c b/SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigDriver.c
+index 10d1c5cc78..fca5ae2645 100644
+--- a/SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigDriver.c
++++ b/SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigDriver.c
+@@ -355,7 +355,7 @@ Tcg2ConfigDriverEntryPoint (
+                   &Tcg2DeviceDetection
+                   );
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "Tcg2ConfigDriver: Fail to set TCG2_DEVICE_DETECTION_NAME\n"));
++    DEBUG ((DEBUG_ERROR, "Tcg2ConfigDriver: Fail to set TCG2_DEVICE_DETECTION_NAME\n"));
+     Status = gRT->SetVariable (
+                     TCG2_DEVICE_DETECTION_NAME,
+                     &gTcg2ConfigFormSetGuid,
+@@ -377,7 +377,7 @@ Tcg2ConfigDriverEntryPoint (
+                   &Tcg2Configuration
+                   );
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "Tcg2ConfigDriver: Fail to set TCG2_STORAGE_NAME\n"));
++    DEBUG ((DEBUG_ERROR, "Tcg2ConfigDriver: Fail to set TCG2_STORAGE_NAME\n"));
+   }
+ 
+   //
+diff --git a/SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigImpl.c b/SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigImpl.c
+index 2946f95db0..a7446ef2f6 100644
+--- a/SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigImpl.c
++++ b/SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigImpl.c
+@@ -960,7 +960,7 @@ InstallTcg2ConfigForm (
+                   &Tcg2ConfigInfo
+                   );
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "Tcg2ConfigDriver: Fail to set TCG2_STORAGE_INFO_NAME\n"));
++    DEBUG ((DEBUG_ERROR, "Tcg2ConfigDriver: Fail to set TCG2_STORAGE_INFO_NAME\n"));
+   }
+ 
+   return EFI_SUCCESS;
+diff --git a/SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigPeim.c b/SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigPeim.c
+index 0f9bad724e..8abc33efd4 100644
+--- a/SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigPeim.c
++++ b/SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigPeim.c
+@@ -104,11 +104,11 @@ Tcg2ConfigPeimEntryPoint (
+   //
+   // Although we have SetupVariable info, we still need detect TPM device manually.
+   //
+-  DEBUG ((EFI_D_INFO, "Tcg2Configuration.TpmDevice from Setup: %x\n", Tcg2Configuration.TpmDevice));
++  DEBUG ((DEBUG_INFO, "Tcg2Configuration.TpmDevice from Setup: %x\n", Tcg2Configuration.TpmDevice));
+ 
+   if (PcdGetBool (PcdTpmAutoDetection)) {
+     TpmDevice = DetectTpmDevice (Tcg2Configuration.TpmDevice);
+-    DEBUG ((EFI_D_INFO, "TpmDevice final: %x\n", TpmDevice));
++    DEBUG ((DEBUG_INFO, "TpmDevice final: %x\n", TpmDevice));
+     if (TpmDevice != TPM_DEVICE_NULL) {
+       Tcg2Configuration.TpmDevice = TpmDevice;
+     }
+@@ -129,7 +129,7 @@ Tcg2ConfigPeimEntryPoint (
+       Size = sizeof(mTpmInstanceId[Index].TpmInstanceGuid);
+       Status = PcdSetPtrS (PcdTpmInstanceGuid, &Size, &mTpmInstanceId[Index].TpmInstanceGuid);
+       ASSERT_EFI_ERROR (Status);
+-      DEBUG ((EFI_D_INFO, "TpmDevice PCD: %g\n", &mTpmInstanceId[Index].TpmInstanceGuid));
++      DEBUG ((DEBUG_INFO, "TpmDevice PCD: %g\n", &mTpmInstanceId[Index].TpmInstanceGuid));
+       break;
+     }
+   }
+diff --git a/SecurityPkg/Tcg/Tcg2Config/TpmDetection.c b/SecurityPkg/Tcg/Tcg2Config/TpmDetection.c
+index eeaadc5e2f..57d3638f0c 100644
+--- a/SecurityPkg/Tcg/Tcg2Config/TpmDetection.c
++++ b/SecurityPkg/Tcg/Tcg2Config/TpmDetection.c
+@@ -47,7 +47,7 @@ DetectTpmDevice (
+   // In S3, we rely on normal boot Detection, because we save to ReadOnly Variable in normal boot.
+   //
+   if (BootMode == BOOT_ON_S3_RESUME) {
+-    DEBUG ((EFI_D_INFO, "DetectTpmDevice: S3 mode\n"));
++    DEBUG ((DEBUG_INFO, "DetectTpmDevice: S3 mode\n"));
+ 
+     Status = PeiServicesLocatePpi (&gEfiPeiReadOnlyVariable2PpiGuid, 0, NULL, (VOID **) &VariablePpi);
+     ASSERT_EFI_ERROR (Status);
+@@ -65,12 +65,12 @@ DetectTpmDevice (
+     if (!EFI_ERROR (Status) &&
+         (Tcg2DeviceDetection.TpmDeviceDetected >= TPM_DEVICE_MIN) &&
+         (Tcg2DeviceDetection.TpmDeviceDetected <= TPM_DEVICE_MAX)) {
+-      DEBUG ((EFI_D_ERROR, "TpmDevice from DeviceDetection: %x\n", Tcg2DeviceDetection.TpmDeviceDetected));
++      DEBUG ((DEBUG_ERROR, "TpmDevice from DeviceDetection: %x\n", Tcg2DeviceDetection.TpmDeviceDetected));
+       return Tcg2DeviceDetection.TpmDeviceDetected;
+     }
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "DetectTpmDevice:\n"));
++  DEBUG ((DEBUG_INFO, "DetectTpmDevice:\n"));
+ 
+   // dTPM available and not disabled by setup
+   // We need check if it is TPM1.2 or TPM2.0
+diff --git a/SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.c b/SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.c
+index f1a97d4b2d..c26be18338 100644
+--- a/SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.c
++++ b/SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.c
+@@ -159,7 +159,7 @@ InternalDumpData (
+ {
+   UINTN  Index;
+   for (Index = 0; Index < Size; Index++) {
+-    DEBUG ((EFI_D_INFO, "%02x", (UINTN)Data[Index]));
++    DEBUG ((DEBUG_INFO, "%02x", (UINTN)Data[Index]));
+   }
+ }
+ 
+@@ -262,15 +262,15 @@ InternalDumpHex (
+   Count = Size / COLUME_SIZE;
+   Left  = Size % COLUME_SIZE;
+   for (Index = 0; Index < Count; Index++) {
+-    DEBUG ((EFI_D_INFO, "%04x: ", Index * COLUME_SIZE));
++    DEBUG ((DEBUG_INFO, "%04x: ", Index * COLUME_SIZE));
+     InternalDumpData (Data + Index * COLUME_SIZE, COLUME_SIZE);
+-    DEBUG ((EFI_D_INFO, "\n"));
++    DEBUG ((DEBUG_INFO, "\n"));
+   }
+ 
+   if (Left != 0) {
+-    DEBUG ((EFI_D_INFO, "%04x: ", Index * COLUME_SIZE));
++    DEBUG ((DEBUG_INFO, "%04x: ", Index * COLUME_SIZE));
+     InternalDumpData (Data + Index * COLUME_SIZE, Left);
+-    DEBUG ((EFI_D_INFO, "\n"));
++    DEBUG ((DEBUG_INFO, "\n"));
+   }
+ }
+ 
+@@ -403,7 +403,7 @@ Tcg2GetCapability (
+         ProtocolCapability->StructureVersion.Minor = 0;
+         ProtocolCapability->ProtocolVersion.Major = 1;
+         ProtocolCapability->ProtocolVersion.Minor = 0;
+-        DEBUG ((EFI_D_ERROR, "TreeGetCapability (Compatible) - %r\n", EFI_SUCCESS));
++        DEBUG ((DEBUG_ERROR, "TreeGetCapability (Compatible) - %r\n", EFI_SUCCESS));
+         return EFI_SUCCESS;
+       }
+     }
+@@ -428,15 +428,15 @@ DumpEvent (
+ {
+   UINTN                     Index;
+ 
+-  DEBUG ((EFI_D_INFO, "  Event:\n"));
+-  DEBUG ((EFI_D_INFO, "    PCRIndex  - %d\n", EventHdr->PCRIndex));
+-  DEBUG ((EFI_D_INFO, "    EventType - 0x%08x\n", EventHdr->EventType));
+-  DEBUG ((EFI_D_INFO, "    Digest    - "));
++  DEBUG ((DEBUG_INFO, "  Event:\n"));
++  DEBUG ((DEBUG_INFO, "    PCRIndex  - %d\n", EventHdr->PCRIndex));
++  DEBUG ((DEBUG_INFO, "    EventType - 0x%08x\n", EventHdr->EventType));
++  DEBUG ((DEBUG_INFO, "    Digest    - "));
+   for (Index = 0; Index < sizeof(TCG_DIGEST); Index++) {
+-    DEBUG ((EFI_D_INFO, "%02x ", EventHdr->Digest.digest[Index]));
++    DEBUG ((DEBUG_INFO, "%02x ", EventHdr->Digest.digest[Index]));
+   }
+-  DEBUG ((EFI_D_INFO, "\n"));
+-  DEBUG ((EFI_D_INFO, "    EventSize - 0x%08x\n", EventHdr->EventSize));
++  DEBUG ((DEBUG_INFO, "\n"));
++  DEBUG ((DEBUG_INFO, "    EventSize - 0x%08x\n", EventHdr->EventSize));
+   InternalDumpHex ((UINT8 *)(EventHdr + 1), EventHdr->EventSize);
+ }
+ 
+@@ -456,33 +456,33 @@ DumpTcgEfiSpecIdEventStruct (
+   UINT8                            *VendorInfo;
+   UINT32                           NumberOfAlgorithms;
+ 
+-  DEBUG ((EFI_D_INFO, "  TCG_EfiSpecIDEventStruct:\n"));
+-  DEBUG ((EFI_D_INFO, "    signature          - '"));
++  DEBUG ((DEBUG_INFO, "  TCG_EfiSpecIDEventStruct:\n"));
++  DEBUG ((DEBUG_INFO, "    signature          - '"));
+   for (Index = 0; Index < sizeof(TcgEfiSpecIdEventStruct->signature); Index++) {
+-    DEBUG ((EFI_D_INFO, "%c", TcgEfiSpecIdEventStruct->signature[Index]));
++    DEBUG ((DEBUG_INFO, "%c", TcgEfiSpecIdEventStruct->signature[Index]));
+   }
+-  DEBUG ((EFI_D_INFO, "'\n"));
+-  DEBUG ((EFI_D_INFO, "    platformClass      - 0x%08x\n", TcgEfiSpecIdEventStruct->platformClass));
+-  DEBUG ((EFI_D_INFO, "    specVersion        - %d.%d%d\n", TcgEfiSpecIdEventStruct->specVersionMajor, TcgEfiSpecIdEventStruct->specVersionMinor, TcgEfiSpecIdEventStruct->specErrata));
+-  DEBUG ((EFI_D_INFO, "    uintnSize          - 0x%02x\n", TcgEfiSpecIdEventStruct->uintnSize));
++  DEBUG ((DEBUG_INFO, "'\n"));
++  DEBUG ((DEBUG_INFO, "    platformClass      - 0x%08x\n", TcgEfiSpecIdEventStruct->platformClass));
++  DEBUG ((DEBUG_INFO, "    specVersion        - %d.%d%d\n", TcgEfiSpecIdEventStruct->specVersionMajor, TcgEfiSpecIdEventStruct->specVersionMinor, TcgEfiSpecIdEventStruct->specErrata));
++  DEBUG ((DEBUG_INFO, "    uintnSize          - 0x%02x\n", TcgEfiSpecIdEventStruct->uintnSize));
+ 
+   CopyMem (&NumberOfAlgorithms, TcgEfiSpecIdEventStruct + 1, sizeof(NumberOfAlgorithms));
+-  DEBUG ((EFI_D_INFO, "    NumberOfAlgorithms - 0x%08x\n", NumberOfAlgorithms));
++  DEBUG ((DEBUG_INFO, "    NumberOfAlgorithms - 0x%08x\n", NumberOfAlgorithms));
+ 
+   DigestSize = (TCG_EfiSpecIdEventAlgorithmSize *)((UINT8 *)TcgEfiSpecIdEventStruct + sizeof(*TcgEfiSpecIdEventStruct) + sizeof(NumberOfAlgorithms));
+   for (Index = 0; Index < NumberOfAlgorithms; Index++) {
+-    DEBUG ((EFI_D_INFO, "    digest(%d)\n", Index));
+-    DEBUG ((EFI_D_INFO, "      algorithmId      - 0x%04x\n", DigestSize[Index].algorithmId));
+-    DEBUG ((EFI_D_INFO, "      digestSize       - 0x%04x\n", DigestSize[Index].digestSize));
++    DEBUG ((DEBUG_INFO, "    digest(%d)\n", Index));
++    DEBUG ((DEBUG_INFO, "      algorithmId      - 0x%04x\n", DigestSize[Index].algorithmId));
++    DEBUG ((DEBUG_INFO, "      digestSize       - 0x%04x\n", DigestSize[Index].digestSize));
+   }
+   VendorInfoSize = (UINT8 *)&DigestSize[NumberOfAlgorithms];
+-  DEBUG ((EFI_D_INFO, "    VendorInfoSize     - 0x%02x\n", *VendorInfoSize));
++  DEBUG ((DEBUG_INFO, "    VendorInfoSize     - 0x%02x\n", *VendorInfoSize));
+   VendorInfo = VendorInfoSize + 1;
+-  DEBUG ((EFI_D_INFO, "    VendorInfo         - "));
++  DEBUG ((DEBUG_INFO, "    VendorInfo         - "));
+   for (Index = 0; Index < *VendorInfoSize; Index++) {
+-    DEBUG ((EFI_D_INFO, "%02x ", VendorInfo[Index]));
++    DEBUG ((DEBUG_INFO, "%02x ", VendorInfo[Index]));
+   }
+-  DEBUG ((EFI_D_INFO, "\n"));
++  DEBUG ((DEBUG_INFO, "\n"));
+ }
+ 
+ /**
+@@ -525,34 +525,34 @@ DumpEvent2 (
+   UINT32                    EventSize;
+   UINT8                     *EventBuffer;
+ 
+-  DEBUG ((EFI_D_INFO, "  Event:\n"));
+-  DEBUG ((EFI_D_INFO, "    PCRIndex  - %d\n", TcgPcrEvent2->PCRIndex));
+-  DEBUG ((EFI_D_INFO, "    EventType - 0x%08x\n", TcgPcrEvent2->EventType));
++  DEBUG ((DEBUG_INFO, "  Event:\n"));
++  DEBUG ((DEBUG_INFO, "    PCRIndex  - %d\n", TcgPcrEvent2->PCRIndex));
++  DEBUG ((DEBUG_INFO, "    EventType - 0x%08x\n", TcgPcrEvent2->EventType));
+ 
+-  DEBUG ((EFI_D_INFO, "    DigestCount: 0x%08x\n", TcgPcrEvent2->Digest.count));
++  DEBUG ((DEBUG_INFO, "    DigestCount: 0x%08x\n", TcgPcrEvent2->Digest.count));
+ 
+   DigestCount = TcgPcrEvent2->Digest.count;
+   HashAlgo = TcgPcrEvent2->Digest.digests[0].hashAlg;
+   DigestBuffer = (UINT8 *)&TcgPcrEvent2->Digest.digests[0].digest;
+   for (DigestIndex = 0; DigestIndex < DigestCount; DigestIndex++) {
+-    DEBUG ((EFI_D_INFO, "      HashAlgo : 0x%04x\n", HashAlgo));
+-    DEBUG ((EFI_D_INFO, "      Digest(%d): ", DigestIndex));
++    DEBUG ((DEBUG_INFO, "      HashAlgo : 0x%04x\n", HashAlgo));
++    DEBUG ((DEBUG_INFO, "      Digest(%d): ", DigestIndex));
+     DigestSize = GetHashSizeFromAlgo (HashAlgo);
+     for (Index = 0; Index < DigestSize; Index++) {
+-      DEBUG ((EFI_D_INFO, "%02x ", DigestBuffer[Index]));
++      DEBUG ((DEBUG_INFO, "%02x ", DigestBuffer[Index]));
+     }
+-    DEBUG ((EFI_D_INFO, "\n"));
++    DEBUG ((DEBUG_INFO, "\n"));
+     //
+     // Prepare next
+     //
+     CopyMem (&HashAlgo, DigestBuffer + DigestSize, sizeof(TPMI_ALG_HASH));
+     DigestBuffer = DigestBuffer + DigestSize + sizeof(TPMI_ALG_HASH);
+   }
+-  DEBUG ((EFI_D_INFO, "\n"));
++  DEBUG ((DEBUG_INFO, "\n"));
+   DigestBuffer = DigestBuffer - sizeof(TPMI_ALG_HASH);
+ 
+   CopyMem (&EventSize, DigestBuffer, sizeof(TcgPcrEvent2->EventSize));
+-  DEBUG ((EFI_D_INFO, "    EventSize - 0x%08x\n", EventSize));
++  DEBUG ((DEBUG_INFO, "    EventSize - 0x%08x\n", EventSize));
+   EventBuffer = DigestBuffer + sizeof(TcgPcrEvent2->EventSize);
+   InternalDumpHex (EventBuffer, EventSize);
+ }
+@@ -618,7 +618,7 @@ DumpEventLog (
+   TCG_EfiSpecIDEventStruct  *TcgEfiSpecIdEventStruct;
+   UINTN                     NumberOfEvents;
+ 
+-  DEBUG ((EFI_D_INFO, "EventLogFormat: (0x%x)\n", EventLogFormat));
++  DEBUG ((DEBUG_INFO, "EventLogFormat: (0x%x)\n", EventLogFormat));
+ 
+   switch (EventLogFormat) {
+   case EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2:
+@@ -628,11 +628,11 @@ DumpEventLog (
+       EventHdr = (TCG_PCR_EVENT_HDR *)((UINTN)EventHdr + sizeof(TCG_PCR_EVENT_HDR) + EventHdr->EventSize);
+     }
+     if (FinalEventsTable == NULL) {
+-      DEBUG ((EFI_D_INFO, "FinalEventsTable: NOT FOUND\n"));
++      DEBUG ((DEBUG_INFO, "FinalEventsTable: NOT FOUND\n"));
+     } else {
+-      DEBUG ((EFI_D_INFO, "FinalEventsTable:    (0x%x)\n", FinalEventsTable));
+-      DEBUG ((EFI_D_INFO, "  Version:           (0x%x)\n", FinalEventsTable->Version));
+-      DEBUG ((EFI_D_INFO, "  NumberOfEvents:    (0x%x)\n", FinalEventsTable->NumberOfEvents));
++      DEBUG ((DEBUG_INFO, "FinalEventsTable:    (0x%x)\n", FinalEventsTable));
++      DEBUG ((DEBUG_INFO, "  Version:           (0x%x)\n", FinalEventsTable->Version));
++      DEBUG ((DEBUG_INFO, "  NumberOfEvents:    (0x%x)\n", FinalEventsTable->NumberOfEvents));
+ 
+       EventHdr = (TCG_PCR_EVENT_HDR *)(UINTN)(FinalEventsTable + 1);
+       for (NumberOfEvents = 0; NumberOfEvents < FinalEventsTable->NumberOfEvents; NumberOfEvents++) {
+@@ -658,11 +658,11 @@ DumpEventLog (
+     }
+ 
+     if (FinalEventsTable == NULL) {
+-      DEBUG ((EFI_D_INFO, "FinalEventsTable: NOT FOUND\n"));
++      DEBUG ((DEBUG_INFO, "FinalEventsTable: NOT FOUND\n"));
+     } else {
+-      DEBUG ((EFI_D_INFO, "FinalEventsTable:    (0x%x)\n", FinalEventsTable));
+-      DEBUG ((EFI_D_INFO, "  Version:           (0x%x)\n", FinalEventsTable->Version));
+-      DEBUG ((EFI_D_INFO, "  NumberOfEvents:    (0x%x)\n", FinalEventsTable->NumberOfEvents));
++      DEBUG ((DEBUG_INFO, "FinalEventsTable:    (0x%x)\n", FinalEventsTable));
++      DEBUG ((DEBUG_INFO, "  Version:           (0x%x)\n", FinalEventsTable->Version));
++      DEBUG ((DEBUG_INFO, "  NumberOfEvents:    (0x%x)\n", FinalEventsTable->NumberOfEvents));
+ 
+       TcgPcrEvent2 = (TCG_PCR_EVENT2 *)(UINTN)(FinalEventsTable + 1);
+       for (NumberOfEvents = 0; NumberOfEvents < FinalEventsTable->NumberOfEvents; NumberOfEvents++) {
+@@ -705,7 +705,7 @@ Tcg2GetEventLog (
+ {
+   UINTN  Index;
+ 
+-  DEBUG ((EFI_D_INFO, "Tcg2GetEventLog ... (0x%x)\n", EventLogFormat));
++  DEBUG ((DEBUG_INFO, "Tcg2GetEventLog ... (0x%x)\n", EventLogFormat));
+ 
+   if (This == NULL) {
+     return EFI_INVALID_PARAMETER;
+@@ -740,7 +740,7 @@ Tcg2GetEventLog (
+ 
+   if (EventLogLocation != NULL) {
+     *EventLogLocation = mTcgDxeData.EventLogAreaStruct[Index].Lasa;
+-    DEBUG ((EFI_D_INFO, "Tcg2GetEventLog (EventLogLocation - %x)\n", *EventLogLocation));
++    DEBUG ((DEBUG_INFO, "Tcg2GetEventLog (EventLogLocation - %x)\n", *EventLogLocation));
+   }
+ 
+   if (EventLogLastEntry != NULL) {
+@@ -749,15 +749,15 @@ Tcg2GetEventLog (
+     } else {
+       *EventLogLastEntry = (EFI_PHYSICAL_ADDRESS)(UINTN)mTcgDxeData.EventLogAreaStruct[Index].LastEvent;
+     }
+-    DEBUG ((EFI_D_INFO, "Tcg2GetEventLog (EventLogLastEntry - %x)\n", *EventLogLastEntry));
++    DEBUG ((DEBUG_INFO, "Tcg2GetEventLog (EventLogLastEntry - %x)\n", *EventLogLastEntry));
+   }
+ 
+   if (EventLogTruncated != NULL) {
+     *EventLogTruncated = mTcgDxeData.EventLogAreaStruct[Index].EventLogTruncated;
+-    DEBUG ((EFI_D_INFO, "Tcg2GetEventLog (EventLogTruncated - %x)\n", *EventLogTruncated));
++    DEBUG ((DEBUG_INFO, "Tcg2GetEventLog (EventLogTruncated - %x)\n", *EventLogTruncated));
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "Tcg2GetEventLog - %r\n", EFI_SUCCESS));
++  DEBUG ((DEBUG_INFO, "Tcg2GetEventLog - %r\n", EFI_SUCCESS));
+ 
+   // Dump Event Log for debug purpose
+   if ((EventLogLocation != NULL) && (EventLogLastEntry != NULL)) {
+@@ -980,8 +980,8 @@ TcgDxeLogEvent (
+       // Increase the NumberOfEvents in FinalEventsTable
+       //
+       (mTcgDxeData.FinalEventsTable[Index])->NumberOfEvents ++;
+-      DEBUG ((EFI_D_INFO, "FinalEventsTable->NumberOfEvents - 0x%x\n", (mTcgDxeData.FinalEventsTable[Index])->NumberOfEvents));
+-      DEBUG ((EFI_D_INFO, "  Size - 0x%x\n", (UINTN)EventLogAreaStruct->EventLogSize));
++      DEBUG ((DEBUG_INFO, "FinalEventsTable->NumberOfEvents - 0x%x\n", (mTcgDxeData.FinalEventsTable[Index])->NumberOfEvents));
++      DEBUG ((DEBUG_INFO, "  Size - 0x%x\n", (UINTN)EventLogAreaStruct->EventLogSize));
+     }
+   }
+ 
+@@ -1101,12 +1101,12 @@ TcgDxeLogHashEvent (
+   UINT8                             *DigestBuffer;
+   UINT32                            *EventSizePtr;
+ 
+-  DEBUG ((EFI_D_INFO, "SupportedEventLogs - 0x%08x\n", mTcgDxeData.BsCap.SupportedEventLogs));
++  DEBUG ((DEBUG_INFO, "SupportedEventLogs - 0x%08x\n", mTcgDxeData.BsCap.SupportedEventLogs));
+ 
+   RetStatus = EFI_SUCCESS;
+   for (Index = 0; Index < sizeof(mTcg2EventInfo)/sizeof(mTcg2EventInfo[0]); Index++) {
+     if ((mTcgDxeData.BsCap.SupportedEventLogs & mTcg2EventInfo[Index].LogFormat) != 0) {
+-      DEBUG ((EFI_D_INFO, "  LogFormat - 0x%08x\n", mTcg2EventInfo[Index].LogFormat));
++      DEBUG ((DEBUG_INFO, "  LogFormat - 0x%08x\n", mTcg2EventInfo[Index].LogFormat));
+       switch (mTcg2EventInfo[Index].LogFormat) {
+       case EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2:
+         Status = GetDigestFromDigestList (TPM_ALG_SHA1, DigestList, &NewEventHdr->Digest);
+@@ -1224,7 +1224,7 @@ TcgDxeHashLogExtendEvent (
+   }
+ 
+   if (Status == EFI_DEVICE_ERROR) {
+-    DEBUG ((EFI_D_ERROR, "TcgDxeHashLogExtendEvent - %r. Disable TPM.\n", Status));
++    DEBUG ((DEBUG_ERROR, "TcgDxeHashLogExtendEvent - %r. Disable TPM.\n", Status));
+     mTcgDxeData.BsCap.TPMPresentFlag = FALSE;
+     REPORT_STATUS_CODE (
+       EFI_ERROR_CODE | EFI_ERROR_MINOR,
+@@ -1308,7 +1308,7 @@ Tcg2HashLogExtendEvent (
+       }
+     }
+     if (Status == EFI_DEVICE_ERROR) {
+-      DEBUG ((EFI_D_ERROR, "MeasurePeImageAndExtend - %r. Disable TPM.\n", Status));
++      DEBUG ((DEBUG_ERROR, "MeasurePeImageAndExtend - %r. Disable TPM.\n", Status));
+       mTcgDxeData.BsCap.TPMPresentFlag = FALSE;
+       REPORT_STATUS_CODE (
+         EFI_ERROR_CODE | EFI_ERROR_MINOR,
+@@ -1354,7 +1354,7 @@ Tcg2SubmitCommand (
+ {
+   EFI_STATUS    Status;
+ 
+-  DEBUG ((EFI_D_INFO, "Tcg2SubmitCommand ...\n"));
++  DEBUG ((DEBUG_INFO, "Tcg2SubmitCommand ...\n"));
+ 
+   if ((This == NULL) ||
+       (InputParameterBlockSize == 0) || (InputParameterBlock == NULL) ||
+@@ -1379,7 +1379,7 @@ Tcg2SubmitCommand (
+              &OutputParameterBlockSize,
+              OutputParameterBlock
+              );
+-  DEBUG ((EFI_D_INFO, "Tcg2SubmitCommand - %r\n", Status));
++  DEBUG ((DEBUG_INFO, "Tcg2SubmitCommand - %r\n", Status));
+   return Status;
+ }
+ 
+@@ -1425,7 +1425,7 @@ Tcg2SetActivePCRBanks (
+   EFI_STATUS  Status;
+   UINT32      ReturnCode;
+ 
+-  DEBUG ((EFI_D_INFO, "Tcg2SetActivePCRBanks ... (0x%x)\n", ActivePcrBanks));
++  DEBUG ((DEBUG_INFO, "Tcg2SetActivePCRBanks ... (0x%x)\n", ActivePcrBanks));
+ 
+   if (ActivePcrBanks == 0) {
+     return EFI_INVALID_PARAMETER;
+@@ -1452,7 +1452,7 @@ Tcg2SetActivePCRBanks (
+     Status = EFI_DEVICE_ERROR;
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "Tcg2SetActivePCRBanks - %r\n", Status));
++  DEBUG ((DEBUG_INFO, "Tcg2SetActivePCRBanks - %r\n", Status));
+ 
+   return Status;
+ }
+@@ -1533,7 +1533,7 @@ SetupEventLog (
+   UINT32                          NumberOfAlgorithms;
+   TCG_EfiStartupLocalityEvent     StartupLocalityEvent;
+ 
+-  DEBUG ((EFI_D_INFO, "SetupEventLog\n"));
++  DEBUG ((DEBUG_INFO, "SetupEventLog\n"));
+ 
+   //
+   // 1. Create Log Area
+@@ -1940,7 +1940,7 @@ MeasureSeparatorEvent (
+   TCG_PCR_EVENT_HDR                 TcgEvent;
+   UINT32                            EventData;
+ 
+-  DEBUG ((EFI_D_INFO, "MeasureSeparatorEvent Pcr - %x\n", PCRIndex));
++  DEBUG ((DEBUG_INFO, "MeasureSeparatorEvent Pcr - %x\n", PCRIndex));
+ 
+   EventData = 0;
+   TcgEvent.PCRIndex  = PCRIndex;
+@@ -1985,8 +1985,8 @@ MeasureVariable (
+   UINTN                             VarNameLength;
+   UEFI_VARIABLE_DATA                *VarLog;
+ 
+-  DEBUG ((EFI_D_INFO, "Tcg2Dxe: MeasureVariable (Pcr - %x, EventType - %x, ", (UINTN)PCRIndex, (UINTN)EventType));
+-  DEBUG ((EFI_D_INFO, "VariableName - %s, VendorGuid - %g)\n", VarName, VendorGuid));
++  DEBUG ((DEBUG_INFO, "Tcg2Dxe: MeasureVariable (Pcr - %x, EventType - %x, ", (UINTN)PCRIndex, (UINTN)EventType));
++  DEBUG ((DEBUG_INFO, "VariableName - %s, VendorGuid - %g)\n", VarName, VendorGuid));
+ 
+   VarNameLength      = StrLen (VarName);
+   TcgEvent.PCRIndex  = PCRIndex;
+@@ -2336,11 +2336,11 @@ MeasureSecureBootPolicy (
+ 
+   if (PcdGetBool (PcdFirmwareDebuggerInitialized)) {
+     Status = MeasureLaunchOfFirmwareDebugger ();
+-    DEBUG ((EFI_D_INFO, "MeasureLaunchOfFirmwareDebugger - %r\n", Status));
++    DEBUG ((DEBUG_INFO, "MeasureLaunchOfFirmwareDebugger - %r\n", Status));
+   }
+ 
+   Status = MeasureAllSecureVariables ();
+-  DEBUG ((EFI_D_INFO, "MeasureAllSecureVariables - %r\n", Status));
++  DEBUG ((DEBUG_INFO, "MeasureAllSecureVariables - %r\n", Status));
+ 
+   //
+   // We need measure Separator(7) here, because this event must be between SecureBootPolicy (Configure)
+@@ -2349,7 +2349,7 @@ MeasureSecureBootPolicy (
+   // the Authority measurement happen before ReadToBoot event.
+   //
+   Status = MeasureSeparatorEvent (7);
+-  DEBUG ((EFI_D_INFO, "MeasureSeparatorEvent - %r\n", Status));
++  DEBUG ((DEBUG_INFO, "MeasureSeparatorEvent - %r\n", Status));
+   return ;
+ }
+ 
+@@ -2380,7 +2380,7 @@ OnReadyToBoot (
+     //
+     Status = MeasureHandoffTables ();
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "HOBs not Measured. Error!\n"));
++      DEBUG ((DEBUG_ERROR, "HOBs not Measured. Error!\n"));
+     }
+ 
+     //
+@@ -2388,7 +2388,7 @@ OnReadyToBoot (
+     //
+     Status = MeasureAllBootVariables ();
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "Boot Variables not Measured. Error!\n"));
++      DEBUG ((DEBUG_ERROR, "Boot Variables not Measured. Error!\n"));
+     }
+ 
+     //
+@@ -2399,7 +2399,7 @@ OnReadyToBoot (
+                EFI_CALLING_EFI_APPLICATION
+                );
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "%a not Measured. Error!\n", EFI_CALLING_EFI_APPLICATION));
++      DEBUG ((DEBUG_ERROR, "%a not Measured. Error!\n", EFI_CALLING_EFI_APPLICATION));
+     }
+ 
+     //
+@@ -2433,7 +2433,7 @@ OnReadyToBoot (
+                EFI_RETURNING_FROM_EFI_APPLICATION
+                );
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "%a not Measured. Error!\n", EFI_RETURNING_FROM_EFI_APPLICATION));
++      DEBUG ((DEBUG_ERROR, "%a not Measured. Error!\n", EFI_RETURNING_FROM_EFI_APPLICATION));
+     }
+ 
+     //
+@@ -2445,11 +2445,11 @@ OnReadyToBoot (
+                EFI_CALLING_EFI_APPLICATION
+                );
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "%a not Measured. Error!\n", EFI_CALLING_EFI_APPLICATION));
++      DEBUG ((DEBUG_ERROR, "%a not Measured. Error!\n", EFI_CALLING_EFI_APPLICATION));
+     }
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "TPM2 Tcg2Dxe Measure Data when ReadyToBoot\n"));
++  DEBUG ((DEBUG_INFO, "TPM2 Tcg2Dxe Measure Data when ReadyToBoot\n"));
+   //
+   // Increase boot attempt counter.
+   //
+@@ -2483,7 +2483,7 @@ OnExitBootServices (
+              EFI_EXIT_BOOT_SERVICES_INVOCATION
+              );
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "%a not Measured. Error!\n", EFI_EXIT_BOOT_SERVICES_INVOCATION));
++    DEBUG ((DEBUG_ERROR, "%a not Measured. Error!\n", EFI_EXIT_BOOT_SERVICES_INVOCATION));
+   }
+ 
+   //
+@@ -2494,7 +2494,7 @@ OnExitBootServices (
+              EFI_EXIT_BOOT_SERVICES_SUCCEEDED
+              );
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "%a not Measured. Error!\n", EFI_EXIT_BOOT_SERVICES_SUCCEEDED));
++    DEBUG ((DEBUG_ERROR, "%a not Measured. Error!\n", EFI_EXIT_BOOT_SERVICES_SUCCEEDED));
+   }
+ }
+ 
+@@ -2524,7 +2524,7 @@ OnExitBootServicesFailed (
+              EFI_EXIT_BOOT_SERVICES_FAILED
+              );
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "%a not Measured. Error!\n", EFI_EXIT_BOOT_SERVICES_FAILED));
++    DEBUG ((DEBUG_ERROR, "%a not Measured. Error!\n", EFI_EXIT_BOOT_SERVICES_FAILED));
+   }
+ 
+ }
+@@ -2663,13 +2663,13 @@ DriverEntry (
+   }
+ 
+   if (GetFirstGuidHob (&gTpmErrorHobGuid) != NULL) {
+-    DEBUG ((EFI_D_ERROR, "TPM2 error!\n"));
++    DEBUG ((DEBUG_ERROR, "TPM2 error!\n"));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+   Status = Tpm2RequestUseTpm ();
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "TPM2 not detected!\n"));
++    DEBUG ((DEBUG_ERROR, "TPM2 not detected!\n"));
+     return Status;
+   }
+ 
+@@ -2684,14 +2684,14 @@ DriverEntry (
+   mTcgDxeData.BsCap.StructureVersion.Major = 1;
+   mTcgDxeData.BsCap.StructureVersion.Minor = 1;
+ 
+-  DEBUG ((EFI_D_INFO, "Tcg2.ProtocolVersion  - %02x.%02x\n", mTcgDxeData.BsCap.ProtocolVersion.Major, mTcgDxeData.BsCap.ProtocolVersion.Minor));
+-  DEBUG ((EFI_D_INFO, "Tcg2.StructureVersion - %02x.%02x\n", mTcgDxeData.BsCap.StructureVersion.Major, mTcgDxeData.BsCap.StructureVersion.Minor));
++  DEBUG ((DEBUG_INFO, "Tcg2.ProtocolVersion  - %02x.%02x\n", mTcgDxeData.BsCap.ProtocolVersion.Major, mTcgDxeData.BsCap.ProtocolVersion.Minor));
++  DEBUG ((DEBUG_INFO, "Tcg2.StructureVersion - %02x.%02x\n", mTcgDxeData.BsCap.StructureVersion.Major, mTcgDxeData.BsCap.StructureVersion.Minor));
+ 
+   Status = Tpm2GetCapabilityManufactureID (&mTcgDxeData.BsCap.ManufacturerID);
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2GetCapabilityManufactureID fail!\n"));
++    DEBUG ((DEBUG_ERROR, "Tpm2GetCapabilityManufactureID fail!\n"));
+   } else {
+-    DEBUG ((EFI_D_INFO, "Tpm2GetCapabilityManufactureID - %08x\n", mTcgDxeData.BsCap.ManufacturerID));
++    DEBUG ((DEBUG_INFO, "Tpm2GetCapabilityManufactureID - %08x\n", mTcgDxeData.BsCap.ManufacturerID));
+   }
+ 
+   DEBUG_CODE (
+@@ -2700,19 +2700,19 @@ DriverEntry (
+ 
+     Status = Tpm2GetCapabilityFirmwareVersion (&FirmwareVersion1, &FirmwareVersion2);
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "Tpm2GetCapabilityFirmwareVersion fail!\n"));
++      DEBUG ((DEBUG_ERROR, "Tpm2GetCapabilityFirmwareVersion fail!\n"));
+     } else {
+-      DEBUG ((EFI_D_INFO, "Tpm2GetCapabilityFirmwareVersion - %08x %08x\n", FirmwareVersion1, FirmwareVersion2));
++      DEBUG ((DEBUG_INFO, "Tpm2GetCapabilityFirmwareVersion - %08x %08x\n", FirmwareVersion1, FirmwareVersion2));
+     }
+   );
+ 
+   Status = Tpm2GetCapabilityMaxCommandResponseSize (&MaxCommandSize, &MaxResponseSize);
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "Tpm2GetCapabilityMaxCommandResponseSize fail!\n"));
++    DEBUG ((DEBUG_ERROR, "Tpm2GetCapabilityMaxCommandResponseSize fail!\n"));
+   } else {
+     mTcgDxeData.BsCap.MaxCommandSize  = (UINT16)MaxCommandSize;
+     mTcgDxeData.BsCap.MaxResponseSize = (UINT16)MaxResponseSize;
+-    DEBUG ((EFI_D_INFO, "Tpm2GetCapabilityMaxCommandResponseSize - %08x, %08x\n", MaxCommandSize, MaxResponseSize));
++    DEBUG ((DEBUG_INFO, "Tpm2GetCapabilityMaxCommandResponseSize - %08x, %08x\n", MaxCommandSize, MaxResponseSize));
+   }
+ 
+   //
+@@ -2739,7 +2739,7 @@ DriverEntry (
+   } else {
+     mTcgDxeData.BsCap.NumberOfPCRBanks = PcdGet32 (PcdTcg2NumberOfPCRBanks);
+     if (PcdGet32 (PcdTcg2NumberOfPCRBanks) > NumberOfPCRBanks) {
+-      DEBUG ((EFI_D_ERROR, "ERROR: PcdTcg2NumberOfPCRBanks(0x%x) > NumberOfPCRBanks(0x%x)\n", PcdGet32 (PcdTcg2NumberOfPCRBanks), NumberOfPCRBanks));
++      DEBUG ((DEBUG_ERROR, "ERROR: PcdTcg2NumberOfPCRBanks(0x%x) > NumberOfPCRBanks(0x%x)\n", PcdGet32 (PcdTcg2NumberOfPCRBanks), NumberOfPCRBanks));
+       mTcgDxeData.BsCap.NumberOfPCRBanks = NumberOfPCRBanks;
+     }
+   }
+@@ -2752,10 +2752,10 @@ DriverEntry (
+     mTcgDxeData.BsCap.SupportedEventLogs &= ~EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2;
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "Tcg2.SupportedEventLogs - 0x%08x\n", mTcgDxeData.BsCap.SupportedEventLogs));
+-  DEBUG ((EFI_D_INFO, "Tcg2.HashAlgorithmBitmap - 0x%08x\n", mTcgDxeData.BsCap.HashAlgorithmBitmap));
+-  DEBUG ((EFI_D_INFO, "Tcg2.NumberOfPCRBanks      - 0x%08x\n", mTcgDxeData.BsCap.NumberOfPCRBanks));
+-  DEBUG ((EFI_D_INFO, "Tcg2.ActivePcrBanks        - 0x%08x\n", mTcgDxeData.BsCap.ActivePcrBanks));
++  DEBUG ((DEBUG_INFO, "Tcg2.SupportedEventLogs - 0x%08x\n", mTcgDxeData.BsCap.SupportedEventLogs));
++  DEBUG ((DEBUG_INFO, "Tcg2.HashAlgorithmBitmap - 0x%08x\n", mTcgDxeData.BsCap.HashAlgorithmBitmap));
++  DEBUG ((DEBUG_INFO, "Tcg2.NumberOfPCRBanks      - 0x%08x\n", mTcgDxeData.BsCap.NumberOfPCRBanks));
++  DEBUG ((DEBUG_INFO, "Tcg2.ActivePcrBanks        - 0x%08x\n", mTcgDxeData.BsCap.ActivePcrBanks));
+ 
+   if (mTcgDxeData.BsCap.TPMPresentFlag) {
+     //
+@@ -2812,7 +2812,7 @@ DriverEntry (
+   // Install Tcg2Protocol
+   //
+   Status = InstallTcg2 ();
+-  DEBUG ((EFI_D_INFO, "InstallTcg2 - %r\n", Status));
++  DEBUG ((DEBUG_INFO, "InstallTcg2 - %r\n", Status));
+ 
+   return Status;
+ }
+diff --git a/SecurityPkg/Tcg/Tcg2Pei/Tcg2Pei.c b/SecurityPkg/Tcg/Tcg2Pei/Tcg2Pei.c
+index 93a8803ff6..7eb02f08f9 100644
+--- a/SecurityPkg/Tcg/Tcg2Pei/Tcg2Pei.c
++++ b/SecurityPkg/Tcg/Tcg2Pei/Tcg2Pei.c
+@@ -267,7 +267,7 @@ SyncPcrAllocationsAndPcrMask (
+   UINT32                            Tpm2PcrMask;
+   UINT32                            NewTpm2PcrMask;
+ 
+-  DEBUG ((EFI_D_ERROR, "SyncPcrAllocationsAndPcrMask!\n"));
++  DEBUG ((DEBUG_ERROR, "SyncPcrAllocationsAndPcrMask!\n"));
+ 
+   //
+   // Determine the current TPM support and the Platform PCR mask.
+@@ -297,9 +297,9 @@ SyncPcrAllocationsAndPcrMask (
+   if ((TpmActivePcrBanks & Tpm2PcrMask) != TpmActivePcrBanks) {
+     NewTpmActivePcrBanks = TpmActivePcrBanks & Tpm2PcrMask;
+ 
+-    DEBUG ((EFI_D_INFO, "%a - Reallocating PCR banks from 0x%X to 0x%X.\n", __FUNCTION__, TpmActivePcrBanks, NewTpmActivePcrBanks));
++    DEBUG ((DEBUG_INFO, "%a - Reallocating PCR banks from 0x%X to 0x%X.\n", __FUNCTION__, TpmActivePcrBanks, NewTpmActivePcrBanks));
+     if (NewTpmActivePcrBanks == 0) {
+-      DEBUG ((EFI_D_ERROR, "%a - No viable PCRs active! Please set a less restrictive value for PcdTpm2HashMask!\n", __FUNCTION__));
++      DEBUG ((DEBUG_ERROR, "%a - No viable PCRs active! Please set a less restrictive value for PcdTpm2HashMask!\n", __FUNCTION__));
+       ASSERT (FALSE);
+     } else {
+       Status = Tpm2PcrAllocateBanks (NULL, (UINT32)TpmHashAlgorithmBitmap, NewTpmActivePcrBanks);
+@@ -307,7 +307,7 @@ SyncPcrAllocationsAndPcrMask (
+         //
+         // We can't do much here, but we hope that this doesn't happen.
+         //
+-        DEBUG ((EFI_D_ERROR, "%a - Failed to reallocate PCRs!\n", __FUNCTION__));
++        DEBUG ((DEBUG_ERROR, "%a - Failed to reallocate PCRs!\n", __FUNCTION__));
+         ASSERT_EFI_ERROR (Status);
+       }
+       //
+@@ -324,9 +324,9 @@ SyncPcrAllocationsAndPcrMask (
+   if ((Tpm2PcrMask & TpmHashAlgorithmBitmap) != Tpm2PcrMask) {
+     NewTpm2PcrMask = Tpm2PcrMask & TpmHashAlgorithmBitmap;
+ 
+-    DEBUG ((EFI_D_INFO, "%a - Updating PcdTpm2HashMask from 0x%X to 0x%X.\n", __FUNCTION__, Tpm2PcrMask, NewTpm2PcrMask));
++    DEBUG ((DEBUG_INFO, "%a - Updating PcdTpm2HashMask from 0x%X to 0x%X.\n", __FUNCTION__, Tpm2PcrMask, NewTpm2PcrMask));
+     if (NewTpm2PcrMask == 0) {
+-      DEBUG ((EFI_D_ERROR, "%a - No viable PCRs supported! Please set a less restrictive value for PcdTpm2HashMask!\n", __FUNCTION__));
++      DEBUG ((DEBUG_ERROR, "%a - No viable PCRs supported! Please set a less restrictive value for PcdTpm2HashMask!\n", __FUNCTION__));
+       ASSERT (FALSE);
+     }
+ 
+@@ -365,7 +365,7 @@ LogHashEvent (
+   RetStatus = EFI_SUCCESS;
+   for (Index = 0; Index < sizeof(mTcg2EventInfo)/sizeof(mTcg2EventInfo[0]); Index++) {
+     if ((SupportedEventLogs & mTcg2EventInfo[Index].LogFormat) != 0) {
+-      DEBUG ((EFI_D_INFO, "  LogFormat - 0x%08x\n", mTcg2EventInfo[Index].LogFormat));
++      DEBUG ((DEBUG_INFO, "  LogFormat - 0x%08x\n", mTcg2EventInfo[Index].LogFormat));
+       switch (mTcg2EventInfo[Index].LogFormat) {
+       case EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2:
+         Status = GetDigestFromDigestList (TPM_ALG_SHA1, DigestList, &NewEventHdr->Digest);
+@@ -476,7 +476,7 @@ HashLogExtendEvent (
+   }
+ 
+   if (Status == EFI_DEVICE_ERROR) {
+-    DEBUG ((EFI_D_ERROR, "HashLogExtendEvent - %r. Disable TPM.\n", Status));
++    DEBUG ((DEBUG_ERROR, "HashLogExtendEvent - %r. Disable TPM.\n", Status));
+     BuildGuidHob (&gTpmErrorHobGuid,0);
+     REPORT_STATUS_CODE (
+       EFI_ERROR_CODE | EFI_ERROR_MINOR,
+@@ -1011,7 +1011,7 @@ PeimEntryMA (
+   }
+ 
+   if (GetFirstGuidHob (&gTpmErrorHobGuid) != NULL) {
+-    DEBUG ((EFI_D_ERROR, "TPM2 error!\n"));
++    DEBUG ((DEBUG_ERROR, "TPM2 error!\n"));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+@@ -1075,7 +1075,7 @@ PeimEntryMA (
+       for (PcrIndex = 0; PcrIndex < 8; PcrIndex++) {
+         Status = MeasureSeparatorEventWithError (PcrIndex);
+         if (EFI_ERROR (Status)) {
+-          DEBUG ((EFI_D_ERROR, "Separator Event with Error not Measured. Error!\n"));
++          DEBUG ((DEBUG_ERROR, "Separator Event with Error not Measured. Error!\n"));
+         }
+       }
+     }
+@@ -1106,7 +1106,7 @@ PeimEntryMA (
+ 
+ Done:
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "TPM2 error! Build Hob\n"));
++    DEBUG ((DEBUG_ERROR, "TPM2 error! Build Hob\n"));
+     BuildGuidHob (&gTpmErrorHobGuid,0);
+     REPORT_STATUS_CODE (
+       EFI_ERROR_CODE | EFI_ERROR_MINOR,
+diff --git a/SecurityPkg/Tcg/Tcg2Smm/Tcg2Smm.c b/SecurityPkg/Tcg/Tcg2Smm/Tcg2Smm.c
+index f49eccb0bd..9f5111552b 100644
+--- a/SecurityPkg/Tcg/Tcg2Smm/Tcg2Smm.c
++++ b/SecurityPkg/Tcg/Tcg2Smm/Tcg2Smm.c
+@@ -203,7 +203,7 @@ MemoryClearCallback (
+                              );
+     if (EFI_ERROR (Status)) {
+       mTcgNvs->MemoryClear.ReturnCode = MOR_REQUEST_GENERAL_FAILURE;
+-      DEBUG ((EFI_D_ERROR, "[TPM] Get MOR variable failure! Status = %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "[TPM] Get MOR variable failure! Status = %r\n", Status));
+       return EFI_SUCCESS;
+     }
+ 
+@@ -213,7 +213,7 @@ MemoryClearCallback (
+     MorControl &= ~MOR_CLEAR_MEMORY_BIT_MASK;
+   } else {
+     mTcgNvs->MemoryClear.ReturnCode = MOR_REQUEST_GENERAL_FAILURE;
+-    DEBUG ((EFI_D_ERROR, "[TPM] MOR Parameter error! Parameter = %x\n", mTcgNvs->MemoryClear.Parameter));
++    DEBUG ((DEBUG_ERROR, "[TPM] MOR Parameter error! Parameter = %x\n", mTcgNvs->MemoryClear.Parameter));
+     return EFI_SUCCESS;
+   }
+ 
+@@ -227,7 +227,7 @@ MemoryClearCallback (
+                            );
+   if (EFI_ERROR (Status)) {
+     mTcgNvs->MemoryClear.ReturnCode = MOR_REQUEST_GENERAL_FAILURE;
+-    DEBUG ((EFI_D_ERROR, "[TPM] Set MOR variable failure! Status = %r\n", Status));
++    DEBUG ((DEBUG_ERROR, "[TPM] Set MOR variable failure! Status = %r\n", Status));
+   }
+ 
+   return EFI_SUCCESS;
+@@ -285,7 +285,7 @@ InitializeTcgCommon (
+   EFI_HANDLE                     NotifyHandle;
+ 
+   if (!CompareGuid (PcdGetPtr(PcdTpmInstanceGuid), &gEfiTpmDeviceInstanceTpm20DtpmGuid)){
+-    DEBUG ((EFI_D_ERROR, "No TPM2 DTPM instance required!\n"));
++    DEBUG ((DEBUG_ERROR, "No TPM2 DTPM instance required!\n"));
+     return EFI_UNSUPPORTED;
+   }
+ 
+@@ -372,4 +372,3 @@ Cleanup:
+ 
+   return Status;
+ }
+-
+diff --git a/SecurityPkg/Tcg/TcgConfigDxe/TcgConfigDriver.c b/SecurityPkg/Tcg/TcgConfigDxe/TcgConfigDriver.c
+index 8210548077..4bc6086454 100644
+--- a/SecurityPkg/Tcg/TcgConfigDxe/TcgConfigDriver.c
++++ b/SecurityPkg/Tcg/TcgConfigDxe/TcgConfigDriver.c
+@@ -33,13 +33,13 @@ TcgConfigDriverEntryPoint (
+   EFI_TCG_PROTOCOL          *TcgProtocol;
+ 
+   if (!CompareGuid (PcdGetPtr(PcdTpmInstanceGuid), &gEfiTpmDeviceInstanceTpm12Guid)){
+-    DEBUG ((EFI_D_ERROR, "No TPM12 instance required!\n"));
++    DEBUG ((DEBUG_ERROR, "No TPM12 instance required!\n"));
+     return EFI_UNSUPPORTED;
+   }
+ 
+   Status = Tpm12RequestUseTpm ();
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "TPM not detected!\n"));
++    DEBUG ((DEBUG_ERROR, "TPM not detected!\n"));
+     return Status;
+   }
+ 
+diff --git a/SecurityPkg/Tcg/TcgDxe/TcgDxe.c b/SecurityPkg/Tcg/TcgDxe/TcgDxe.c
+index 3990d1e937..7019c666b1 100644
+--- a/SecurityPkg/Tcg/TcgDxe/TcgDxe.c
++++ b/SecurityPkg/Tcg/TcgDxe/TcgDxe.c
+@@ -588,7 +588,7 @@ TcgDxeHashLogExtendEventI (
+ 
+ Done:
+   if ((Status == EFI_DEVICE_ERROR) || (Status == EFI_TIMEOUT)) {
+-    DEBUG ((EFI_D_ERROR, "TcgDxeHashLogExtendEventI - %r. Disable TPM.\n", Status));
++    DEBUG ((DEBUG_ERROR, "TcgDxeHashLogExtendEventI - %r. Disable TPM.\n", Status));
+     TcgData->BsCap.TPMPresentFlag = FALSE;
+     REPORT_STATUS_CODE (
+       EFI_ERROR_CODE | EFI_ERROR_MINOR,
+@@ -1127,7 +1127,7 @@ OnReadyToBoot (
+     //
+     Status = MeasureHandoffTables ();
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "HOBs not Measured. Error!\n"));
++      DEBUG ((DEBUG_ERROR, "HOBs not Measured. Error!\n"));
+     }
+ 
+     //
+@@ -1135,7 +1135,7 @@ OnReadyToBoot (
+     //
+     Status = MeasureAllBootVariables ();
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "Boot Variables not Measured. Error!\n"));
++      DEBUG ((DEBUG_ERROR, "Boot Variables not Measured. Error!\n"));
+     }
+ 
+     //
+@@ -1145,7 +1145,7 @@ OnReadyToBoot (
+                EFI_CALLING_EFI_APPLICATION
+                );
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "%a not Measured. Error!\n", EFI_CALLING_EFI_APPLICATION));
++      DEBUG ((DEBUG_ERROR, "%a not Measured. Error!\n", EFI_CALLING_EFI_APPLICATION));
+     }
+ 
+     //
+@@ -1177,11 +1177,11 @@ OnReadyToBoot (
+                EFI_RETURNING_FROM_EFI_APPLICATION
+                );
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "%a not Measured. Error!\n", EFI_RETURNING_FROM_EFI_APPLICATION));
++      DEBUG ((DEBUG_ERROR, "%a not Measured. Error!\n", EFI_RETURNING_FROM_EFI_APPLICATION));
+     }
+   }
+ 
+-  DEBUG ((EFI_D_INFO, "TPM TcgDxe Measure Data when ReadyToBoot\n"));
++  DEBUG ((DEBUG_INFO, "TPM TcgDxe Measure Data when ReadyToBoot\n"));
+   //
+   // Increase boot attempt counter.
+   //
+@@ -1260,7 +1260,7 @@ InstallAcpiTable (
+   }
+ 
+   if (EFI_ERROR (Status)) {
+-    DEBUG((EFI_D_ERROR, "Tcg Acpi Table installation failure"));
++    DEBUG((DEBUG_ERROR, "Tcg Acpi Table installation failure"));
+   }
+ }
+ 
+@@ -1289,7 +1289,7 @@ OnExitBootServices (
+              EFI_EXIT_BOOT_SERVICES_INVOCATION
+              );
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "%a not Measured. Error!\n", EFI_EXIT_BOOT_SERVICES_INVOCATION));
++    DEBUG ((DEBUG_ERROR, "%a not Measured. Error!\n", EFI_EXIT_BOOT_SERVICES_INVOCATION));
+   }
+ 
+   //
+@@ -1299,7 +1299,7 @@ OnExitBootServices (
+              EFI_EXIT_BOOT_SERVICES_SUCCEEDED
+              );
+   if (EFI_ERROR (Status)){
+-    DEBUG ((EFI_D_ERROR, "%a not Measured. Error!\n", EFI_EXIT_BOOT_SERVICES_SUCCEEDED));
++    DEBUG ((DEBUG_ERROR, "%a not Measured. Error!\n", EFI_EXIT_BOOT_SERVICES_SUCCEEDED));
+   }
+ }
+ 
+@@ -1328,7 +1328,7 @@ OnExitBootServicesFailed (
+              EFI_EXIT_BOOT_SERVICES_FAILED
+              );
+   if (EFI_ERROR (Status)){
+-    DEBUG ((EFI_D_ERROR, "%a not Measured. Error!\n", EFI_EXIT_BOOT_SERVICES_FAILED));
++    DEBUG ((DEBUG_ERROR, "%a not Measured. Error!\n", EFI_EXIT_BOOT_SERVICES_FAILED));
+   }
+ }
+ 
+@@ -1381,25 +1381,25 @@ DriverEntry (
+   VOID                              *Registration;
+ 
+   if (!CompareGuid (PcdGetPtr(PcdTpmInstanceGuid), &gEfiTpmDeviceInstanceTpm12Guid)){
+-    DEBUG ((EFI_D_ERROR, "No TPM12 instance required!\n"));
++    DEBUG ((DEBUG_ERROR, "No TPM12 instance required!\n"));
+     return EFI_UNSUPPORTED;
+   }
+ 
+   if (GetFirstGuidHob (&gTpmErrorHobGuid) != NULL) {
+-    DEBUG ((EFI_D_ERROR, "TPM error!\n"));
++    DEBUG ((DEBUG_ERROR, "TPM error!\n"));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+   Status = Tpm12RequestUseTpm ();
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "TPM not detected!\n"));
++    DEBUG ((DEBUG_ERROR, "TPM not detected!\n"));
+     return Status;
+   }
+ 
+   Status = GetTpmStatus (&mTcgDxeData.BsCap.TPMDeactivatedFlag);
+   if (EFI_ERROR (Status)) {
+     DEBUG ((
+-      EFI_D_ERROR,
++      DEBUG_ERROR,
+       "DriverEntry: TPM not working properly\n"
+       ));
+     return Status;
+diff --git a/SecurityPkg/Tcg/TcgPei/TcgPei.c b/SecurityPkg/Tcg/TcgPei/TcgPei.c
+index db33daed37..536bd5a408 100644
+--- a/SecurityPkg/Tcg/TcgPei/TcgPei.c
++++ b/SecurityPkg/Tcg/TcgPei/TcgPei.c
+@@ -351,7 +351,7 @@ HashLogExtendEvent (
+ 
+ Done:
+   if ((Status == EFI_DEVICE_ERROR) || (Status == EFI_TIMEOUT)) {
+-    DEBUG ((EFI_D_ERROR, "HashLogExtendEvent - %r. Disable TPM.\n", Status));
++    DEBUG ((DEBUG_ERROR, "HashLogExtendEvent - %r. Disable TPM.\n", Status));
+     BuildGuidHob (&gTpmErrorHobGuid,0);
+     REPORT_STATUS_CODE (
+       EFI_ERROR_CODE | EFI_ERROR_MINOR,
+@@ -844,12 +844,12 @@ PeimEntryMA (
+   EFI_BOOT_MODE                     BootMode;
+ 
+   if (!CompareGuid (PcdGetPtr(PcdTpmInstanceGuid), &gEfiTpmDeviceInstanceTpm12Guid)){
+-    DEBUG ((EFI_D_ERROR, "No TPM12 instance required!\n"));
++    DEBUG ((DEBUG_ERROR, "No TPM12 instance required!\n"));
+     return EFI_UNSUPPORTED;
+   }
+ 
+   if (GetFirstGuidHob (&gTpmErrorHobGuid) != NULL) {
+-    DEBUG ((EFI_D_ERROR, "TPM error!\n"));
++    DEBUG ((DEBUG_ERROR, "TPM error!\n"));
+     return EFI_DEVICE_ERROR;
+   }
+ 
+@@ -913,7 +913,7 @@ PeimEntryMA (
+ 
+ Done:
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "TPM error! Build Hob\n"));
++    DEBUG ((DEBUG_ERROR, "TPM error! Build Hob\n"));
+     BuildGuidHob (&gTpmErrorHobGuid,0);
+     REPORT_STATUS_CODE (
+       EFI_ERROR_CODE | EFI_ERROR_MINOR,
+diff --git a/SecurityPkg/Tcg/TcgSmm/TcgSmm.c b/SecurityPkg/Tcg/TcgSmm/TcgSmm.c
+index a60efc7d69..25f443c04f 100644
+--- a/SecurityPkg/Tcg/TcgSmm/TcgSmm.c
++++ b/SecurityPkg/Tcg/TcgSmm/TcgSmm.c
+@@ -62,13 +62,13 @@ PhysicalPresenceCallback (
+                            &PpData
+                            );
+ 
+-  DEBUG ((EFI_D_INFO, "[TPM] PP callback, Parameter = %x\n", mTcgNvs->PhysicalPresence.Parameter));
++  DEBUG ((DEBUG_INFO, "[TPM] PP callback, Parameter = %x\n", mTcgNvs->PhysicalPresence.Parameter));
+   if (mTcgNvs->PhysicalPresence.Parameter == ACPI_FUNCTION_RETURN_REQUEST_RESPONSE_TO_OS) {
+     if (EFI_ERROR (Status)) {
+       mTcgNvs->PhysicalPresence.ReturnCode  = PP_RETURN_TPM_OPERATION_RESPONSE_FAILURE;
+       mTcgNvs->PhysicalPresence.LastRequest = 0;
+       mTcgNvs->PhysicalPresence.Response    = 0;
+-      DEBUG ((EFI_D_ERROR, "[TPM] Get PP variable failure! Status = %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "[TPM] Get PP variable failure! Status = %r\n", Status));
+       return EFI_SUCCESS;
+     }
+     mTcgNvs->PhysicalPresence.ReturnCode  = PP_RETURN_TPM_OPERATION_RESPONSE_SUCCESS;
+@@ -78,7 +78,7 @@ PhysicalPresenceCallback (
+           || (mTcgNvs->PhysicalPresence.Parameter == ACPI_FUNCTION_SUBMIT_REQUEST_TO_BIOS_2)) {
+     if (EFI_ERROR (Status)) {
+       mTcgNvs->PhysicalPresence.ReturnCode = TCG_PP_SUBMIT_REQUEST_TO_PREOS_GENERAL_FAILURE;
+-      DEBUG ((EFI_D_ERROR, "[TPM] Get PP variable failure! Status = %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "[TPM] Get PP variable failure! Status = %r\n", Status));
+       return EFI_SUCCESS;
+     }
+     if (mTcgNvs->PhysicalPresence.Request == PHYSICAL_PRESENCE_SET_OPERATOR_AUTH) {
+@@ -124,7 +124,7 @@ PhysicalPresenceCallback (
+   } else if (mTcgNvs->PhysicalPresence.Parameter == ACPI_FUNCTION_GET_USER_CONFIRMATION_STATUS_FOR_REQUEST) {
+     if (EFI_ERROR (Status)) {
+       mTcgNvs->PhysicalPresence.ReturnCode = TCG_PP_GET_USER_CONFIRMATION_BLOCKED_BY_BIOS_CONFIGURATION;
+-      DEBUG ((EFI_D_ERROR, "[TPM] Get PP variable failure! Status = %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "[TPM] Get PP variable failure! Status = %r\n", Status));
+       return EFI_SUCCESS;
+     }
+     //
+@@ -140,7 +140,7 @@ PhysicalPresenceCallback (
+                              );
+     if (EFI_ERROR (Status)) {
+       mTcgNvs->PhysicalPresence.ReturnCode = TCG_PP_GET_USER_CONFIRMATION_BLOCKED_BY_BIOS_CONFIGURATION;
+-      DEBUG ((EFI_D_ERROR, "[TPM] Get PP flags failure! Status = %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "[TPM] Get PP flags failure! Status = %r\n", Status));
+       return EFI_SUCCESS;
+     }
+ 
+@@ -257,7 +257,7 @@ MemoryClearCallback (
+                              );
+     if (EFI_ERROR (Status)) {
+       mTcgNvs->MemoryClear.ReturnCode = MOR_REQUEST_GENERAL_FAILURE;
+-      DEBUG ((EFI_D_ERROR, "[TPM] Get MOR variable failure! Status = %r\n", Status));
++      DEBUG ((DEBUG_ERROR, "[TPM] Get MOR variable failure! Status = %r\n", Status));
+       return EFI_SUCCESS;
+     }
+ 
+@@ -267,7 +267,7 @@ MemoryClearCallback (
+     MorControl &= ~MOR_CLEAR_MEMORY_BIT_MASK;
+   } else {
+     mTcgNvs->MemoryClear.ReturnCode = MOR_REQUEST_GENERAL_FAILURE;
+-    DEBUG ((EFI_D_ERROR, "[TPM] MOR Parameter error! Parameter = %x\n", mTcgNvs->MemoryClear.Parameter));
++    DEBUG ((DEBUG_ERROR, "[TPM] MOR Parameter error! Parameter = %x\n", mTcgNvs->MemoryClear.Parameter));
+     return EFI_SUCCESS;
+   }
+ 
+@@ -281,7 +281,7 @@ MemoryClearCallback (
+                            );
+   if (EFI_ERROR (Status)) {
+     mTcgNvs->MemoryClear.ReturnCode = MOR_REQUEST_GENERAL_FAILURE;
+-    DEBUG ((EFI_D_ERROR, "[TPM] Set MOR variable failure! Status = %r\n", Status));
++    DEBUG ((DEBUG_ERROR, "[TPM] Set MOR variable failure! Status = %r\n", Status));
+   }
+ 
+   return EFI_SUCCESS;
+@@ -424,7 +424,7 @@ InitializeTcgSmm (
+   EFI_HANDLE                     SwHandle;
+ 
+   if (!CompareGuid (PcdGetPtr(PcdTpmInstanceGuid), &gEfiTpmDeviceInstanceTpm12Guid)){
+-    DEBUG ((EFI_D_ERROR, "No TPM12 instance required!\n"));
++    DEBUG ((DEBUG_ERROR, "No TPM12 instance required!\n"));
+     return EFI_UNSUPPORTED;
+   }
+ 
+@@ -460,4 +460,3 @@ InitializeTcgSmm (
+ 
+   return EFI_SUCCESS;
+ }
+-
+diff --git a/SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigImpl.c b/SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigImpl.c
+index 65a8188d6d..c19f9e7b90 100644
+--- a/SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigImpl.c
++++ b/SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigImpl.c
+@@ -458,7 +458,7 @@ EnrollPlatformKey (
+   DataSize = PkCert->SignatureListSize;
+   Status = CreateTimeBasedPayload (&DataSize, (UINT8**) &PkCert);
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "Fail to create time-based data payload: %r", Status));
++    DEBUG ((DEBUG_ERROR, "Fail to create time-based data payload: %r", Status));
+     goto ON_EXIT;
+   }
+ 
+@@ -471,7 +471,7 @@ EnrollPlatformKey (
+                   );
+   if (EFI_ERROR (Status)) {
+     if (Status == EFI_OUT_OF_RESOURCES) {
+-      DEBUG ((EFI_D_ERROR, "Enroll PK failed with out of resource.\n"));
++      DEBUG ((DEBUG_ERROR, "Enroll PK failed with out of resource.\n"));
+     }
+     goto ON_EXIT;
+   }
+@@ -600,7 +600,7 @@ EnrollRsa2048ToKek (
+          | EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS;
+   Status = CreateTimeBasedPayload (&KekSigListSize, (UINT8**) &KekSigList);
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "Fail to create time-based data payload: %r", Status));
++    DEBUG ((DEBUG_ERROR, "Fail to create time-based data payload: %r", Status));
+     goto ON_EXIT;
+   }
+ 
+@@ -724,7 +724,7 @@ EnrollX509ToKek (
+           | EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS;
+   Status = CreateTimeBasedPayload (&KekSigListSize, (UINT8**) &KekSigList);
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "Fail to create time-based data payload: %r", Status));
++    DEBUG ((DEBUG_ERROR, "Fail to create time-based data payload: %r", Status));
+     goto ON_EXIT;
+   }
+ 
+@@ -897,7 +897,7 @@ EnrollX509toSigDB (
+           | EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS;
+   Status = CreateTimeBasedPayload (&SigDBSize, (UINT8**) &Data);
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "Fail to create time-based data payload: %r", Status));
++    DEBUG ((DEBUG_ERROR, "Fail to create time-based data payload: %r", Status));
+     goto ON_EXIT;
+   }
+ 
+@@ -2243,7 +2243,7 @@ EnrollImageSignatureToSigDB (
+           | EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS;
+   Status = CreateTimeBasedPayload (&SigDBSize, (UINT8**) &Data);
+   if (EFI_ERROR (Status)) {
+-    DEBUG ((EFI_D_ERROR, "Fail to create time-based data payload: %r", Status));
++    DEBUG ((DEBUG_ERROR, "Fail to create time-based data payload: %r", Status));
+     goto ON_EXIT;
+   }
+ 
+@@ -2700,7 +2700,7 @@ DeleteKeyExchangeKey (
+   if ((Attr & EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS) != 0) {
+     Status = CreateTimeBasedPayload (&DataSize, &OldData);
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "Fail to create time-based data payload: %r", Status));
++      DEBUG ((DEBUG_ERROR, "Fail to create time-based data payload: %r", Status));
+       goto ON_EXIT;
+     }
+   }
+@@ -2901,7 +2901,7 @@ DeleteSignature (
+   if ((Attr & EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS) != 0) {
+     Status = CreateTimeBasedPayload (&DataSize, &OldData);
+     if (EFI_ERROR (Status)) {
+-      DEBUG ((EFI_D_ERROR, "Fail to create time-based data payload: %r", Status));
++      DEBUG ((DEBUG_ERROR, "Fail to create time-based data payload: %r", Status));
+       goto ON_EXIT;
+     }
+   }
+-- 
+2.41.0
+

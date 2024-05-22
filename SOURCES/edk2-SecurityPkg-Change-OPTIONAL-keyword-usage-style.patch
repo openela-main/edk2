@@ -1,0 +1,403 @@
+From e2ccaef3baa2eb045019558c325bb94cabf65e1a Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Wed, 7 Feb 2024 11:56:37 -0500
+Subject: [PATCH 02/17] SecurityPkg: Change OPTIONAL keyword usage style
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 44: edk2: heap buffer overflow in Tcg2MeasureGptTable()
+RH-Jira: RHEL-21154 RHEL-21156
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+RH-Commit: [2/13] 6a2141d871e3efc3aeea1994ab9c325614ddce57 (jmaloy/jons_fork)
+
+JIRA: https://issues.redhat.com/browse/RHEL-21154
+CVE: CVE-2022-36763
+Upstream: Merged
+
+commit 948f4003ee399241a40dc147a738f05ad2e37375
+Author: Michael D Kinney <michael.d.kinney@intel.com>
+Date:   Thu Dec 2 18:00:56 2021 -0800
+
+    SecurityPkg: Change OPTIONAL keyword usage style
+
+    REF: https://bugzilla.tianocore.org/show_bug.cgi?id=3760
+
+    Update all use of ', OPTIONAL' to ' OPTIONAL,' for function params.
+
+    Cc: Andrew Fish <afish@apple.com>
+    Cc: Leif Lindholm <leif@nuviainc.com>
+    Cc: Michael Kubacki <michael.kubacki@microsoft.com>
+    Signed-off-by: Michael D Kinney <michael.d.kinney@intel.com>
+    Reviewed-by: Jian J Wang <jian.j.wang@intel.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ SecurityPkg/Include/Library/Tcg2PpVendorLib.h      |  2 +-
+ SecurityPkg/Include/Library/Tpm2CommandLib.h       | 14 +++++++-------
+ SecurityPkg/Library/AuthVariableLib/AuthService.c  |  6 +++---
+ .../DxeImageAuthenticationStatusLib.c              |  2 +-
+ .../DxeImageVerificationLib.c                      |  2 +-
+ .../DxeRsa2048Sha256GuidedSectionExtractLib.c      |  2 +-
+ .../DxeTcg2PhysicalPresenceLib.c                   |  4 ++--
+ .../DxeTpm2MeasureBootLib/DxeTpm2MeasureBootLib.c  |  2 +-
+ .../DxeTpmMeasureBootLib/DxeTpmMeasureBootLib.c    |  2 +-
+ .../PeiRsa2048Sha256GuidedSectionExtractLib.c      |  2 +-
+ .../Tcg2PpVendorLibNull/Tcg2PpVendorLibNull.c      |  2 +-
+ .../Tpm2CommandLib/Tpm2EnhancedAuthorization.c     |  2 +-
+ SecurityPkg/Library/Tpm2CommandLib/Tpm2Help.c      |  2 +-
+ SecurityPkg/Library/Tpm2CommandLib/Tpm2Hierarchy.c |  2 +-
+ SecurityPkg/Library/Tpm2CommandLib/Tpm2Integrity.c |  2 +-
+ SecurityPkg/Library/Tpm2CommandLib/Tpm2NVStorage.c |  6 +++---
+ .../RandomNumberGenerator/RngDxe/AArch64/RngDxe.c  |  2 +-
+ .../RandomNumberGenerator/RngDxe/Rand/RngDxe.c     |  2 +-
+ .../RandomNumberGenerator/RngDxe/RngDxeInternals.h |  2 +-
+ SecurityPkg/Tcg/TcgConfigDxe/TcgConfigImpl.c       |  2 +-
+ 20 files changed, 31 insertions(+), 31 deletions(-)
+
+diff --git a/SecurityPkg/Include/Library/Tcg2PpVendorLib.h b/SecurityPkg/Include/Library/Tcg2PpVendorLib.h
+index 569eba6874..914517f034 100644
+--- a/SecurityPkg/Include/Library/Tcg2PpVendorLib.h
++++ b/SecurityPkg/Include/Library/Tcg2PpVendorLib.h
+@@ -40,7 +40,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+ UINT32
+ EFIAPI
+ Tcg2PpVendorLibExecutePendingRequest (
+-  IN TPM2B_AUTH             *PlatformAuth,  OPTIONAL
++  IN TPM2B_AUTH             *PlatformAuth   OPTIONAL,
+   IN UINT32                 OperationRequest,
+   IN OUT UINT32             *ManagementFlags,
+   OUT BOOLEAN               *ResetRequired
+diff --git a/SecurityPkg/Include/Library/Tpm2CommandLib.h b/SecurityPkg/Include/Library/Tpm2CommandLib.h
+index ee8eb62295..ad3b982d48 100644
+--- a/SecurityPkg/Include/Library/Tpm2CommandLib.h
++++ b/SecurityPkg/Include/Library/Tpm2CommandLib.h
+@@ -186,7 +186,7 @@ EFI_STATUS
+ EFIAPI
+ Tpm2ClearControl (
+   IN TPMI_RH_CLEAR             AuthHandle,
+-  IN TPMS_AUTH_COMMAND         *AuthSession, OPTIONAL
++  IN TPMS_AUTH_COMMAND         *AuthSession  OPTIONAL,
+   IN TPMI_YES_NO               Disable
+   );
+ 
+@@ -340,7 +340,7 @@ EFI_STATUS
+ EFIAPI
+ Tpm2NvDefineSpace (
+   IN      TPMI_RH_PROVISION         AuthHandle,
+-  IN      TPMS_AUTH_COMMAND         *AuthSession, OPTIONAL
++  IN      TPMS_AUTH_COMMAND         *AuthSession  OPTIONAL,
+   IN      TPM2B_AUTH                *Auth,
+   IN      TPM2B_NV_PUBLIC           *NvPublic
+   );
+@@ -383,7 +383,7 @@ EFIAPI
+ Tpm2NvRead (
+   IN      TPMI_RH_NV_AUTH           AuthHandle,
+   IN      TPMI_RH_NV_INDEX          NvIndex,
+-  IN      TPMS_AUTH_COMMAND         *AuthSession, OPTIONAL
++  IN      TPMS_AUTH_COMMAND         *AuthSession  OPTIONAL,
+   IN      UINT16                    Size,
+   IN      UINT16                    Offset,
+   IN OUT  TPM2B_MAX_BUFFER          *OutData
+@@ -407,7 +407,7 @@ EFIAPI
+ Tpm2NvWrite (
+   IN      TPMI_RH_NV_AUTH           AuthHandle,
+   IN      TPMI_RH_NV_INDEX          NvIndex,
+-  IN      TPMS_AUTH_COMMAND         *AuthSession, OPTIONAL
++  IN      TPMS_AUTH_COMMAND         *AuthSession  OPTIONAL,
+   IN      TPM2B_MAX_BUFFER          *InData,
+   IN      UINT16                    Offset
+   );
+@@ -566,7 +566,7 @@ Tpm2PcrAllocate (
+ EFI_STATUS
+ EFIAPI
+ Tpm2PcrAllocateBanks (
+-  IN TPM2B_AUTH                *PlatformAuth,  OPTIONAL
++  IN TPM2B_AUTH                *PlatformAuth   OPTIONAL,
+   IN UINT32                    SupportedPCRBanks,
+   IN UINT32                    PCRBanks
+   );
+@@ -908,7 +908,7 @@ EFIAPI
+ Tpm2PolicySecret (
+   IN      TPMI_DH_ENTITY            AuthHandle,
+   IN      TPMI_SH_POLICY            PolicySession,
+-  IN      TPMS_AUTH_COMMAND         *AuthSession, OPTIONAL
++  IN      TPMS_AUTH_COMMAND         *AuthSession  OPTIONAL,
+   IN      TPM2B_NONCE               *NonceTPM,
+   IN      TPM2B_DIGEST              *CpHashA,
+   IN      TPM2B_NONCE               *PolicyRef,
+@@ -1004,7 +1004,7 @@ Tpm2ReadPublic (
+ UINT32
+ EFIAPI
+ CopyAuthSessionCommand (
+-  IN      TPMS_AUTH_COMMAND         *AuthSessionIn, OPTIONAL
++  IN      TPMS_AUTH_COMMAND         *AuthSessionIn  OPTIONAL,
+   OUT     UINT8                     *AuthSessionOut
+   );
+ 
+diff --git a/SecurityPkg/Library/AuthVariableLib/AuthService.c b/SecurityPkg/Library/AuthVariableLib/AuthService.c
+index aa9ebaf3be..3059e5d256 100644
+--- a/SecurityPkg/Library/AuthVariableLib/AuthService.c
++++ b/SecurityPkg/Library/AuthVariableLib/AuthService.c
+@@ -1183,9 +1183,9 @@ FindCertsFromDb (
+   IN     EFI_GUID         *VendorGuid,
+   IN     UINT8            *Data,
+   IN     UINTN            DataSize,
+-  OUT    UINT32           *CertOffset,    OPTIONAL
+-  OUT    UINT32           *CertDataSize,  OPTIONAL
+-  OUT    UINT32           *CertNodeOffset,OPTIONAL
++  OUT    UINT32           *CertOffset     OPTIONAL,
++  OUT    UINT32           *CertDataSize   OPTIONAL,
++  OUT    UINT32           *CertNodeOffset OPTIONAL,
+   OUT    UINT32           *CertNodeSize   OPTIONAL
+   )
+ {
+diff --git a/SecurityPkg/Library/DxeImageAuthenticationStatusLib/DxeImageAuthenticationStatusLib.c b/SecurityPkg/Library/DxeImageAuthenticationStatusLib/DxeImageAuthenticationStatusLib.c
+index ec77151c9c..9acff2ae7d 100644
+--- a/SecurityPkg/Library/DxeImageAuthenticationStatusLib/DxeImageAuthenticationStatusLib.c
++++ b/SecurityPkg/Library/DxeImageAuthenticationStatusLib/DxeImageAuthenticationStatusLib.c
+@@ -32,7 +32,7 @@ EFI_STATUS
+ EFIAPI
+ DxeImageAuthenticationStatusHandler (
+   IN  UINT32                           AuthenticationStatus,
+-  IN  CONST EFI_DEVICE_PATH_PROTOCOL   *File, OPTIONAL
++  IN  CONST EFI_DEVICE_PATH_PROTOCOL   *File  OPTIONAL,
+   IN  VOID                             *FileBuffer,
+   IN  UINTN                            FileSize,
+   IN  BOOLEAN                          BootPolicy
+diff --git a/SecurityPkg/Library/DxeImageVerificationLib/DxeImageVerificationLib.c b/SecurityPkg/Library/DxeImageVerificationLib/DxeImageVerificationLib.c
+index 1252927664..0a12692454 100644
+--- a/SecurityPkg/Library/DxeImageVerificationLib/DxeImageVerificationLib.c
++++ b/SecurityPkg/Library/DxeImageVerificationLib/DxeImageVerificationLib.c
+@@ -1636,7 +1636,7 @@ EFI_STATUS
+ EFIAPI
+ DxeImageVerificationHandler (
+   IN  UINT32                           AuthenticationStatus,
+-  IN  CONST EFI_DEVICE_PATH_PROTOCOL   *File, OPTIONAL
++  IN  CONST EFI_DEVICE_PATH_PROTOCOL   *File  OPTIONAL,
+   IN  VOID                             *FileBuffer,
+   IN  UINTN                            FileSize,
+   IN  BOOLEAN                          BootPolicy
+diff --git a/SecurityPkg/Library/DxeRsa2048Sha256GuidedSectionExtractLib/DxeRsa2048Sha256GuidedSectionExtractLib.c b/SecurityPkg/Library/DxeRsa2048Sha256GuidedSectionExtractLib/DxeRsa2048Sha256GuidedSectionExtractLib.c
+index 28807d4d98..5124b884c9 100644
+--- a/SecurityPkg/Library/DxeRsa2048Sha256GuidedSectionExtractLib/DxeRsa2048Sha256GuidedSectionExtractLib.c
++++ b/SecurityPkg/Library/DxeRsa2048Sha256GuidedSectionExtractLib/DxeRsa2048Sha256GuidedSectionExtractLib.c
+@@ -123,7 +123,7 @@ EFIAPI
+ Rsa2048Sha256GuidedSectionHandler (
+   IN CONST  VOID    *InputSection,
+   OUT       VOID    **OutputBuffer,
+-  IN        VOID    *ScratchBuffer,        OPTIONAL
++  IN        VOID    *ScratchBuffer         OPTIONAL,
+   OUT       UINT32  *AuthenticationStatus
+   )
+ {
+diff --git a/SecurityPkg/Library/DxeTcg2PhysicalPresenceLib/DxeTcg2PhysicalPresenceLib.c b/SecurityPkg/Library/DxeTcg2PhysicalPresenceLib/DxeTcg2PhysicalPresenceLib.c
+index fce5c0af50..d92658f80d 100644
+--- a/SecurityPkg/Library/DxeTcg2PhysicalPresenceLib/DxeTcg2PhysicalPresenceLib.c
++++ b/SecurityPkg/Library/DxeTcg2PhysicalPresenceLib/DxeTcg2PhysicalPresenceLib.c
+@@ -147,7 +147,7 @@ Tpm2CommandChangeEps (
+ **/
+ UINT32
+ Tcg2ExecutePhysicalPresence (
+-  IN      TPM2B_AUTH                       *PlatformAuth,  OPTIONAL
++  IN      TPM2B_AUTH                       *PlatformAuth   OPTIONAL,
+   IN      UINT32                           CommandCode,
+   IN      UINT32                           CommandParameter,
+   IN OUT  EFI_TCG2_PHYSICAL_PRESENCE_FLAGS *PpiFlags
+@@ -720,7 +720,7 @@ Tcg2HaveValidTpmRequest  (
+ **/
+ VOID
+ Tcg2ExecutePendingTpmRequest (
+-  IN      TPM2B_AUTH                       *PlatformAuth,  OPTIONAL
++  IN      TPM2B_AUTH                       *PlatformAuth   OPTIONAL,
+   IN OUT  EFI_TCG2_PHYSICAL_PRESENCE       *TcgPpData,
+   IN OUT  EFI_TCG2_PHYSICAL_PRESENCE_FLAGS *Flags
+   )
+diff --git a/SecurityPkg/Library/DxeTpm2MeasureBootLib/DxeTpm2MeasureBootLib.c b/SecurityPkg/Library/DxeTpm2MeasureBootLib/DxeTpm2MeasureBootLib.c
+index a531385f81..95682ac567 100644
+--- a/SecurityPkg/Library/DxeTpm2MeasureBootLib/DxeTpm2MeasureBootLib.c
++++ b/SecurityPkg/Library/DxeTpm2MeasureBootLib/DxeTpm2MeasureBootLib.c
+@@ -416,7 +416,7 @@ EFI_STATUS
+ EFIAPI
+ DxeTpm2MeasureBootHandler (
+   IN  UINT32                           AuthenticationStatus,
+-  IN  CONST EFI_DEVICE_PATH_PROTOCOL   *File, OPTIONAL
++  IN  CONST EFI_DEVICE_PATH_PROTOCOL   *File  OPTIONAL,
+   IN  VOID                             *FileBuffer,
+   IN  UINTN                            FileSize,
+   IN  BOOLEAN                          BootPolicy
+diff --git a/SecurityPkg/Library/DxeTpmMeasureBootLib/DxeTpmMeasureBootLib.c b/SecurityPkg/Library/DxeTpmMeasureBootLib/DxeTpmMeasureBootLib.c
+index 4e74cd9db6..27c0ea48ca 100644
+--- a/SecurityPkg/Library/DxeTpmMeasureBootLib/DxeTpmMeasureBootLib.c
++++ b/SecurityPkg/Library/DxeTpmMeasureBootLib/DxeTpmMeasureBootLib.c
+@@ -710,7 +710,7 @@ EFI_STATUS
+ EFIAPI
+ DxeTpmMeasureBootHandler (
+   IN  UINT32                           AuthenticationStatus,
+-  IN  CONST EFI_DEVICE_PATH_PROTOCOL   *File, OPTIONAL
++  IN  CONST EFI_DEVICE_PATH_PROTOCOL   *File  OPTIONAL,
+   IN  VOID                             *FileBuffer,
+   IN  UINTN                            FileSize,
+   IN  BOOLEAN                          BootPolicy
+diff --git a/SecurityPkg/Library/PeiRsa2048Sha256GuidedSectionExtractLib/PeiRsa2048Sha256GuidedSectionExtractLib.c b/SecurityPkg/Library/PeiRsa2048Sha256GuidedSectionExtractLib/PeiRsa2048Sha256GuidedSectionExtractLib.c
+index a759183d20..96638e26aa 100644
+--- a/SecurityPkg/Library/PeiRsa2048Sha256GuidedSectionExtractLib/PeiRsa2048Sha256GuidedSectionExtractLib.c
++++ b/SecurityPkg/Library/PeiRsa2048Sha256GuidedSectionExtractLib/PeiRsa2048Sha256GuidedSectionExtractLib.c
+@@ -121,7 +121,7 @@ EFIAPI
+ Rsa2048Sha256GuidedSectionHandler (
+   IN CONST  VOID    *InputSection,
+   OUT       VOID    **OutputBuffer,
+-  IN        VOID    *ScratchBuffer,        OPTIONAL
++  IN        VOID    *ScratchBuffer         OPTIONAL,
+   OUT       UINT32  *AuthenticationStatus
+   )
+ {
+diff --git a/SecurityPkg/Library/Tcg2PpVendorLibNull/Tcg2PpVendorLibNull.c b/SecurityPkg/Library/Tcg2PpVendorLibNull/Tcg2PpVendorLibNull.c
+index 895d05a28d..aa3dcb6beb 100644
+--- a/SecurityPkg/Library/Tcg2PpVendorLibNull/Tcg2PpVendorLibNull.c
++++ b/SecurityPkg/Library/Tcg2PpVendorLibNull/Tcg2PpVendorLibNull.c
+@@ -30,7 +30,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+ UINT32
+ EFIAPI
+ Tcg2PpVendorLibExecutePendingRequest (
+-  IN TPM2B_AUTH             *PlatformAuth,  OPTIONAL
++  IN TPM2B_AUTH             *PlatformAuth   OPTIONAL,
+   IN UINT32                 OperationRequest,
+   IN OUT UINT32             *ManagementFlags,
+   OUT BOOLEAN               *ResetRequired
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2EnhancedAuthorization.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2EnhancedAuthorization.c
+index 0404c0f321..53983d745b 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2EnhancedAuthorization.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2EnhancedAuthorization.c
+@@ -90,7 +90,7 @@ EFIAPI
+ Tpm2PolicySecret (
+   IN      TPMI_DH_ENTITY            AuthHandle,
+   IN      TPMI_SH_POLICY            PolicySession,
+-  IN      TPMS_AUTH_COMMAND         *AuthSession, OPTIONAL
++  IN      TPMS_AUTH_COMMAND         *AuthSession  OPTIONAL,
+   IN      TPM2B_NONCE               *NonceTPM,
+   IN      TPM2B_DIGEST              *CpHashA,
+   IN      TPM2B_NONCE               *PolicyRef,
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Help.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Help.c
+index 13eeb6ec18..44115cded3 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Help.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Help.c
+@@ -84,7 +84,7 @@ GetHashMaskFromAlgo (
+ UINT32
+ EFIAPI
+ CopyAuthSessionCommand (
+-  IN      TPMS_AUTH_COMMAND         *AuthSessionIn, OPTIONAL
++  IN      TPMS_AUTH_COMMAND         *AuthSessionIn  OPTIONAL,
+   OUT     UINT8                     *AuthSessionOut
+   )
+ {
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Hierarchy.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Hierarchy.c
+index 043d358a06..957d694431 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Hierarchy.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Hierarchy.c
+@@ -305,7 +305,7 @@ EFI_STATUS
+ EFIAPI
+ Tpm2ClearControl (
+   IN TPMI_RH_CLEAR             AuthHandle,
+-  IN TPMS_AUTH_COMMAND         *AuthSession, OPTIONAL
++  IN TPMS_AUTH_COMMAND         *AuthSession  OPTIONAL,
+   IN TPMI_YES_NO               Disable
+   )
+ {
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Integrity.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Integrity.c
+index 8c87de0b0c..d232fe725d 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2Integrity.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2Integrity.c
+@@ -566,7 +566,7 @@ Done:
+ EFI_STATUS
+ EFIAPI
+ Tpm2PcrAllocateBanks (
+-  IN TPM2B_AUTH                *PlatformAuth,  OPTIONAL
++  IN TPM2B_AUTH                *PlatformAuth   OPTIONAL,
+   IN UINT32                    SupportedPCRBanks,
+   IN UINT32                    PCRBanks
+   )
+diff --git a/SecurityPkg/Library/Tpm2CommandLib/Tpm2NVStorage.c b/SecurityPkg/Library/Tpm2CommandLib/Tpm2NVStorage.c
+index fb46af0fed..d9171fb9a0 100644
+--- a/SecurityPkg/Library/Tpm2CommandLib/Tpm2NVStorage.c
++++ b/SecurityPkg/Library/Tpm2CommandLib/Tpm2NVStorage.c
+@@ -281,7 +281,7 @@ EFI_STATUS
+ EFIAPI
+ Tpm2NvDefineSpace (
+   IN      TPMI_RH_PROVISION         AuthHandle,
+-  IN      TPMS_AUTH_COMMAND         *AuthSession, OPTIONAL
++  IN      TPMS_AUTH_COMMAND         *AuthSession  OPTIONAL,
+   IN      TPM2B_AUTH                *Auth,
+   IN      TPM2B_NV_PUBLIC           *NvPublic
+   )
+@@ -525,7 +525,7 @@ EFIAPI
+ Tpm2NvRead (
+   IN      TPMI_RH_NV_AUTH           AuthHandle,
+   IN      TPMI_RH_NV_INDEX          NvIndex,
+-  IN      TPMS_AUTH_COMMAND         *AuthSession, OPTIONAL
++  IN      TPMS_AUTH_COMMAND         *AuthSession  OPTIONAL,
+   IN      UINT16                    Size,
+   IN      UINT16                    Offset,
+   IN OUT  TPM2B_MAX_BUFFER          *OutData
+@@ -670,7 +670,7 @@ EFIAPI
+ Tpm2NvWrite (
+   IN      TPMI_RH_NV_AUTH           AuthHandle,
+   IN      TPMI_RH_NV_INDEX          NvIndex,
+-  IN      TPMS_AUTH_COMMAND         *AuthSession, OPTIONAL
++  IN      TPMS_AUTH_COMMAND         *AuthSession  OPTIONAL,
+   IN      TPM2B_MAX_BUFFER          *InData,
+   IN      UINT16                    Offset
+   )
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c b/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c
+index 282fdca9d3..1cdc842966 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c
+@@ -53,7 +53,7 @@ EFI_STATUS
+ EFIAPI
+ RngGetRNG (
+   IN EFI_RNG_PROTOCOL            *This,
+-  IN EFI_RNG_ALGORITHM           *RNGAlgorithm, OPTIONAL
++  IN EFI_RNG_ALGORITHM           *RNGAlgorithm  OPTIONAL,
+   IN UINTN                       RNGValueLength,
+   OUT UINT8                      *RNGValue
+   )
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c b/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
+index d0e6b7de06..834123b945 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
+@@ -49,7 +49,7 @@ EFI_STATUS
+ EFIAPI
+ RngGetRNG (
+   IN EFI_RNG_PROTOCOL            *This,
+-  IN EFI_RNG_ALGORITHM           *RNGAlgorithm, OPTIONAL
++  IN EFI_RNG_ALGORITHM           *RNGAlgorithm  OPTIONAL,
+   IN UINTN                       RNGValueLength,
+   OUT UINT8                      *RNGValue
+   )
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxeInternals.h b/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxeInternals.h
+index 2660ed5875..25cccbe92c 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxeInternals.h
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxeInternals.h
+@@ -67,7 +67,7 @@ EFI_STATUS
+ EFIAPI
+ RngGetRNG (
+   IN EFI_RNG_PROTOCOL            *This,
+-  IN EFI_RNG_ALGORITHM           *RNGAlgorithm, OPTIONAL
++  IN EFI_RNG_ALGORITHM           *RNGAlgorithm  OPTIONAL,
+   IN UINTN                       RNGValueLength,
+   OUT UINT8                      *RNGValue
+   );
+diff --git a/SecurityPkg/Tcg/TcgConfigDxe/TcgConfigImpl.c b/SecurityPkg/Tcg/TcgConfigDxe/TcgConfigImpl.c
+index 68cd62307c..09cb4b0ee9 100644
+--- a/SecurityPkg/Tcg/TcgConfigDxe/TcgConfigImpl.c
++++ b/SecurityPkg/Tcg/TcgConfigDxe/TcgConfigImpl.c
+@@ -56,7 +56,7 @@ HII_VENDOR_DEVICE_PATH          mTcgHiiVendorDevicePath = {
+ EFI_STATUS
+ GetTpmState (
+   IN  EFI_TCG_PROTOCOL          *TcgProtocol,
+-  OUT BOOLEAN                   *TpmEnable,  OPTIONAL
++  OUT BOOLEAN                   *TpmEnable   OPTIONAL,
+   OUT BOOLEAN                   *TpmActivate OPTIONAL
+   )
+ {
+-- 
+2.41.0
+

@@ -7,7 +7,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}git%{GITCOMMIT}
-Release:    6%{?dist}.6
+Release:    13%{?dist}
 Summary:    UEFI firmware for 64-bit virtual machines
 Group:      Applications/Emulators
 License:    BSD-2-Clause-Patent and OpenSSL and MIT
@@ -60,22 +60,206 @@ Patch28: edk2-rh-openssl-add-crypto-bn-rsa_sup_mul.c-to-file-list.patch
 Patch29: edk2-SecurityPkg-DxeImageVerificationLib-Check-result-of-.patch
 # For bz#2150267 - ovmf must consider max cpu count not boot cpu count for apic mode [rhel-8]
 Patch30: edk2-UefiCpuPkg-MpInitLib-fix-apic-mode-for-cpu-hotplug.patch
-# For RHEL-20351 - [rhel8] guest fails to boot due to ASSERT error [rhel-8.9.0.z]
-Patch31: old.patch
-# For RHEL-20351 - [rhel8] guest fails to boot due to ASSERT error [rhel-8.9.0.z]
-Patch32: old2.patch
-# For RHEL-21993 - CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8.9.0.z]
-Patch33: edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Pa.patch
-# For RHEL-21993 - CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8.9.0.z]
-Patch34: edk2-NetworkPkg-Add-Unit-tests-to-CI-and-create-Host-Test.patch
-# For RHEL-21993 - CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8.9.0.z]
-Patch35: edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Un.patch
-# For RHEL-22002 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8.9.0.z]
-Patch36: edk2-NetworkPkg-Apply-uncrustify-chang1.patch
-# For RHEL-22002 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8.9.0.z]
-Patch37: edk2-NetworkPkg-UefiPxeBcDxe-SECUR-PATCH-CVE-2023-45234.patch
-# For RHEL-22002 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8.9.0.z]
-Patch38: edk2-NetworkPkg-UefiPxeBcDxe-SECUR-PATCH-CVE-2023-45234_U.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch31: edk2-OvmfPkg-VirtNorFlashDxe-stop-accepting-gEfiVariableG.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch32: edk2-OvmfPkg-VirtNorFlashDxe-sanity-check-variables.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch33: edk2-OvmfPkg-VirtNorFlashDxe-clone-ArmPlatformPkg-s-NOR-f.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch34: edk2-OvmfPkg-VirtNorFlashDxe-remove-CheckBlockLocked-feat.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch35: edk2-OvmfPkg-VirtNorFlashDxe-remove-disk-I-O-protocol-imp.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch36: edk2-OvmfPkg-VirtNorFlashDxe-drop-block-I-O-protocol-impl.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch37: edk2-OvmfPkg-VirtNorFlashDxe-avoid-array-mode-switch-afte.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch38: edk2-OvmfPkg-VirtNorFlashDxe-avoid-switching-between-mode.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch39: edk2-OvmfPkg-VirtNorFlashDxe-use-EFI_MEMORY_WC-and-drop-A.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch40: edk2-OvmfPkg-VirtNorFlashDxe-map-flash-memory-as-uncachea.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch41: edk2-OvmfPkg-VirtNorFlashDxe-stop-accepting-gEfiVariable2.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch42:  edk2-OvmfPkg-VirtNorFlashDxe-sanity-check-variable2.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch43: edk2-OvmfPkg-VirtNorFlashDxe-add-casts-to-UINTN-and-UINT3.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch44: edk2-OvmfPkg-VirtNorFlashDxe-clarify-block-write-logic-fi.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch45: edk2-OvmfPkg-VirtNorFlashDxe-add-a-loop-for-NorFlashWrite.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch46: edk2-OvmfPkg-VirtNorFlashDxe-allow-larger-writes-without-.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch47: edk2-OvmfPkg-VirtNorFlashDxe-ValidateFvHeader-unwritten-s.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch48: edk2-OvmfPkg-VirtNorFlashDxe-move-DoErase-code-block-into.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch49: edk2-ArmVirtPkg-ArmVirtQemu-migrate-to-OVMF-s-VirtNorFlas.patch
+# For RHEL-17587 - [rhel8] guest fails to boot due to ASSERT error
+Patch50: edk2-OvmfPkg-clone-NorFlashPlatformLib-into-VirtNorFlashP.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch51: edk2-SecurityPkg-Change-use-of-EFI_D_-to-DEBUG_.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch52: edk2-SecurityPkg-Change-OPTIONAL-keyword-usage-style.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch53: edk2-MdePkg-Introduce-CcMeasurementProtocol-for-CC-Guest-.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch54: edk2-SecurityPkg-Support-CcMeasurementProtocol-in-DxeTpm2.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch55: edk2-SecurityPkg-Support-CcMeasurementProtocol-in-DxeTpmM.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch56: edk2-SecurityPkg-DxeTpm2MeasureBootLib-SECURITY-PATCH-411.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch57: edk2-SecurityPkg-DxeTpmMeasureBootLib-SECURITY-PATCH-4117.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch58: edk2-SecurityPkg-Adding-CVE-2022-36763-to-SecurityFixes.y.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch59: edk2-SecurityPkg-DxeTpm2MeasureBootLib-SECURITY-PATCH-418.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch60: edk2-SecurityPkg-DxeTpmMeasureBootLib-SECURITY-PATCH-4118.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch61: edk2-SecurityPkg-DxeTpm2MeasureBootLib-SEC-PATCH-4118-2.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch62: edk2-SecurityPkg-DxeTpmMeasureBootLib-SEC-PATCH-4117-2.patch
+# For RHEL-21154 - CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8]
+# For RHEL-21156 - CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8]
+Patch63: edk2-SecurityPkg-Updating-SecurityFixes.yaml-after-symbol.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21842 - CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8]
+Patch64: edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Pa.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21842 - CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8]
+Patch65: edk2-NetworkPkg-Add-Unit-tests-to-CI-and-create-Host-Test.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21842 - CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8]
+Patch66: edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Un.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21842 - CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8]
+Patch67: edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45229-Pa.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch68: edk2-Apply-uncrustify-changes-to-.c-.h-files-in-the-Netwo.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch69: edk2-NetworkPkg-Ip6Dxe-SECURITY-PATCH-CVE-2023-45231-Patc.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch70: edk2-NetworkPkg-Ip6Dxe-SECURITY-PATCH-CVE-2023-45231-Unit.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch71: edk2-NetworkPkg-Ip6Dxe-SECURITY-PATCH-CVE-2023-45232-Patc.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch72: edk2-NetworkPkg-Ip6Dxe-SECURITY-PATCH-CVE-2023-45232-Unit.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch73: edk2-NetworkPkg-Apply-uncrustify-changes.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch74: edk2-NetworkPkg-UefiPxeBcDxe-SECURITY-PATCH-CVE-2023-4523.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch75: edk2-NetworkPkg-UefiPxeBcDxe-SECURITY-PATCH-CVE-2023-4523p2.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch76: edk2-NetworkPkg-UefiPxeBcDxe-SECURITY-PATCH-CVE-2023-4523p3.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch77: edk2-NetworkPkg-UefiPxeBcDxe-SECURITY-PATCH-CVE-2023-4523p4.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch78: edk2-NetworkPkg-Adds-a-SecurityFix.yaml-file.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch79: edk2-NetworkPkg-Apply-uncrustify-changes-p2.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch80: edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45229-Re.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch81: edk2-NetworkPkg-Dhcp6Dxe-Removes-duplicate-check-and-repl.patch
+# For RHEL-21840 - CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21844 - CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8]
+# For RHEL-21846 - CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8]
+# For RHEL-21848 - CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8]
+# For RHEL-21850 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8]
+# For RHEL-21852 - CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8]
+Patch82: edk2-NetworkPkg-Dhcp6Dxe-Packet-Length-is-not-updated-bef.patch
+# For RHEL-21158 - CVE-2022-36765 edk2: integer overflow in CreateHob() could lead to HOB OOB R/W [rhel-8]
+Patch83: edk2-EmbeddedPkg-Hob-Integer-Overflow-in-CreateHob.patch
+# For RHEL-21158 - CVE-2022-36765 edk2: integer overflow in CreateHob() could lead to HOB OOB R/W [rhel-8]
+Patch84: edk2-StandaloneMmPkg-Hob-Integer-Overflow-in-CreateHob.patch
 
 
 # python3-devel and libuuid-devel are required for building tools.
@@ -222,6 +406,8 @@ sed \
   %{SOURCE5} \
   > PkKek1.oemstr
 
+# Hack to ensure git lock is removed before chmod starts to not fail
+sleep 5
 # Done by %setup, but we do not use it for the auxiliary tarballs
 chmod -Rf a+rX,u+w,g-w,o-w .
 
@@ -520,34 +706,104 @@ true
 %endif
 
 %changelog
-* Tue Feb 27 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-6.el8_9.6
-- edk2-NetworkPkg-Apply-uncrustify-chang1.patch [RHEL-22002]
-- edk2-NetworkPkg-UefiPxeBcDxe-SECUR-PATCH-CVE-2023-45234.patch [RHEL-22002]
-- edk2-NetworkPkg-UefiPxeBcDxe-SECUR-PATCH-CVE-2023-45234_U.patch [RHEL-22002]
-- Resolves: RHEL-22002
-  (CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8.9.0.z])
+* Thu Mar 14 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20220126gitbb1bba3d77-13
+- edk2-EmbeddedPkg-Hob-Integer-Overflow-in-CreateHob.patch [RHEL-21158]
+- edk2-StandaloneMmPkg-Hob-Integer-Overflow-in-CreateHob.patch [RHEL-21158]
+- Resolves: RHEL-21158
+  (CVE-2022-36765 edk2: integer overflow in CreateHob() could lead to HOB OOB R/W [rhel-8])
 
-* Wed Feb 14 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-6.el8_9.4
-- edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Pa.patch [RHEL-21993]
-- edk2-NetworkPkg-Add-Unit-tests-to-CI-and-create-Host-Test.patch [RHEL-21993]
-- edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Un.patch [RHEL-21993]
-- Resolves: RHEL-21993
-  (CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8.9.0.z])
+* Tue Feb 27 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20220126gitbb1bba3d77-12
+- edk2-Apply-uncrustify-changes-to-.c-.h-files-in-the-Netwo.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-Ip6Dxe-SECURITY-PATCH-CVE-2023-45231-Patc.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-Ip6Dxe-SECURITY-PATCH-CVE-2023-45231-Unit.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-Ip6Dxe-SECURITY-PATCH-CVE-2023-45232-Patc.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-Ip6Dxe-SECURITY-PATCH-CVE-2023-45232-Unit.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-Apply-uncrustify-changes.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-UefiPxeBcDxe-SECURITY-PATCH-CVE-2023-4523.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-UefiPxeBcDxe-SECURITY-PATCH-CVE-2023-4523p2.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-UefiPxeBcDxe-SECURITY-PATCH-CVE-2023-4523p3.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-UefiPxeBcDxe-SECURITY-PATCH-CVE-2023-4523p4.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-Adds-a-SecurityFix.yaml-file.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-Apply-uncrustify-changes-p2.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45229-Re.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-Dhcp6Dxe-Removes-duplicate-check-and-repl.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- edk2-NetworkPkg-Dhcp6Dxe-Packet-Length-is-not-updated-bef.patch [RHEL-21840 RHEL-21844 RHEL-21846 RHEL-21848 RHEL-21850 RHEL-21852]
+- Resolves: RHEL-21840
+  (CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8])
+- Resolves: RHEL-21844
+  (CVE-2023-45231 edk2: Out of Bounds read when handling a ND Redirect message with truncated options [rhel-8])
+- Resolves: RHEL-21846
+  (CVE-2023-45232 edk2: Infinite loop when parsing unknown options in the Destination Options header [rhel-8])
+- Resolves: RHEL-21848
+  (CVE-2023-45233 edk2: Infinite loop when parsing a PadN option in the Destination Options header [rhel-8])
+- Resolves: RHEL-21850
+  (CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-8])
+- Resolves: RHEL-21852
+  (CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-8])
 
-* Mon Jan 15 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-6.el8_9.3
-- old.patch [RHEL-20351]
-- old2.patch [RHEL-20351]
-- Resolves: RHEL-20351
-  ([rhel8] guest fails to boot due to ASSERT error [rhel-8.9.0.z])
+* Wed Feb 14 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-11
+- edk2-SecurityPkg-Change-use-of-EFI_D_-to-DEBUG_.patch [RHEL-21154 RHEL-21156]
+- edk2-SecurityPkg-Change-OPTIONAL-keyword-usage-style.patch [RHEL-21154 RHEL-21156]
+- edk2-MdePkg-Introduce-CcMeasurementProtocol-for-CC-Guest-.patch [RHEL-21154 RHEL-21156]
+- edk2-SecurityPkg-Support-CcMeasurementProtocol-in-DxeTpm2.patch [RHEL-21154 RHEL-21156]
+- edk2-SecurityPkg-Support-CcMeasurementProtocol-in-DxeTpmM.patch [RHEL-21154 RHEL-21156]
+- edk2-SecurityPkg-DxeTpm2MeasureBootLib-SECURITY-PATCH-411.patch [RHEL-21154 RHEL-21156]
+- edk2-SecurityPkg-DxeTpmMeasureBootLib-SECURITY-PATCH-4117.patch [RHEL-21154 RHEL-21156]
+- edk2-SecurityPkg-Adding-CVE-2022-36763-to-SecurityFixes.y.patch [RHEL-21154 RHEL-21156]
+- edk2-SecurityPkg-DxeTpm2MeasureBootLib-SECURITY-PATCH-418.patch [RHEL-21154 RHEL-21156]
+- edk2-SecurityPkg-DxeTpmMeasureBootLib-SECURITY-PATCH-4118.patch [RHEL-21154 RHEL-21156]
+- edk2-SecurityPkg-DxeTpm2MeasureBootLib-SEC-PATCH-4118-2.patch [RHEL-21154 RHEL-21156]
+- edk2-SecurityPkg-DxeTpmMeasureBootLib-SEC-PATCH-4117-2.patch [RHEL-21154 RHEL-21156]
+- edk2-SecurityPkg-Updating-SecurityFixes.yaml-after-symbol.patch [RHEL-21154 RHEL-21156]
+- edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Pa.patch [RHEL-21840 RHEL-21842]
+- edk2-NetworkPkg-Add-Unit-tests-to-CI-and-create-Host-Test.patch [RHEL-21840 RHEL-21842]
+- edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Un.patch [RHEL-21840 RHEL-21842]
+- edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45229-Pa.patch [RHEL-21840 RHEL-21842]
+- Resolves: RHEL-21154
+  (CVE-2022-36763 edk2: heap buffer overflow in Tcg2MeasureGptTable() [rhel-8])
+- Resolves: RHEL-21156
+  (CVE-2022-36764 edk2: heap buffer overflow in Tcg2MeasurePeImage() [rhel-8])
+- Resolves: RHEL-21840
+  (CVE-2023-45229 edk2: Integer underflow when processing IA_NA/IA_TA options in a DHCPv6 Advertise message [rhel-8])
+- Resolves: RHEL-21842
+  (CVE-2023-45230 edk2: Buffer overflow in the DHCPv6 client via a long Server ID option [rhel-8])
 
-* Fri Jan 05 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-6.el8_9.2
-- edk2-Bumped-openssl-submodule-version-to-cf317b2bb227.patch [RHEL-18048]
-- Resolves: RHEL-18048
-  (CVE-2023-3446 edk2: openssl: Excessive time spent checking DH keys and parameters [rhel-8.9.0.z])
+* Sat Feb 03 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-10
+- edk2-OvmfPkg-VirtNorFlashDxe-clone-ArmPlatformPkg-s-NOR-f.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-remove-CheckBlockLocked-feat.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-remove-disk-I-O-protocol-imp.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-drop-block-I-O-protocol-impl.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-avoid-array-mode-switch-afte.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-avoid-switching-between-mode.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-use-EFI_MEMORY_WC-and-drop-A.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-map-flash-memory-as-uncachea.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-stop-accepting-gEfiVariable2.patch [RHEL-17587]
+-  edk2-OvmfPkg-VirtNorFlashDxe-sanity-check-variable2.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-add-casts-to-UINTN-and-UINT3.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-clarify-block-write-logic-fi.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-add-a-loop-for-NorFlashWrite.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-allow-larger-writes-without-.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-ValidateFvHeader-unwritten-s.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-move-DoErase-code-block-into.patch [RHEL-17587]
+- edk2-ArmVirtPkg-ArmVirtQemu-migrate-to-OVMF-s-VirtNorFlas.patch [RHEL-17587]
+- edk2-OvmfPkg-clone-NorFlashPlatformLib-into-VirtNorFlashP.patch [RHEL-17587]
+- Resolves: RHEL-17587
+  ([rhel8] guest fails to boot due to ASSERT error)
 
-* Wed Nov 22 2023 Miroslav Rezanina <mrezanin@redhat.com> - 20220126gitbb1bba3d77-6.el8_9.1
-- edk2-add-8.6-machine-type-to-edk2-ovmf-cc.json.patch [RHEL-15931]
-- Resolves: RHEL-15931
+* Wed Jan 24 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-9
+- edk2-OvmfPkg-VirtNorFlashDxe-stop-accepting-gEfiVariableG.patch [RHEL-17587]
+- edk2-OvmfPkg-VirtNorFlashDxe-sanity-check-variables.patch [RHEL-17587]
+- Resolves: RHEL-17587
+  ([rhel8] guest fails to boot due to ASSERT error)
+
+* Fri Jan 05 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-8
+- edk2-Bumped-openssl-submodule-version-to-cf317b2bb227.patch [RHEL-7560]
+- Resolves: RHEL-7560
+  (CVE-2023-3446 edk2: openssl: Excessive time spent checking DH keys and parameters [rhel-8])
+
+* Wed Nov 22 2023 Miroslav Rezanina <mrezanin@redhat.com> - 20220126gitbb1bba3d77-7
+- edk2-add-8.6-machine-type-to-edk2-ovmf-cc.json.patch [RHEL-12626]
+- Resolves: RHEL-12626
   (Missing firmware descriptor with secureboot disabled in RHEL 8)
 
 * Fri Aug 04 2023 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-6
