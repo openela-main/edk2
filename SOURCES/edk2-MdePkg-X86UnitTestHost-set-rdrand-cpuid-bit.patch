@@ -1,0 +1,63 @@
+From 90461020e9b7534dc03baeea7b485045ed5962e9 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Thu, 20 Jun 2024 10:35:27 -0400
+Subject: [PATCH 8/8] MdePkg/X86UnitTestHost: set rdrand cpuid bit
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 75: NetworkPkg: SECURITY PATCH CVE-2023-45236 and CVE-2023-45237
+RH-Jira: RHEL-40270 RHEL-40272
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [8/8] 5bacbf3cf6fadd3362dfd6f31743707e65b4f119
+
+JIRA: https://issues.redhat.com/browse/RHEL-40270
+Upstream: Merged
+CVE: CVE-2023-45237
+
+commit 5e776299a2604b336a947e68593012ab2cc16eb4
+Author: Gerd Hoffmann <kraxel@redhat.com>
+Date:   Fri Jun 14 11:45:53 2024 +0200
+
+    MdePkg/X86UnitTestHost: set rdrand cpuid bit
+
+    Set the rdrand feature bit when faking cpuid for host test cases.
+    Needed to make the CryptoPkg test cases work.
+
+    Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ MdePkg/Library/BaseLib/X86UnitTestHost.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/MdePkg/Library/BaseLib/X86UnitTestHost.c b/MdePkg/Library/BaseLib/X86UnitTestHost.c
+index 8ba4f54a38..7f7276f7f4 100644
+--- a/MdePkg/Library/BaseLib/X86UnitTestHost.c
++++ b/MdePkg/Library/BaseLib/X86UnitTestHost.c
+@@ -66,6 +66,15 @@ UnitTestHostBaseLibAsmCpuid (
+   OUT     UINT32  *Edx   OPTIONAL
+   )
+ {
++  UINT32  RetEcx;
++
++  RetEcx = 0;
++  switch (Index) {
++    case 1:
++      RetEcx |= BIT30; /* RdRand */
++      break;
++  }
++
+   if (Eax != NULL) {
+     *Eax = 0;
+   }
+@@ -75,7 +84,7 @@ UnitTestHostBaseLibAsmCpuid (
+   }
+ 
+   if (Ecx != NULL) {
+-    *Ecx = 0;
++    *Ecx = RetEcx;
+   }
+ 
+   if (Edx != NULL) {
+-- 
+2.39.3
+

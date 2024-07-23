@@ -20,7 +20,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    6%{?dist}
+Release:    6%{?dist}.2
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -264,6 +264,34 @@ Patch69: edk2-NetworkPkg-Dhcp6Dxe-Packet-Length-is-not-updated-bef.patch
 # For RHEL-21851 - CVE-2023-45234 edk2: Buffer overflow when processing DNS Servers option in a DHCPv6 Advertise message [rhel-9]
 # For RHEL-21853 - TRIAGE CVE-2023-45235 edk2: Buffer overflow when handling Server ID option from a DHCPv6 proxy Advertise message [rhel-9]
 Patch70: edk2-NetworkPkg-Updating-SecurityFixes.yaml.patch
+# For RHEL-30156 - CVE-2022-36765 edk2: integer overflow in CreateHob() could lead to HOB OOB R/W [rhel-9.4.z]
+Patch71: edk2-EmbeddedPkg-Hob-Integer-Overflow-in-CreateHob.patch
+# For RHEL-30156 - CVE-2022-36765 edk2: integer overflow in CreateHob() could lead to HOB OOB R/W [rhel-9.4.z]
+Patch72: edk2-StandaloneMmPkg-Hob-Integer-Overflow-in-CreateHob.patch
+# For RHEL-40270 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-9.4.z]
+# For RHEL-40272 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-9.4.z]
+Patch73: edk2-NetworkPkg-SECURITY-PATCH-CVE-2023-45237.patch
+# For RHEL-40270 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-9.4.z]
+# For RHEL-40272 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-9.4.z]
+Patch74: edk2-NetworkPkg-TcpDxe-SECURITY-PATCH-CVE-2023-45236.patch
+# For RHEL-40270 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-9.4.z]
+# For RHEL-40272 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-9.4.z]
+Patch75: edk2-NetworkPkg-TcpDxe-Fixed-system-stuck-on-PXE-boot-flo.patch
+# For RHEL-40270 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-9.4.z]
+# For RHEL-40272 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-9.4.z]
+Patch76: edk2-MdePkg-BaseRngLib-Add-a-smoketest-for-RDRAND-and-che.patch
+# For RHEL-40270 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-9.4.z]
+# For RHEL-40272 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-9.4.z]
+Patch77: edk2-SecurityPkg-RngDxe-add-rng-test.patch
+# For RHEL-40270 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-9.4.z]
+# For RHEL-40272 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-9.4.z]
+Patch78: edk2-OvmfPkg-wire-up-RngDxe.patch
+# For RHEL-40270 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-9.4.z]
+# For RHEL-40272 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-9.4.z]
+Patch79: edk2-CryptoPkg-Test-call-ProcessLibraryConstructorList.patch
+# For RHEL-40270 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-9.4.z]
+# For RHEL-40272 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-9.4.z]
+Patch80: edk2-MdePkg-X86UnitTestHost-set-rdrand-cpuid-bit.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -597,6 +625,26 @@ install -m 0644 \
 
 
 %changelog
+* Mon Jul 01 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20231122-6.el9_4.2
+- edk2-NetworkPkg-SECURITY-PATCH-CVE-2023-45237.patch [RHEL-40270 RHEL-40272]
+- edk2-NetworkPkg-TcpDxe-SECURITY-PATCH-CVE-2023-45236.patch [RHEL-40270 RHEL-40272]
+- edk2-NetworkPkg-TcpDxe-Fixed-system-stuck-on-PXE-boot-flo.patch [RHEL-40270 RHEL-40272]
+- edk2-MdePkg-BaseRngLib-Add-a-smoketest-for-RDRAND-and-che.patch [RHEL-40270 RHEL-40272]
+- edk2-SecurityPkg-RngDxe-add-rng-test.patch [RHEL-40270 RHEL-40272]
+- edk2-OvmfPkg-wire-up-RngDxe.patch [RHEL-40270 RHEL-40272]
+- edk2-CryptoPkg-Test-call-ProcessLibraryConstructorList.patch [RHEL-40270 RHEL-40272]
+- edk2-MdePkg-X86UnitTestHost-set-rdrand-cpuid-bit.patch [RHEL-40270 RHEL-40272]
+- Resolves: RHEL-40270
+  (CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-9.4.z])
+- Resolves: RHEL-40272
+  (CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-9.4.z])
+
+* Wed Apr 10 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20231122-6.el9_4.1
+- edk2-EmbeddedPkg-Hob-Integer-Overflow-in-CreateHob.patch [RHEL-30156]
+- edk2-StandaloneMmPkg-Hob-Integer-Overflow-in-CreateHob.patch [RHEL-30156]
+- Resolves: RHEL-30156
+  (CVE-2022-36765 edk2: integer overflow in CreateHob() could lead to HOB OOB R/W [rhel-9.4.z])
+
 * Thu Feb 22 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20231122-6
 - edk2-NetworkPkg-Dhcp6Dxe-SECURITY-PATCH-CVE-2023-45230-Pa.patch [RHEL-21841 RHEL-21843 RHEL-21845 RHEL-21847 RHEL-21849 RHEL-21851 RHEL-21853]
 - edk2-NetworkPkg-Add-Unit-tests-to-CI-and-create-Host-Test.patch [RHEL-21841 RHEL-21843 RHEL-21845 RHEL-21847 RHEL-21849 RHEL-21851 RHEL-21853]
