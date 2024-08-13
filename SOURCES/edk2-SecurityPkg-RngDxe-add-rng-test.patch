@@ -1,0 +1,57 @@
+From 5022087de4a4bcd113ef0325e657bd78b798d5f6 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Thu, 20 Jun 2024 10:33:43 -0400
+Subject: [PATCH 26/31] SecurityPkg/RngDxe: add rng test
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 77: UINT32 overflow in S3 ResumeCount and Pixiefail fixes
+RH-Jira: RHEL-21854 RHEL-21856 RHEL-40099
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [26/31] 97c8deefd351f2755cf458f10679dd1d859fb321
+
+JIRA: https://issues.redhat.com/browse/RHEL-21856
+Upstream: Merged
+CVE: CVE-2023-45237
+
+commit a61bc0accb8a76edba4f073fdc7bafc908df045d
+Author: Gerd Hoffmann <kraxel@redhat.com>
+Date:   Fri May 31 09:49:13 2024 +0200
+
+    SecurityPkg/RngDxe: add rng test
+
+    Check whenever RngLib actually returns random numbers, only return
+    a non-zero number of Algorithms if that is the case.
+
+    This has the effect that RndDxe loads and installs EFI_RNG_PROTOCOL
+    only in case it can actually deliver random numbers.
+
+    Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+
+Check whenever RngLib actually returns random numbers, only return
+a non-zero number of Algorithms if that is the case.
+
+This has the effect that RndDxe loads and installs EFI_RNG_PROTOCOL
+only in case it can actually deliver random numbers.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c b/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
+index 149de875ce..e374b62208 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
+@@ -23,6 +23,7 @@
+ 
+ #include <Library/BaseLib.h>
+ #include <Library/BaseMemoryLib.h>
++#include <Library/RngLib.h>
+ 
+ #include "RngDxeInternals.h"
+ 
+-- 
+2.39.3
+

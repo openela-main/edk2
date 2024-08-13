@@ -1,0 +1,105 @@
+From b9a937603080bfada6c224a6e9da046a8a33f868 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Sun, 23 Jun 2024 14:18:18 -0400
+Subject: [PATCH 13/31] SecurityPkg/RngDxe: Correctly update
+ mAvailableAlgoArrayCount
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 77: UINT32 overflow in S3 ResumeCount and Pixiefail fixes
+RH-Jira: RHEL-21854 RHEL-21856 RHEL-40099
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [13/31] 3e06e270cad90038537305a4cb7828fcc45251fb
+
+JIRA: https://issues.redhat.com/browse/RHEL-21856
+Upstream: Merged
+CVE: CVE-2023-45237
+
+commit bfb574db110899471fe09db819587b3151c7b7b5
+Author: Pierre Gondois <pierre.gondois@arm.com>
+Date:   Thu Nov 24 17:17:54 2022 +0100
+
+    SecurityPkg/RngDxe: Correctly update mAvailableAlgoArrayCount
+
+    mAvailableAlgoArrayCount holds the count of available RNG algorithms.
+    In a following patch, its value will be used to prevent the
+    EFI_RNG_PROTOCOL to be installed if no RNG algorithm is available.
+
+    Correctly set/reset the value for all implementations.
+
+    Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
+    Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ .../RandomNumberGenerator/RngDxe/ArmRngDxe.c     |  1 +
+ .../RandomNumberGenerator/RngDxe/Rand/RngDxe.c   | 16 ++++++++++++++--
+ 2 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/ArmRngDxe.c b/SecurityPkg/RandomNumberGenerator/RngDxe/ArmRngDxe.c
+index 5e7d9ef681..0e44d0c931 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/ArmRngDxe.c
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/ArmRngDxe.c
+@@ -40,6 +40,7 @@ FreeAvailableAlgorithms (
+   VOID
+   )
+ {
++  mAvailableAlgoArrayCount = 0;
+   FreePool (mAvailableAlgoArray);
+   return;
+ }
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c b/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
+index 7caa64a4ff..149de875ce 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
+@@ -26,6 +26,11 @@
+ 
+ #include "RngDxeInternals.h"
+ 
++//
++// Count of Rng algorithms.
++//
++#define RNG_ALGORITHM_COUNT  2
++
+ /** Allocate and initialize mAvailableAlgoArray with the available
+     Rng algorithms. Also update mAvailableAlgoArrayCount.
+ 
+@@ -38,6 +43,13 @@ GetAvailableAlgorithms (
+   VOID
+   )
+ {
++
++  UINT64  RngTest;
++
++  if (GetRandomNumber64 (&RngTest)) {
++    mAvailableAlgoArrayCount = RNG_ALGORITHM_COUNT;
++  }
++
+   return EFI_SUCCESS;
+ }
+ 
+@@ -49,6 +61,7 @@ FreeAvailableAlgorithms (
+   VOID
+   )
+ {
++  mAvailableAlgoArrayCount = 0;
+   return;
+ }
+ 
+@@ -159,13 +172,12 @@ RngGetInfo (
+   )
+ {
+   UINTN RequiredSize;
+-  EFI_RNG_ALGORITHM *CpuRngSupportedAlgorithm;
+ 
+   if ((This == NULL) || (RNGAlgorithmListSize == NULL)) {
+     return EFI_INVALID_PARAMETER;
+   }
+ 
+-  RequiredSize = 2 * sizeof (EFI_RNG_ALGORITHM);
++  RequiredSize = RNG_ALGORITHM_COUNT * sizeof (EFI_RNG_ALGORITHM);
+ 
+   if (*RNGAlgorithmListSize < RequiredSize) {
+     *RNGAlgorithmListSize = RequiredSize;
+-- 
+2.39.3
+

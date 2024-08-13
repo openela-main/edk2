@@ -1,0 +1,66 @@
+From 2e4b2b8fce40cf93f35e052102f37fee07b2e64a Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Mon, 10 Jun 2024 18:13:29 -0400
+Subject: [PATCH 02/31] MdeModulePkg: Potential UINT32 overflow in S3
+ ResumeCount
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 77: UINT32 overflow in S3 ResumeCount and Pixiefail fixes
+RH-Jira: RHEL-21854 RHEL-21856 RHEL-40099
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [2/31] a3592c3437041cbd33a6c11feb3d0999e122c8c0
+
+JIRA: https://issues.redhat.com/browse/RHEL-40099
+CVE: CVE-2024-1298
+Upstream: Merged
+
+commit 284dbac43da752ee34825c8b3f6f9e8281cb5a19
+Author: Shanmugavel Pakkirisamy <shanmugavelx.pakkirisamy@intel.com>
+Date:   Mon May 6 17:53:09 2024 +0800
+
+    MdeModulePkg: Potential UINT32 overflow in S3 ResumeCount
+
+    REF: https://bugzilla.tianocore.org/show_bug.cgi?id=4677
+
+    Attacker able to modify physical memory and ResumeCount.
+    System will crash/DoS when ResumeCount reaches its MAX_UINT32.
+
+    Cc: Zhiguang Liu <zhiguang.liu@intel.com>
+    Cc: Dandan Bi <dandan.bi@intel.com>
+    Cc: Liming Gao <gaoliming@byosoft.com.cn>
+
+    Signed-off-by: Pakkirisamy ShanmugavelX <shanmugavelx.pakkirisamy@intel.com>
+    Reviewed-by: Liming Gao <gaoliming@byosoft.com.cn>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ .../FirmwarePerformancePei.c                         | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTablePei/FirmwarePerformancePei.c b/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTablePei/FirmwarePerformancePei.c
+index 6881466201..54b3bc3c54 100644
+--- a/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTablePei/FirmwarePerformancePei.c
++++ b/MdeModulePkg/Universal/Acpi/FirmwarePerformanceDataTablePei/FirmwarePerformancePei.c
+@@ -110,11 +110,15 @@ FpdtStatusCodeListenerPei (
+   //
+   S3ResumeTotal = MultU64x32 (AcpiS3ResumeRecord->AverageResume, AcpiS3ResumeRecord->ResumeCount);
+   AcpiS3ResumeRecord->ResumeCount++;
+-  AcpiS3ResumeRecord->AverageResume = DivU64x32 (S3ResumeTotal + AcpiS3ResumeRecord->FullResume, AcpiS3ResumeRecord->ResumeCount);
++  if (AcpiS3ResumeRecord->ResumeCount > 0) {
++    AcpiS3ResumeRecord->AverageResume = DivU64x32 (S3ResumeTotal + AcpiS3ResumeRecord->FullResume, AcpiS3ResumeRecord->ResumeCount);
++    DEBUG ((DEBUG_INFO, "\nFPDT: S3 Resume Performance - AverageResume = 0x%x\n", AcpiS3ResumeRecord->AverageResume));
++  } else {
++    DEBUG ((DEBUG_ERROR, "\nFPDT: S3 ResumeCount reaches the MAX_UINT32 value. S3 ResumeCount record reset to Zero."));
++  }
+ 
+-  DEBUG ((DEBUG_INFO, "FPDT: S3 Resume Performance - ResumeCount   = %d\n", AcpiS3ResumeRecord->ResumeCount));
+-  DEBUG ((DEBUG_INFO, "FPDT: S3 Resume Performance - FullResume    = %ld\n", AcpiS3ResumeRecord->FullResume));
+-  DEBUG ((DEBUG_INFO, "FPDT: S3 Resume Performance - AverageResume = %ld\n", AcpiS3ResumeRecord->AverageResume));
++  DEBUG ((DEBUG_INFO, "FPDT: S3 Resume Performance - ResumeCount   = 0x%x\n", AcpiS3ResumeRecord->ResumeCount));
++  DEBUG ((DEBUG_INFO, "FPDT: S3 Resume Performance - FullResume    = 0x%x\n", AcpiS3ResumeRecord->FullResume));
+ 
+   //
+   // Update S3 Suspend Performance Record.
+-- 
+2.39.3
+

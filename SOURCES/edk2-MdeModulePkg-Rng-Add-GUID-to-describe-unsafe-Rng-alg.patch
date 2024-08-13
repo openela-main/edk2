@@ -1,0 +1,90 @@
+From 5ba444af245d59e3208260478aa710d4f143f259 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Thu, 20 Jun 2024 16:06:25 -0400
+Subject: [PATCH 20/31] MdeModulePkg/Rng: Add GUID to describe unsafe Rng
+ algorithms
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 77: UINT32 overflow in S3 ResumeCount and Pixiefail fixes
+RH-Jira: RHEL-21854 RHEL-21856 RHEL-40099
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [20/31] d0e553560d60122f2fe5f33923b5b943c138a18d
+
+JIRA: https://issues.redhat.com/browse/RHEL-21856
+Upstream: Merged
+CVE: CVE-2023-45237
+
+commit 414c0f20896f3dec412135fa4260f8aad8bef246
+Author: Pierre Gondois <pierre.gondois@arm.com>
+Date:   Fri Aug 11 16:33:07 2023 +0200
+
+    MdeModulePkg/Rng: Add GUID to describe unsafe Rng algorithms
+
+    BZ: https://bugzilla.tianocore.org/show_bug.cgi?id=4441
+
+    The EFI_RNG_PROTOCOL can rely on the RngLib. The RngLib has multiple
+    implementations, some of them are unsafe (e.g. BaseRngLibTimerLib).
+    To allow the RngDxe to detect when such implementation is used,
+    a GetRngGuid() function is added in a following patch.
+
+    Prepare GetRngGuid() return values and add a gEdkiiRngAlgorithmUnSafe
+    to describe an unsafe implementation, cf. the BaseRngLibTimerLib.
+
+    Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
+    Reviewed-by: Sami Mujawar <sami.mujawar@arm.com>
+    Acked-by: Ard Biesheuvel <ardb@kernel.org>
+    Tested-by: Kun Qin <kun.qin@microsoft.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ MdeModulePkg/Include/Guid/RngAlgorithm.h | 23 +++++++++++++++++++++++
+ MdeModulePkg/MdeModulePkg.dec            |  3 +++
+ 2 files changed, 26 insertions(+)
+ create mode 100644 MdeModulePkg/Include/Guid/RngAlgorithm.h
+
+diff --git a/MdeModulePkg/Include/Guid/RngAlgorithm.h b/MdeModulePkg/Include/Guid/RngAlgorithm.h
+new file mode 100644
+index 0000000000..e2ac2ba3e5
+--- /dev/null
++++ b/MdeModulePkg/Include/Guid/RngAlgorithm.h
+@@ -0,0 +1,23 @@
++/** @file
++  Rng Algorithm
++
++  Copyright (c) 2023, Arm Limited. All rights reserved.<BR>
++  SPDX-License-Identifier: BSD-2-Clause-Patent
++**/
++
++#ifndef RNG_ALGORITHM_GUID_H_
++#define RNG_ALGORITHM_GUID_H_
++
++///
++/// The implementation of a Random Number Generator might be unsafe, when using
++/// a dummy implementation for instance. Allow identifying such implementation
++/// with this GUID.
++///
++#define EDKII_RNG_ALGORITHM_UNSAFE \
++  { \
++    0x869f728c, 0x409d, 0x4ab4, {0xac, 0x03, 0x71, 0xd3, 0x09, 0xc1, 0xb3, 0xf4 } \
++  }
++
++extern EFI_GUID  gEdkiiRngAlgorithmUnSafe;
++
++#endif // #ifndef RNG_ALGORITHM_GUID_H_
+diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
+index 08d59dfb3e..3513a9678a 100644
+--- a/MdeModulePkg/MdeModulePkg.dec
++++ b/MdeModulePkg/MdeModulePkg.dec
+@@ -401,6 +401,9 @@
+   ## Include/Guid/MigratedFvInfo.h
+   gEdkiiMigratedFvInfoGuid = { 0xc1ab12f7, 0x74aa, 0x408d, { 0xa2, 0xf4, 0xc6, 0xce, 0xfd, 0x17, 0x98, 0x71 } }
+ 
++  ## Include/Guid/RngAlgorithm.h
++  gEdkiiRngAlgorithmUnSafe = { 0x869f728c, 0x409d, 0x4ab4, {0xac, 0x03, 0x71, 0xd3, 0x09, 0xc1, 0xb3, 0xf4 }}
++
+   #
+   # GUID defined in UniversalPayload
+   #
+-- 
+2.39.3
+

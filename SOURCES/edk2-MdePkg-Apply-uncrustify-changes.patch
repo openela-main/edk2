@@ -1,0 +1,94 @@
+From 1198bceefa4834c09e1edc1c558aeffe4930d1f5 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Tue, 11 Jun 2024 21:32:26 -0400
+Subject: [PATCH 03/31] MdePkg: Apply uncrustify changes
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 77: UINT32 overflow in S3 ResumeCount and Pixiefail fixes
+RH-Jira: RHEL-21854 RHEL-21856 RHEL-40099
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [3/31] 422d94b837bf0e65164968272a358c2656f59838
+
+JIRA: https://issues.redhat.com/browse/RHEL-21856
+Upstream: Merged
+CVE: CVE-2023-45237
+
+This is a subset of the whitespace changes in the corresponding upstream
+commit. It is needed for the next commits in this series to apply with
+less fewer conflicts.
+
+commit 2f88bd3a1296c522317f1c21377876de63de5be7
+Author: Michael Kubacki <michael.kubacki@microsoft.com>
+Date:   Sun Dec 5 14:54:05 2021 -0800
+
+    MdePkg: Apply uncrustify changes
+
+    REF: https://bugzilla.tianocore.org/show_bug.cgi?id=3737
+
+    Apply uncrustify changes to .c/.h files in the MdePkg package
+
+    Cc: Andrew Fish <afish@apple.com>
+    Cc: Leif Lindholm <leif@nuviainc.com>
+    Cc: Michael D Kinney <michael.d.kinney@intel.com>
+    Signed-off-by: Michael Kubacki <michael.kubacki@microsoft.com>
+    Reviewed-by: Liming Gao <gaoliming@byosoft.com.cn>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ MdePkg/Include/Protocol/Rng.h | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/MdePkg/Include/Protocol/Rng.h b/MdePkg/Include/Protocol/Rng.h
+index a0a05d1661..baf425587b 100644
+--- a/MdePkg/Include/Protocol/Rng.h
++++ b/MdePkg/Include/Protocol/Rng.h
+@@ -93,7 +93,7 @@ typedef EFI_GUID EFI_RNG_ALGORITHM;
+ **/
+ typedef
+ EFI_STATUS
+-(EFIAPI *EFI_RNG_GET_INFO) (
++(EFIAPI *EFI_RNG_GET_INFO)(
+   IN EFI_RNG_PROTOCOL             *This,
+   IN OUT UINTN                    *RNGAlgorithmListSize,
+   OUT EFI_RNG_ALGORITHM           *RNGAlgorithmList
+@@ -123,9 +123,9 @@ EFI_STATUS
+ **/
+ typedef
+ EFI_STATUS
+-(EFIAPI *EFI_RNG_GET_RNG) (
++(EFIAPI *EFI_RNG_GET_RNG)(
+   IN EFI_RNG_PROTOCOL            *This,
+-  IN EFI_RNG_ALGORITHM           *RNGAlgorithm, OPTIONAL
++  IN EFI_RNG_ALGORITHM           *RNGAlgorithm  OPTIONAL,
+   IN UINTN                       RNGValueLength,
+   OUT UINT8                      *RNGValue
+   );
+@@ -135,16 +135,16 @@ EFI_STATUS
+ /// applications, or entropy for seeding other random number generators.
+ ///
+ struct _EFI_RNG_PROTOCOL {
+-  EFI_RNG_GET_INFO                GetInfo;
+-  EFI_RNG_GET_RNG                 GetRNG;
++  EFI_RNG_GET_INFO    GetInfo;
++  EFI_RNG_GET_RNG     GetRNG;
+ };
+ 
+-extern EFI_GUID gEfiRngProtocolGuid;
+-extern EFI_GUID gEfiRngAlgorithmSp80090Hash256Guid;
+-extern EFI_GUID gEfiRngAlgorithmSp80090Hmac256Guid;
+-extern EFI_GUID gEfiRngAlgorithmSp80090Ctr256Guid;
+-extern EFI_GUID gEfiRngAlgorithmX9313DesGuid;
+-extern EFI_GUID gEfiRngAlgorithmX931AesGuid;
+-extern EFI_GUID gEfiRngAlgorithmRaw;
++extern EFI_GUID  gEfiRngProtocolGuid;
++extern EFI_GUID  gEfiRngAlgorithmSp80090Hash256Guid;
++extern EFI_GUID  gEfiRngAlgorithmSp80090Hmac256Guid;
++extern EFI_GUID  gEfiRngAlgorithmSp80090Ctr256Guid;
++extern EFI_GUID  gEfiRngAlgorithmX9313DesGuid;
++extern EFI_GUID  gEfiRngAlgorithmX931AesGuid;
++extern EFI_GUID  gEfiRngAlgorithmRaw;
+ 
+ #endif
+-- 
+2.39.3
+

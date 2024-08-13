@@ -7,7 +7,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}git%{GITCOMMIT}
-Release:    13%{?dist}
+Release:    13%{?dist}.2
 Summary:    UEFI firmware for 64-bit virtual machines
 Group:      Applications/Emulators
 License:    BSD-2-Clause-Patent and OpenSSL and MIT
@@ -260,6 +260,130 @@ Patch82: edk2-NetworkPkg-Dhcp6Dxe-Packet-Length-is-not-updated-bef.patch
 Patch83: edk2-EmbeddedPkg-Hob-Integer-Overflow-in-CreateHob.patch
 # For RHEL-21158 - CVE-2022-36765 edk2: integer overflow in CreateHob() could lead to HOB OOB R/W [rhel-8]
 Patch84: edk2-StandaloneMmPkg-Hob-Integer-Overflow-in-CreateHob.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch85: edk2-MdeModulePkg-Change-use-of-EFI_D_-to-DEBUG_.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch86: edk2-MdeModulePkg-Potential-UINT32-overflow-in-S3-ResumeC.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch87: edk2-MdePkg-Apply-uncrustify-changes.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch88: edk2-NetworkPkg-Apply-uncrustify-changes.p2.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch89: edk2-SecurityPkg-RngDxe-Rename-RdRandGenerateEntropy-to-g.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch90: edk2-SecurityPkg-RngDxe-Remove-ArchGetSupportedRngAlgorit.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch91: edk2-SecurityPkg-RngDxe-Documentation-include-parameter-c.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch92: edk2-SecurityPkg-RngDxe-Check-before-advertising-Cpu-Rng-.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch93: edk2-SecurityPkg-RngDxe-Add-AArch64-RawAlgorithm-support-.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch94: edk2-SecurityPkg-RngDxe-Add-debug-warning-for-NULL-PcdCpu.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch95: edk2-SecurityPkg-RngDxe-Rename-AArch64-RngDxe.c.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch96: edk2-SecurityPkg-RngDxe-Add-Arm-support-of-RngDxe.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch97: edk2-SecurityPkg-RngDxe-Correctly-update-mAvailableAlgoAr.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch98: edk2-SecurityPkg-RngDxe-Conditionally-install-EFI_RNG_PRO.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch99: edk2-MdeModulePkg-Duplicate-BaseRngLibTimerLib-to-MdeModu.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch100: edk2-MdePkg-Add-deprecated-warning-to-BaseRngLibTimer.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch101: edk2-SecurityPkg-SecurityPkg.dec-Move-PcdCpuRngSupportedA.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch102: edk2-MdePkg-DxeRngLib-Request-raw-algorithm-instead-of-de.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch103: edk2-MdePkg-Rng-Add-GUID-to-describe-Arm-Rndr-Rng-algorit.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch104: edk2-MdeModulePkg-Rng-Add-GUID-to-describe-unsafe-Rng-alg.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch105: edk2-MdePkg-Rng-Add-GetRngGuid-to-RngLib.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch106: edk2-SecurityPkg-RngDxe-Use-GetRngGuid-when-probing-RngLi.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch107: edk2-SecurityPkg-RngDxe-Simplify-Rng-algorithm-selection-.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch108: edk2-NetworkPkg-SECURITY-PATCH-CVE-2023-45237.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch109: edk2-MdePkg-BaseRngLib-Add-a-smoketest-for-RDRAND-and-che.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch110: edk2-SecurityPkg-RngDxe-add-rng-test.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch111: edk2-OvmfPkg-wire-up-RngDxe.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch112: edk2-CryptoPkg-Test-call-ProcessLibraryConstructorList.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch113: edk2-MdePkg-X86UnitTestHost-set-rdrand-cpuid-bit.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch114: edk2-NetworkPkg-TcpDxe-SECURITY-PATCH-CVE-2023-45236.patch
+# For RHEL-21854 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8]
+# For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
+# For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
+Patch115: edk2-NetworkPkg-TcpDxe-Fixed-system-stuck-on-PXE-boot-flo.patch
 
 
 # python3-devel and libuuid-devel are required for building tools.
@@ -706,6 +830,47 @@ true
 %endif
 
 %changelog
+* Wed Jul 10 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8_10.2
+
+* Wed Jul 03 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20220126gitbb1bba3d77-13.el8_10.1
+- edk2-MdeModulePkg-Change-use-of-EFI_D_-to-DEBUG_.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-MdeModulePkg-Potential-UINT32-overflow-in-S3-ResumeC.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-MdePkg-Apply-uncrustify-changes.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-NetworkPkg-Apply-uncrustify-changes.p2.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-Rename-RdRandGenerateEntropy-to-g.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-Remove-ArchGetSupportedRngAlgorit.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-Documentation-include-parameter-c.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-Check-before-advertising-Cpu-Rng-.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-Add-AArch64-RawAlgorithm-support-.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-Add-debug-warning-for-NULL-PcdCpu.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-Rename-AArch64-RngDxe.c.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-Add-Arm-support-of-RngDxe.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-Correctly-update-mAvailableAlgoAr.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-Conditionally-install-EFI_RNG_PRO.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-MdeModulePkg-Duplicate-BaseRngLibTimerLib-to-MdeModu.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-MdePkg-Add-deprecated-warning-to-BaseRngLibTimer.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-SecurityPkg.dec-Move-PcdCpuRngSupportedA.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-MdePkg-DxeRngLib-Request-raw-algorithm-instead-of-de.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-MdePkg-Rng-Add-GUID-to-describe-Arm-Rndr-Rng-algorit.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-MdeModulePkg-Rng-Add-GUID-to-describe-unsafe-Rng-alg.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-MdePkg-Rng-Add-GetRngGuid-to-RngLib.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-Use-GetRngGuid-when-probing-RngLi.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-Simplify-Rng-algorithm-selection-.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-NetworkPkg-SECURITY-PATCH-CVE-2023-45237.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-MdePkg-BaseRngLib-Add-a-smoketest-for-RDRAND-and-che.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-SecurityPkg-RngDxe-add-rng-test.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-OvmfPkg-wire-up-RngDxe.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-CryptoPkg-Test-call-ProcessLibraryConstructorList.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-MdePkg-X86UnitTestHost-set-rdrand-cpuid-bit.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-NetworkPkg-TcpDxe-SECURITY-PATCH-CVE-2023-45236.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- edk2-NetworkPkg-TcpDxe-Fixed-system-stuck-on-PXE-boot-flo.patch [RHEL-21854 RHEL-21856 RHEL-40099]
+- Resolves: RHEL-21854
+  (CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-8])
+- Resolves: RHEL-21856
+  (CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8])
+- Resolves: RHEL-40099
+  (CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z])
+
 * Thu Mar 14 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20220126gitbb1bba3d77-13
 - edk2-EmbeddedPkg-Hob-Integer-Overflow-in-CreateHob.patch [RHEL-21158]
 - edk2-StandaloneMmPkg-Hob-Integer-Overflow-in-CreateHob.patch [RHEL-21158]

@@ -1,0 +1,104 @@
+From 1548ea758f7d9d58fd61110f5719cc12786380d3 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Thu, 20 Jun 2024 16:01:08 -0400
+Subject: [PATCH 17/31] SecurityPkg/SecurityPkg.dec: Move
+ PcdCpuRngSupportedAlgorithm to MdePkg
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 77: UINT32 overflow in S3 ResumeCount and Pixiefail fixes
+RH-Jira: RHEL-21854 RHEL-21856 RHEL-40099
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [17/31] 01f31c97f800f3451072762c0e9a9eb59f1cc2ab
+
+JIRA: https://issues.redhat.com/browse/RHEL-21856
+Upstream: Merged
+CVE: CVE-2023-45237
+
+commit 65b5dd828ef2ea5056031b239a4e7a6642f771a3
+Author: Pierre Gondois <pierre.gondois@arm.com>
+Date:   Fri Aug 11 16:33:04 2023 +0200
+
+    SecurityPkg/SecurityPkg.dec: Move PcdCpuRngSupportedAlgorithm to MdePkg
+
+    In order to use PcdCpuRngSupportedAlgorithm in the MdePkg in a
+    following patch and to avoid making the MdePkg dependent on another
+    package, move PcdCpuRngSupportedAlgorithm to the MdePkg.
+
+    As the Pcd is only used for AARCH64, place it in an AARCH64
+    specific sections.
+
+    Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
+    Reviewed-by: Liming Gao <gaoliming@byosoft.com.cn>
+    Reviewed-by: Sami Mujawar <sami.mujawar@arm.com>
+    Acked-by: Ard Biesheuvel <ardb@kernel.org>
+    Acked-by: Jiewen Yao <Jiewen.yao@intel.com>
+    Tested-by: Kun Qin <kun.qin@microsoft.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ .../Library/BaseRngLibTimerLib/BaseRngLibTimerLib.inf        | 2 +-
+ MdePkg/MdePkg.dec                                            | 5 +++++
+ SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf          | 4 ++--
+ SecurityPkg/SecurityPkg.dec                                  | 2 --
+ 4 files changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/MdeModulePkg/Library/BaseRngLibTimerLib/BaseRngLibTimerLib.inf b/MdeModulePkg/Library/BaseRngLibTimerLib/BaseRngLibTimerLib.inf
+index f857290e82..f729001060 100644
+--- a/MdeModulePkg/Library/BaseRngLibTimerLib/BaseRngLibTimerLib.inf
++++ b/MdeModulePkg/Library/BaseRngLibTimerLib/BaseRngLibTimerLib.inf
+@@ -19,7 +19,7 @@
+   INF_VERSION                    = 1.27
+   BASE_NAME                      = BaseRngLibTimerLib
+   MODULE_UNI_FILE                = BaseRngLibTimerLib.uni
+-  FILE_GUID                      = 74950C45-10FC-4AB5-B114-49C87C17409B
++  FILE_GUID                      = B3E66B05-D218-4B9A-AC33-EF0F83D6A513
+   MODULE_TYPE                    = BASE
+   VERSION_STRING                 = 1.0
+   LIBRARY_CLASS                  = RngLib
+diff --git a/MdePkg/MdePkg.dec b/MdePkg/MdePkg.dec
+index 6389a48338..8f05e822ac 100644
+--- a/MdePkg/MdePkg.dec
++++ b/MdePkg/MdePkg.dec
+@@ -2306,6 +2306,11 @@
+   # @Prompt Memory Address of GuidedExtractHandler Table.
+   gEfiMdePkgTokenSpaceGuid.PcdGuidedExtractHandlerTableAddress|0x1000000|UINT64|0x30001015
+ 
++[PcdsFixedAtBuild.AARCH64, PcdsPatchableInModule.AARCH64]
++  ## GUID identifying the Rng algorithm implemented by CPU instruction.
++  # @Prompt CPU Rng algorithm's GUID.
++  gEfiMdePkgTokenSpaceGuid.PcdCpuRngSupportedAlgorithm|{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}|VOID*|0x00000037
++
+ [PcdsFixedAtBuild, PcdsPatchableInModule, PcdsDynamic, PcdsDynamicEx]
+   ## This value is used to set the base address of PCI express hierarchy.
+   # @Prompt PCI Express Base Address.
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf b/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf
+index c8e0ee4ae5..d6c2d30195 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf
+@@ -79,8 +79,8 @@
+ [Protocols]
+   gEfiRngProtocolGuid                ## PRODUCES
+ 
+-[Pcd]
+-  gEfiSecurityPkgTokenSpaceGuid.PcdCpuRngSupportedAlgorithm      ## CONSUMES
++[Pcd.AARCH64]
++  gEfiMdePkgTokenSpaceGuid.PcdCpuRngSupportedAlgorithm      ## CONSUMES
+ 
+ [Depex]
+   TRUE
+diff --git a/SecurityPkg/SecurityPkg.dec b/SecurityPkg/SecurityPkg.dec
+index 9f7a032d60..8cf80b1e84 100644
+--- a/SecurityPkg/SecurityPkg.dec
++++ b/SecurityPkg/SecurityPkg.dec
+@@ -323,8 +323,6 @@
+   gEfiSecurityPkgTokenSpaceGuid.PcdStatusCodeFvVerificationPass|0x0303100A|UINT32|0x00010030
+   gEfiSecurityPkgTokenSpaceGuid.PcdStatusCodeFvVerificationFail|0x0303100B|UINT32|0x00010031
+ 
+-  gEfiSecurityPkgTokenSpaceGuid.PcdCpuRngSupportedAlgorithm|{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}|VOID*|0x00010032
+-
+ [PcdsFixedAtBuild, PcdsPatchableInModule, PcdsDynamic, PcdsDynamicEx]
+   ## Image verification policy for OptionRom. Only following values are valid:<BR><BR>
+   #  NOTE: Do NOT use 0x5 and 0x2 since it violates the UEFI specification and has been removed.<BR>
+-- 
+2.39.3
+

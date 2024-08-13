@@ -1,0 +1,98 @@
+From 0f8890578f46bc791d007b19dbbfa0dd2805032d Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Tue, 25 Jun 2024 22:23:42 -0400
+Subject: [PATCH 07/31] SecurityPkg/RngDxe: Documentation/include/parameter
+ cleanup
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 77: UINT32 overflow in S3 ResumeCount and Pixiefail fixes
+RH-Jira: RHEL-21854 RHEL-21856 RHEL-40099
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [7/31] 19a0a13d18fc7f92c7b05e8da08f4d83df77ea6c
+
+JIRA: https://issues.redhat.com/browse/RHEL-21856
+CVE: CVE-2022-45237
+Upstream: Merged
+
+commit 199031b2b0233652ad5d5fdf73f0f44c0f264d55
+Author: Pierre Gondois <Pierre.Gondois@arm.com>
+Date:   Fri Oct 28 17:32:53 2022 +0200
+
+    SecurityPkg/RngDxe: Documentation/include/parameter cleanup
+
+    This patch:
+    -Update RngGetBytes() documentation to align the function
+     definition and declaration.
+    -Improve input parameter checking. Even though 'This'
+     it is not used, the parameter should always point to the
+     current EFI_RNG_PROTOCOL.
+    -Removes TimerLib inclusion as unused.
+
+    Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
+    Acked-by: Jiewen Yao <jiewen.yao@intel.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c | 3 +--
+ SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c    | 2 +-
+ SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.c         | 3 +--
+ 3 files changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c b/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c
+index f6a0bf7b2b..8c6ad4ed43 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c
+@@ -23,7 +23,6 @@
+ #include <Library/BaseLib.h>
+ #include <Library/BaseMemoryLib.h>
+ #include <Library/UefiBootServicesTableLib.h>
+-#include <Library/TimerLib.h>
+ #include <Protocol/Rng.h>
+ 
+ #include "RngDxeInternals.h"
+@@ -61,7 +60,7 @@ RngGetRNG (
+ {
+   EFI_STATUS    Status;
+ 
+-  if ((RNGValueLength == 0) || (RNGValue == NULL)) {
++  if ((This == NULL) || (RNGValueLength == 0) || (RNGValue == NULL)) {
+     return EFI_INVALID_PARAMETER;
+   }
+ 
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c b/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
+index 5a649ecf24..70b6ac20c9 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
+@@ -59,7 +59,7 @@ RngGetRNG (
+ {
+   EFI_STATUS    Status;
+ 
+-  if ((RNGValueLength == 0) || (RNGValue == NULL)) {
++  if ((This == NULL) || (RNGValueLength == 0) || (RNGValue == NULL)) {
+     return EFI_INVALID_PARAMETER;
+   }
+ 
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.c b/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.c
+index 7b8ecfc70d..4599728889 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.c
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.c
+@@ -23,7 +23,6 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+ #include <Library/BaseMemoryLib.h>
+ #include <Library/UefiBootServicesTableLib.h>
+ #include <Library/RngLib.h>
+-#include <Library/TimerLib.h>
+ #include <Protocol/Rng.h>
+ 
+ #include "RngDxeInternals.h"
+@@ -73,7 +72,7 @@ RngDriverEntry (
+ 
+ 
+ /**
+-  Calls RDRAND to fill a buffer of arbitrary size with random bytes.
++  Runs CPU RNG instruction to fill a buffer of arbitrary size with random bytes.
+ 
+   @param[in]   Length        Size of the buffer, in bytes,  to fill with.
+   @param[out]  RandBuffer    Pointer to the buffer to store the random result.
+-- 
+2.39.3
+

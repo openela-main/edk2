@@ -1,0 +1,56 @@
+From 045496325e278716e724ffdf9685667a8766d4f3 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Thu, 20 Jun 2024 10:34:52 -0400
+Subject: [PATCH 28/31] CryptoPkg/Test: call ProcessLibraryConstructorList
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 77: UINT32 overflow in S3 ResumeCount and Pixiefail fixes
+RH-Jira: RHEL-21854 RHEL-21856 RHEL-40099
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [28/31] 5ff484fbc68d094fbcdda2772c2869818c67de8d
+
+JIRA: https://issues.redhat.com/browse/RHEL-21856
+Upstream: Merged
+CVE: CVE-2023-45237
+
+commit 94961b8817eec6f8d0434555ac50a7aa51c22201
+Author: Gerd Hoffmann <kraxel@redhat.com>
+Date:   Fri Jun 14 11:45:49 2024 +0200
+
+    CryptoPkg/Test: call ProcessLibraryConstructorList
+
+    Needed to properly initialize BaseRngLib.
+
+    Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ CryptoPkg/Test/UnitTest/Library/BaseCryptLib/UnitTestMain.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/CryptoPkg/Test/UnitTest/Library/BaseCryptLib/UnitTestMain.c b/CryptoPkg/Test/UnitTest/Library/BaseCryptLib/UnitTestMain.c
+index 88a3f96305..0ba9f35840 100644
+--- a/CryptoPkg/Test/UnitTest/Library/BaseCryptLib/UnitTestMain.c
++++ b/CryptoPkg/Test/UnitTest/Library/BaseCryptLib/UnitTestMain.c
+@@ -8,6 +8,11 @@
+ **/
+ #include "TestBaseCryptLib.h"
+ 
++VOID
++EFIAPI
++ProcessLibraryConstructorList (
++  VOID
++  );
+ 
+ /**
+   Initialize the unit test framework, suite, and unit tests for the
+@@ -77,5 +82,6 @@ main (
+   char *argv[]
+   )
+ {
++  ProcessLibraryConstructorList ();
+   return UefiTestMain ();
+ }
+-- 
+2.39.3
+

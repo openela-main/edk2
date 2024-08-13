@@ -1,0 +1,246 @@
+From 660ffc1753c84e89281d54059c0cb73eef7200d0 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Tue, 25 Jun 2024 22:27:16 -0400
+Subject: [PATCH 09/31] SecurityPkg/RngDxe: Add AArch64 RawAlgorithm support
+ through ArmTrngLib
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 77: UINT32 overflow in S3 ResumeCount and Pixiefail fixes
+RH-Jira: RHEL-21854 RHEL-21856 RHEL-40099
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [9/31] 34f5db557b893a686c382a09ceacda728dbd4ad9
+
+JIRA: https://issues.redhat.com/browse/RHEL-21856
+CVE: CVE-2022-45237
+Upstream: Merged
+
+commit 863fe9e191fb3d90c3283062183692c04cd71975
+Author: Sami Mujawar <sami.mujawar@arm.com>
+Date:   Fri Oct 28 17:32:55 2022 +0200
+
+    SecurityPkg/RngDxe: Add AArch64 RawAlgorithm support through ArmTrngLib
+
+    Bugzilla: 3668 (https://bugzilla.tianocore.org/show_bug.cgi?id=3668)
+
+    RawAlgorithm is used to provide access to entropy that is suitable
+    for cryptographic applications. Therefore, add RawAlgorithm support
+    that provides access to entropy using the ArmTrngLib.
+
+    Also remove unused UefiBootServicesTableLib library inclusion
+    and Status variable.
+
+    Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
+    Acked-by: Jiewen Yao <jiewen.yao@intel.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ .../RngDxe/AArch64/RngDxe.c                   | 28 ++++++--
+ .../RandomNumberGenerator/RngDxe/ArmTrng.c    | 71 +++++++++++++++++++
+ .../RandomNumberGenerator/RngDxe/RngDxe.inf   |  5 ++
+ SecurityPkg/SecurityPkg.dsc                   |  4 ++
+ 4 files changed, 104 insertions(+), 4 deletions(-)
+ create mode 100644 SecurityPkg/RandomNumberGenerator/RngDxe/ArmTrng.c
+
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c b/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c
+index c9d66d9777..c0b0d28d48 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/RngDxe.c
+@@ -1,11 +1,13 @@
+ /** @file
+   RNG Driver to produce the UEFI Random Number Generator protocol.
+ 
+-  The driver will use the RNDR instruction to produce random numbers.
++  The driver can use RNDR instruction (through the RngLib and if FEAT_RNG is
++  present) to produce random numbers. It also uses the Arm FW-TRNG interface
++  to implement EFI_RNG_ALGORITHM_RAW.
+ 
+   RNG Algorithms defined in UEFI 2.4:
+    - EFI_RNG_ALGORITHM_SP800_90_CTR_256_GUID
+-   - EFI_RNG_ALGORITHM_RAW                    - Unsupported
++   - EFI_RNG_ALGORITHM_RAW
+    - EFI_RNG_ALGORITHM_SP800_90_HMAC_256_GUID
+    - EFI_RNG_ALGORITHM_SP800_90_HASH_256_GUID
+    - EFI_RNG_ALGORITHM_X9_31_3DES_GUID        - Unsupported
+@@ -26,12 +28,14 @@
+ #include <Library/MemoryAllocationLib.h>
+ #include <Library/UefiBootServicesTableLib.h>
+ #include <Library/RngLib.h>
++#include <Library/DebugLib.h>
++#include <Library/ArmTrngLib.h>
+ #include <Protocol/Rng.h>
+ 
+ #include "RngDxeInternals.h"
+ 
+ // Maximum number of Rng algorithms.
+-#define RNG_AVAILABLE_ALGO_MAX  1
++#define RNG_AVAILABLE_ALGO_MAX  2
+ 
+ /** Allocate and initialize mAvailableAlgoArray with the available
+     Rng algorithms. Also update mAvailableAlgoArrayCount.
+@@ -46,8 +50,9 @@ GetAvailableAlgorithms (
+   )
+ {
+   UINT64  DummyRand;
++  UINT16  MajorRevision;
++  UINT16  MinorRevision;
+ 
+-  // Allocate RNG_AVAILABLE_ALGO_MAX entries to avoid evaluating
+   // Rng algorithms 2 times, one for the allocation, one to populate.
+   mAvailableAlgoArray = AllocateZeroPool (RNG_AVAILABLE_ALGO_MAX);
+   if (mAvailableAlgoArray == NULL) {
+@@ -64,6 +69,16 @@ GetAvailableAlgorithms (
+     mAvailableAlgoArrayCount++;
+   }
+ 
++  // Raw algorithm (Trng)
++  if (!EFI_ERROR (GetArmTrngVersion (&MajorRevision, &MinorRevision))) {
++    CopyMem (
++      &mAvailableAlgoArray[mAvailableAlgoArrayCount],
++      &gEfiRngAlgorithmRaw,
++      sizeof (EFI_RNG_ALGORITHM)
++      );
++    mAvailableAlgoArrayCount++;
++  }
++
+   return EFI_SUCCESS;
+ }
+ 
+@@ -141,6 +156,11 @@ FoundAlgo:
+     return Status;
+   }
+ 
++  // Raw algorithm (Trng)
++  if (CompareGuid (RNGAlgorithm, &gEfiRngAlgorithmRaw)) {
++    return GenerateEntropy (RNGValueLength, RNGValue);
++  }
++
+   //
+   // Other algorithms are unsupported by this driver.
+   //
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/ArmTrng.c b/SecurityPkg/RandomNumberGenerator/RngDxe/ArmTrng.c
+new file mode 100644
+index 0000000000..ffe557b692
+--- /dev/null
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/ArmTrng.c
+@@ -0,0 +1,71 @@
++/** @file
++  RNG Driver to produce the UEFI Random Number Generator protocol.
++
++  The driver implements the EFI_RNG_ALGORITHM_RAW using the FW-TRNG
++  interface to provide entropy.
++
++  Copyright (c) 2021 - 2022, Arm Limited. All rights reserved.<BR>
++
++  SPDX-License-Identifier: BSD-2-Clause-Patent
++
++**/
++
++#include <Library/BaseLib.h>
++#include <Library/BaseMemoryLib.h>
++#include <Library/DebugLib.h>
++#include <Library/ArmTrngLib.h>
++#include <Protocol/Rng.h>
++
++#include "RngDxeInternals.h"
++
++/**
++  Generate high-quality entropy source using a TRNG or through RDRAND.
++
++  @param[in]   Length        Size of the buffer, in bytes, to fill with.
++  @param[out]  Entropy       Pointer to the buffer to store the entropy data.
++
++  @retval  RETURN_SUCCESS            The function completed successfully.
++  @retval  RETURN_INVALID_PARAMETER  Invalid parameter.
++  @retval  RETURN_UNSUPPORTED        Function not implemented.
++  @retval  RETURN_BAD_BUFFER_SIZE    Buffer size is too small.
++  @retval  RETURN_NOT_READY          No Entropy available.
++**/
++EFI_STATUS
++EFIAPI
++GenerateEntropy (
++  IN  UINTN  Length,
++  OUT UINT8  *Entropy
++  )
++{
++  EFI_STATUS  Status;
++  UINTN       CollectedEntropyBits;
++  UINTN       RequiredEntropyBits;
++  UINTN       EntropyBits;
++  UINTN       Index;
++  UINTN       MaxBits;
++
++  ZeroMem (Entropy, Length);
++
++  RequiredEntropyBits  = (Length << 3);
++  Index                = 0;
++  CollectedEntropyBits = 0;
++  MaxBits              = GetArmTrngMaxSupportedEntropyBits ();
++  while (CollectedEntropyBits < RequiredEntropyBits) {
++    EntropyBits = MIN ((RequiredEntropyBits - CollectedEntropyBits), MaxBits);
++    Status      = GetArmTrngEntropy (
++                    EntropyBits,
++                    (Length - Index),
++                    &Entropy[Index]
++                    );
++    if (EFI_ERROR (Status)) {
++      // Discard the collected bits.
++      ZeroMem (Entropy, Length);
++      return Status;
++    }
++
++    CollectedEntropyBits += EntropyBits;
++    Index                += (EntropyBits >> 3);
++  } // while
++
++  return Status;
++}
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf b/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf
+index 1985dfbb46..e0e767cbf3 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf
+@@ -43,8 +43,10 @@
+ 
+ [Sources.AARCH64]
+   AArch64/RngDxe.c
++  ArmTrng.c
+ 
+ [Packages]
++  MdeModulePkg/MdeModulePkg.dec
+   MdePkg/MdePkg.dec
+   SecurityPkg/SecurityPkg.dec
+ 
+@@ -57,6 +59,9 @@
+   TimerLib
+   RngLib
+ 
++[LibraryClasses.AARCH64]
++  ArmTrngLib
++
+ [Guids]
+   gEfiRngAlgorithmSp80090Hash256Guid  ## SOMETIMES_PRODUCES    ## GUID        # Unique ID of the algorithm for RNG
+   gEfiRngAlgorithmSp80090Hmac256Guid  ## SOMETIMES_PRODUCES    ## GUID        # Unique ID of the algorithm for RNG
+diff --git a/SecurityPkg/SecurityPkg.dsc b/SecurityPkg/SecurityPkg.dsc
+index 73a93c2285..9f58cc2333 100644
+--- a/SecurityPkg/SecurityPkg.dsc
++++ b/SecurityPkg/SecurityPkg.dsc
+@@ -3,6 +3,8 @@
+ #
+ # Copyright (c) 2009 - 2021, Intel Corporation. All rights reserved.<BR>
+ # (C) Copyright 2015-2020 Hewlett Packard Enterprise Development LP<BR>
++# Copyright (c) 2022, Loongson Technology Corporation Limited. All rights reserved.<BR>
++# Copyright (c) 2021 - 2022, Arm Limited. All rights reserved.<BR>
+ # SPDX-License-Identifier: BSD-2-Clause-Patent
+ #
+ ##
+@@ -86,6 +88,8 @@
+ 
+   ArmSoftFloatLib|ArmPkg/Library/ArmSoftFloatLib/ArmSoftFloatLib.inf
+ 
++  ArmTrngLib|MdePkg/Library/BaseArmTrngLibNull/BaseArmTrngLibNull.inf
++
+ [LibraryClasses.ARM]
+   RngLib|MdePkg/Library/BaseRngLibTimerLib/BaseRngLibTimerLib.inf
+ 
+-- 
+2.39.3
+

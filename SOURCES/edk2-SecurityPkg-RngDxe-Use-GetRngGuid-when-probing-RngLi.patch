@@ -1,0 +1,195 @@
+From 6b3795dcecf31b0d8aa7edabeffccf37b7259ff0 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Thu, 20 Jun 2024 16:09:46 -0400
+Subject: [PATCH 22/31] SecurityPkg/RngDxe: Use GetRngGuid() when probing
+ RngLib
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 77: UINT32 overflow in S3 ResumeCount and Pixiefail fixes
+RH-Jira: RHEL-21854 RHEL-21856 RHEL-40099
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [22/31] 17b40bc3daeba2ba8407826e17f3096c4a5151c6
+
+JIRA: https://issues.redhat.com/browse/RHEL-21856
+Upstream: Merged
+CVE: CVE-2023-45237
+
+commit 19438cff973bfb35a1ef12fab45fabb28b63fe64
+Author: Pierre Gondois <pierre.gondois@arm.com>
+Date:   Fri Aug 11 16:33:09 2023 +0200
+
+    SecurityPkg/RngDxe: Use GetRngGuid() when probing RngLib
+
+    BZ: https://bugzilla.tianocore.org/show_bug.cgi?id=4151
+
+    The EFI_RNG_PROTOCOL can rely on the RngLib. The RngLib has multiple
+    implementations, some of them are unsafe (e.g. BaseRngLibTimerLib).
+    To allow the RngDxe to detect when such implementation is used,
+    a GetRngGuid() function was added in a previous patch.
+
+    The EFI_RNG_PROTOCOL can advertise multiple algorithms through
+    Guids. The PcdCpuRngSupportedAlgorithm is currently used to
+    advertise the RngLib in the Arm implementation.
+
+    The issues of doing that are:
+    - the RngLib implementation might not use CPU instructions,
+      cf. the BaseRngLibTimerLib
+    - most platforms don't set PcdCpuRngSupportedAlgorithm
+
+    A GetRngGuid() was added to the RngLib in a previous patch,
+    allowing to identify the algorithm implemented by the RngLib.
+    Make use of this function and place the unsage algorithm
+    at the last position in the mAvailableAlgoArray.
+
+    Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
+    Reviewed-by: Sami Mujawar <sami.mujawar@arm.com>
+    Acked-by: Ard Biesheuvel <ardb@kernel.org>
+    Acked-by: Jiewen Yao <Jiewen.yao@intel.com>
+    Tested-by: Kun Qin <kun.qin@microsoft.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ .../RngDxe/AArch64/AArch64Algo.c              | 55 +++++++++++++------
+ .../RandomNumberGenerator/RngDxe/ArmRngDxe.c  |  8 ++-
+ .../RandomNumberGenerator/RngDxe/RngDxe.inf   |  4 +-
+ 3 files changed, 45 insertions(+), 22 deletions(-)
+
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/AArch64Algo.c b/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/AArch64Algo.c
+index e8be217f8a..a270441ebb 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/AArch64Algo.c
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/AArch64/AArch64Algo.c
+@@ -10,6 +10,8 @@
+ #include <Library/DebugLib.h>
+ #include <Library/MemoryAllocationLib.h>
+ #include <Library/ArmTrngLib.h>
++#include <Library/RngLib.h>
++#include <Guid/RngAlgorithm.h>
+ 
+ #include "RngDxeInternals.h"
+ 
+@@ -28,9 +30,13 @@ GetAvailableAlgorithms (
+   VOID
+   )
+ {
+-  UINT64  DummyRand;
+-  UINT16  MajorRevision;
+-  UINT16  MinorRevision;
++  EFI_STATUS  Status;
++  UINT16      MajorRevision;
++  UINT16      MinorRevision;
++  GUID        RngGuid;
++  BOOLEAN     UnSafeAlgo;
++
++  UnSafeAlgo = FALSE;
+ 
+   // Rng algorithms 2 times, one for the allocation, one to populate.
+   mAvailableAlgoArray = AllocateZeroPool (RNG_AVAILABLE_ALGO_MAX);
+@@ -38,24 +44,29 @@ GetAvailableAlgorithms (
+     return EFI_OUT_OF_RESOURCES;
+   }
+ 
+-  // Check RngGetBytes() before advertising PcdCpuRngSupportedAlgorithm.
+-  if (!EFI_ERROR (RngGetBytes (sizeof (DummyRand), (UINT8 *)&DummyRand))) {
+-    CopyMem (
+-      &mAvailableAlgoArray[mAvailableAlgoArrayCount],
+-      PcdGetPtr (PcdCpuRngSupportedAlgorithm),
+-      sizeof (EFI_RNG_ALGORITHM)
+-      );
+-    mAvailableAlgoArrayCount++;
+-
+-    DEBUG_CODE_BEGIN ();
+-    if (IsZeroGuid (PcdGetPtr (PcdCpuRngSupportedAlgorithm))) {
++  // Identify RngLib algorithm.
++  Status = GetRngGuid (&RngGuid);
++  if (!EFI_ERROR (Status)) {
++    if (IsZeroGuid (&RngGuid) ||
++        CompareGuid (&RngGuid, &gEdkiiRngAlgorithmUnSafe))
++    {
++      // Treat zero GUID as an unsafe algorithm
+       DEBUG ((
+         DEBUG_WARN,
+-        "PcdCpuRngSupportedAlgorithm should be a non-zero GUID\n"
++        "RngLib uses an Unsafe algorithm and "
++        "must not be used for production builds.\n"
+         ));
++      // Set the UnSafeAlgo flag to indicate an unsafe algorithm was found
++      // so that it can be added at the end of the algorithm list.
++      UnSafeAlgo = TRUE;
++    } else {
++      CopyMem (
++        &mAvailableAlgoArray[mAvailableAlgoArrayCount],
++        &RngGuid,
++        sizeof (RngGuid)
++        );
++      mAvailableAlgoArrayCount++;
+     }
+-
+-    DEBUG_CODE_END ();
+   }
+ 
+   // Raw algorithm (Trng)
+@@ -68,5 +79,15 @@ GetAvailableAlgorithms (
+     mAvailableAlgoArrayCount++;
+   }
+ 
++  // Add unsafe algorithm at the end of the list.
++  if (UnSafeAlgo) {
++    CopyMem (
++      &mAvailableAlgoArray[mAvailableAlgoArrayCount],
++      &gEdkiiRngAlgorithmUnSafe,
++      sizeof (EFI_RNG_ALGORITHM)
++      );
++    mAvailableAlgoArrayCount++;
++  }
++
+   return EFI_SUCCESS;
+ }
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/ArmRngDxe.c b/SecurityPkg/RandomNumberGenerator/RngDxe/ArmRngDxe.c
+index 0e44d0c931..2fc36fc186 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/ArmRngDxe.c
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/ArmRngDxe.c
+@@ -76,8 +76,9 @@ RngGetRNG (
+   OUT UINT8                      *RNGValue
+   )
+ {
+-  EFI_STATUS    Status;
++  EFI_STATUS  Status;
+   UINTN       Index;
++  GUID        RngGuid;
+ 
+   if ((This == NULL) || (RNGValueLength == 0) || (RNGValue == NULL)) {
+     return EFI_INVALID_PARAMETER;
+@@ -102,7 +103,10 @@ RngGetRNG (
+   }
+ 
+ FoundAlgo:
+-  if (CompareGuid (RNGAlgorithm, PcdGetPtr (PcdCpuRngSupportedAlgorithm))) {
++  Status = GetRngGuid (&RngGuid);
++  if (!EFI_ERROR (Status) &&
++      CompareGuid (RNGAlgorithm, &RngGuid))
++  {
+     Status = RngGetBytes (RNGValueLength, RNGValue);
+     return Status;
+   }
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf b/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf
+index d6c2d30195..8704a64441 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf
+@@ -75,13 +75,11 @@
+   gEfiRngAlgorithmX9313DesGuid        ## SOMETIMES_PRODUCES    ## GUID        # Unique ID of the algorithm for RNG
+   gEfiRngAlgorithmX931AesGuid         ## SOMETIMES_PRODUCES    ## GUID        # Unique ID of the algorithm for RNG
+   gEfiRngAlgorithmRaw                 ## SOMETIMES_PRODUCES    ## GUID        # Unique ID of the algorithm for RNG
++  gEdkiiRngAlgorithmUnSafe            ## SOMETIMES_PRODUCES    ## GUID        # Unique ID of the algorithm for RNG
+ 
+ [Protocols]
+   gEfiRngProtocolGuid                ## PRODUCES
+ 
+-[Pcd.AARCH64]
+-  gEfiMdePkgTokenSpaceGuid.PcdCpuRngSupportedAlgorithm      ## CONSUMES
+-
+ [Depex]
+   TRUE
+ 
+-- 
+2.39.3
+

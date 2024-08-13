@@ -1,0 +1,318 @@
+From c74cced5adaab44edf1bbfae63010b3fa31d4c69 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Sun, 23 Jun 2024 19:20:44 -0400
+Subject: [PATCH 27/31] OvmfPkg: wire up RngDxe
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 77: UINT32 overflow in S3 ResumeCount and Pixiefail fixes
+RH-Jira: RHEL-21854 RHEL-21856 RHEL-40099
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [27/31] 90226f6630261d2823bed33c4e2f6c96a4125027
+
+JIRA: https://issues.redhat.com/browse/RHEL-21856
+Upstream: Merged
+CVE: CVE-2023-45237
+Conflicts: - Needed to apply 9 earlier commits from Pierre Gondois
+             to make this one apply and build.
+	   - Cherry pick wanted to add include files from the
+             missing 'add ShellComponents' (commit 2cb466cc2cbf...)
+             series. This had to be handled manually.
+           - There are no Dsc and Fdf subdirectories under
+             OvmfPkg/Include/ in this version. We adjust includes
+             and move files to OvmfPkg/ where needed.
+
+commit 712797cf19acd292bf203522a79e40e7e13d268b
+Author: Gerd Hoffmann <kraxel@redhat.com>
+Date:   Fri May 24 12:51:17 2024 +0200
+
+    OvmfPkg: wire up RngDxe
+
+    Add OvmfRng include snippets with the random number generator
+    configuration for OVMF.  Include RngDxe, build with BaseRngLib,
+    so the rdrand instruction is used (if available).
+
+    Also move VirtioRng to the include snippets.
+
+    Use the new include snippets for OVMF builds.
+
+    Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ OvmfPkg/AmdSev/AmdSevX64.dsc      | 2 +-
+ OvmfPkg/AmdSev/AmdSevX64.fdf      | 3 ++-
+ OvmfPkg/IntelTdx/IntelTdxX64.dsc  | 2 +-
+ OvmfPkg/Microvm/MicrovmX64.dsc    | 2 +-
+ OvmfPkg/Microvm/MicrovmX64.fdf    | 3 ++-
+ OvmfPkg/OvmfPkgIa32.dsc           | 2 +-
+ OvmfPkg/OvmfPkgIa32.fdf           | 3 ++-
+ OvmfPkg/OvmfPkgIa32X64.dsc        | 2 +-
+ OvmfPkg/OvmfPkgIa32X64.fdf        | 2 +-
+ OvmfPkg/OvmfPkgX64.dsc            | 2 +-
+ OvmfPkg/OvmfPkgX64.fdf            | 2 +-
+ OvmfPkg/OvmfRngComponents.dsc.inc | 9 +++++++++
+ OvmfPkg/OvmfRngDxe.fdf.inc        | 6 ++++++
+ 13 files changed, 29 insertions(+), 11 deletions(-)
+ create mode 100644 OvmfPkg/OvmfRngComponents.dsc.inc
+ create mode 100644 OvmfPkg/OvmfRngDxe.fdf.inc
+
+diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
+index a1a6897bc2..499ad2e6e8 100644
+--- a/OvmfPkg/AmdSev/AmdSevX64.dsc
++++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
+@@ -707,7 +707,6 @@
+   OvmfPkg/Virtio10Dxe/Virtio10.inf
+   OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
+   OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
+-  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+ !if $(PVSCSI_ENABLE) == TRUE
+   OvmfPkg/PvScsiDxe/PvScsiDxe.inf
+ !endif
+@@ -824,6 +823,7 @@
+       gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|8000
+   }
+ !endif
++!include OvmfPkg/OvmfRngComponents.dsc.inc
+ 
+   OvmfPkg/PlatformDxe/Platform.inf
+   OvmfPkg/AmdSevDxe/AmdSevDxe.inf
+diff --git a/OvmfPkg/AmdSev/AmdSevX64.fdf b/OvmfPkg/AmdSev/AmdSevX64.fdf
+index 5662609886..06ff2f1d30 100644
+--- a/OvmfPkg/AmdSev/AmdSevX64.fdf
++++ b/OvmfPkg/AmdSev/AmdSevX64.fdf
+@@ -222,7 +222,6 @@ INF  OvmfPkg/VirtioPciDeviceDxe/VirtioPciDeviceDxe.inf
+ INF  OvmfPkg/Virtio10Dxe/Virtio10.inf
+ INF  OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
+ INF  OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
+-INF  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+ !if $(PVSCSI_ENABLE) == TRUE
+ INF  OvmfPkg/PvScsiDxe/PvScsiDxe.inf
+ !endif
+@@ -327,6 +326,8 @@ INF  SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigDxe.inf
+ !endif
+ !endif
+ 
++!include OvmfPkg/OvmfRngDxe.fdf.inc
++
+ ################################################################################
+ 
+ [FV.FVMAIN_COMPACT]
+diff --git a/OvmfPkg/IntelTdx/IntelTdxX64.dsc b/OvmfPkg/IntelTdx/IntelTdxX64.dsc
+index d08b77ff25..4f2909b76e 100644
+--- a/OvmfPkg/IntelTdx/IntelTdxX64.dsc
++++ b/OvmfPkg/IntelTdx/IntelTdxX64.dsc
+@@ -635,7 +635,6 @@
+   OvmfPkg/Virtio10Dxe/Virtio10.inf
+   OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
+   OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
+-  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+ !if $(PVSCSI_ENABLE) == TRUE
+   OvmfPkg/PvScsiDxe/PvScsiDxe.inf
+ !endif
+@@ -744,6 +743,7 @@
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+       gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|8000
+   }
++!include OvmfPkg/OvmfRngComponents.dsc.inc
+ 
+ !if $(SECURE_BOOT_ENABLE) == TRUE
+   SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf
+diff --git a/OvmfPkg/Microvm/MicrovmX64.dsc b/OvmfPkg/Microvm/MicrovmX64.dsc
+index afd4bf3e98..0efb0b456d 100644
+--- a/OvmfPkg/Microvm/MicrovmX64.dsc
++++ b/OvmfPkg/Microvm/MicrovmX64.dsc
+@@ -694,7 +694,6 @@
+   OvmfPkg/Virtio10Dxe/Virtio10.inf
+   OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
+   OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
+-  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+   MdeModulePkg/Universal/WatchdogTimerDxe/WatchdogTimer.inf
+   MdeModulePkg/Universal/MonotonicCounterRuntimeDxe/MonotonicCounterRuntimeDxe.inf
+   MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
+@@ -820,6 +819,7 @@
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+       gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|8000
+   }
++!include OvmfPkg/OvmfRngComponents.dsc.inc
+ 
+   OvmfPkg/PlatformDxe/Platform.inf
+   OvmfPkg/IoMmuDxe/IoMmuDxe.inf
+diff --git a/OvmfPkg/Microvm/MicrovmX64.fdf b/OvmfPkg/Microvm/MicrovmX64.fdf
+index 6314014f3d..bd5afdafe0 100644
+--- a/OvmfPkg/Microvm/MicrovmX64.fdf
++++ b/OvmfPkg/Microvm/MicrovmX64.fdf
+@@ -230,7 +230,6 @@ INF  OvmfPkg/VirtioPciDeviceDxe/VirtioPciDeviceDxe.inf
+ INF  OvmfPkg/Virtio10Dxe/Virtio10.inf
+ INF  OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
+ INF  OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
+-INF  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+ 
+ INF  MdeModulePkg/Universal/WatchdogTimerDxe/WatchdogTimer.inf
+ INF  MdeModulePkg/Universal/MonotonicCounterRuntimeDxe/MonotonicCounterRuntimeDxe.inf
+@@ -322,6 +321,8 @@ INF  OvmfPkg/EmuVariableFvbRuntimeDxe/Fvb.inf
+ INF  MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
+ INF  MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
+ 
++!include OvmfPkg/OvmfRngDxe.fdf.inc
++
+ ################################################################################
+ 
+ [FV.FVMAIN_COMPACT]
+diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
+index 47426c5cd2..f03906a9ff 100644
+--- a/OvmfPkg/OvmfPkgIa32.dsc
++++ b/OvmfPkg/OvmfPkgIa32.dsc
+@@ -801,7 +801,6 @@
+   OvmfPkg/Virtio10Dxe/Virtio10.inf
+   OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
+   OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
+-  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+ !if $(PVSCSI_ENABLE) == TRUE
+   OvmfPkg/PvScsiDxe/PvScsiDxe.inf
+ !endif
+@@ -958,6 +957,7 @@
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+       gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|8000
+   }
++!include OvmfPkg/OvmfRngComponents.dsc.inc
+ 
+ !if $(SECURE_BOOT_ENABLE) == TRUE
+   SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf
+diff --git a/OvmfPkg/OvmfPkgIa32.fdf b/OvmfPkg/OvmfPkgIa32.fdf
+index 00ea14adf0..050148948c 100644
+--- a/OvmfPkg/OvmfPkgIa32.fdf
++++ b/OvmfPkg/OvmfPkgIa32.fdf
+@@ -228,7 +228,6 @@ INF  OvmfPkg/VirtioPciDeviceDxe/VirtioPciDeviceDxe.inf
+ INF  OvmfPkg/Virtio10Dxe/Virtio10.inf
+ INF  OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
+ INF  OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
+-INF  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+ !if $(PVSCSI_ENABLE) == TRUE
+ INF  OvmfPkg/PvScsiDxe/PvScsiDxe.inf
+ !endif
+@@ -363,6 +362,7 @@ INF  MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
+ #
+ # TPM support
+ #
++
+ !if $(TPM_ENABLE) == TRUE
+ INF  SecurityPkg/Tcg/TcgDxe/TcgDxe.inf
+ INF  SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.inf
+@@ -371,6 +371,7 @@ INF  SecurityPkg/Tcg/Tcg2PlatformDxe/Tcg2PlatformDxe.inf
+ INF  SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigDxe.inf
+ !endif
+ !endif
++!include OvmfPkg/OvmfRngDxe.fdf.inc
+ 
+ !if $(LOAD_X64_ON_IA32_ENABLE) == TRUE
+ INF  OvmfPkg/CompatImageLoaderDxe/CompatImageLoaderDxe.inf
+diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
+index d4b30e8133..81145050c3 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.dsc
++++ b/OvmfPkg/OvmfPkgIa32X64.dsc
+@@ -815,7 +815,6 @@
+   OvmfPkg/Virtio10Dxe/Virtio10.inf
+   OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
+   OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
+-  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+ !if $(PVSCSI_ENABLE) == TRUE
+   OvmfPkg/PvScsiDxe/PvScsiDxe.inf
+ !endif
+@@ -972,6 +971,7 @@
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+       gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|8000
+   }
++!include OvmfPkg/OvmfRngComponents.dsc.inc
+ 
+ !if $(SECURE_BOOT_ENABLE) == TRUE
+   SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf
+diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
+index e33a40c44e..3e2373f225 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.fdf
++++ b/OvmfPkg/OvmfPkgIa32X64.fdf
+@@ -232,7 +232,6 @@ INF  OvmfPkg/VirtioPciDeviceDxe/VirtioPciDeviceDxe.inf
+ INF  OvmfPkg/Virtio10Dxe/Virtio10.inf
+ INF  OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
+ INF  OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
+-INF  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+ !if $(PVSCSI_ENABLE) == TRUE
+ INF  OvmfPkg/PvScsiDxe/PvScsiDxe.inf
+ !endif
+@@ -381,6 +380,7 @@ INF  SecurityPkg/Tcg/Tcg2PlatformDxe/Tcg2PlatformDxe.inf
+ INF  SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigDxe.inf
+ !endif
+ !endif
++!include OvmfPkg/OvmfRngDxe.fdf.inc
+ 
+ ################################################################################
+ 
+diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
+index 5b0f6c8747..1cb169b447 100644
+--- a/OvmfPkg/OvmfPkgX64.dsc
++++ b/OvmfPkg/OvmfPkgX64.dsc
+@@ -813,7 +813,6 @@
+   OvmfPkg/Virtio10Dxe/Virtio10.inf
+   OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
+   OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
+-  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+ !if $(PVSCSI_ENABLE) == TRUE
+   OvmfPkg/PvScsiDxe/PvScsiDxe.inf
+ !endif
+@@ -970,6 +969,7 @@
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+       gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|8000
+   }
++!include OvmfPkg/OvmfRngComponents.dsc.inc
+ 
+ !if $(SECURE_BOOT_ENABLE) == TRUE
+   SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf
+diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
+index 85b4b23857..8ba0ca437a 100644
+--- a/OvmfPkg/OvmfPkgX64.fdf
++++ b/OvmfPkg/OvmfPkgX64.fdf
+@@ -248,7 +248,6 @@ INF  OvmfPkg/VirtioPciDeviceDxe/VirtioPciDeviceDxe.inf
+ INF  OvmfPkg/Virtio10Dxe/Virtio10.inf
+ INF  OvmfPkg/VirtioBlkDxe/VirtioBlk.inf
+ INF  OvmfPkg/VirtioScsiDxe/VirtioScsi.inf
+-INF  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+ !if $(PVSCSI_ENABLE) == TRUE
+ INF  OvmfPkg/PvScsiDxe/PvScsiDxe.inf
+ !endif
+@@ -397,6 +396,7 @@ INF  SecurityPkg/Tcg/Tcg2PlatformDxe/Tcg2PlatformDxe.inf
+ INF  SecurityPkg/Tcg/Tcg2Config/Tcg2ConfigDxe.inf
+ !endif
+ !endif
++!include OvmfPkg/OvmfRngDxe.fdf.inc
+ 
+ ################################################################################
+ 
+diff --git a/OvmfPkg/OvmfRngComponents.dsc.inc b/OvmfPkg/OvmfRngComponents.dsc.inc
+new file mode 100644
+index 0000000000..68839a0caa
+--- /dev/null
++++ b/OvmfPkg/OvmfRngComponents.dsc.inc
+@@ -0,0 +1,9 @@
++##
++#    SPDX-License-Identifier: BSD-2-Clause-Patent
++##
++
++  SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf {
++    <LibraryClasses>
++      RngLib|MdePkg/Library/BaseRngLib/BaseRngLib.inf
++  }
++  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+diff --git a/OvmfPkg/OvmfRngDxe.fdf.inc b/OvmfPkg/OvmfRngDxe.fdf.inc
+new file mode 100644
+index 0000000000..99cb4a32b1
+--- /dev/null
++++ b/OvmfPkg/OvmfRngDxe.fdf.inc
+@@ -0,0 +1,6 @@
++##
++#    SPDX-License-Identifier: BSD-2-Clause-Patent
++##
++
++INF  SecurityPkg/RandomNumberGenerator/RngDxe/RngDxe.inf
++INF  OvmfPkg/VirtioRngDxe/VirtioRng.inf
+-- 
+2.39.3
+
