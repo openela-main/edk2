@@ -20,7 +20,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    6%{?dist}.2
+Release:    6%{?dist}.3
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -292,6 +292,12 @@ Patch79: edk2-CryptoPkg-Test-call-ProcessLibraryConstructorList.patch
 # For RHEL-40270 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-9.4.z]
 # For RHEL-40272 - CVE-2023-45236 edk2: Predictable TCP Initial Sequence Numbers [rhel-9.4.z]
 Patch80: edk2-MdePkg-X86UnitTestHost-set-rdrand-cpuid-bit.patch
+# For RHEL-46976 - No http boot support on edk2-ovmf-20231122-6.el9_4.2
+Patch81: edk2-OvmfPkg-Add-Hash2DxeCrypto-to-OvmfPkg.patch
+# For RHEL-54188 - [RHEL-9.4.z] edk2 hit Failed to generate random data
+Patch82: edk2-NetworkPkg-DxeNetLib-adjust-PseudoRandom-error-loggi.patch
+# For RHEL-54188 - [RHEL-9.4.z] edk2 hit Failed to generate random data
+Patch83: edk2-NetworkPkg-DxeNetLib-Reword-PseudoRandom-error-loggi.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -625,6 +631,15 @@ install -m 0644 \
 
 
 %changelog
+* Tue Aug 20 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20231122-6.el9_4.3
+- edk2-OvmfPkg-Add-Hash2DxeCrypto-to-OvmfPkg.patch [RHEL-46976]
+- edk2-NetworkPkg-DxeNetLib-adjust-PseudoRandom-error-loggi.patch [RHEL-54188]
+- edk2-NetworkPkg-DxeNetLib-Reword-PseudoRandom-error-loggi.patch [RHEL-54188]
+- Resolves: RHEL-46976
+  (No http boot support on edk2-ovmf-20231122-6.el9_4.2)
+- Resolves: RHEL-54188
+  ([RHEL-9.4.z] edk2 hit Failed to generate random data)
+
 * Mon Jul 01 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20231122-6.el9_4.2
 - edk2-NetworkPkg-SECURITY-PATCH-CVE-2023-45237.patch [RHEL-40270 RHEL-40272]
 - edk2-NetworkPkg-TcpDxe-SECURITY-PATCH-CVE-2023-45236.patch [RHEL-40270 RHEL-40272]
