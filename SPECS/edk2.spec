@@ -7,7 +7,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}git%{GITCOMMIT}
-Release:    13%{?dist}.2
+Release:    13%{?dist}.3
 Summary:    UEFI firmware for 64-bit virtual machines
 Group:      Applications/Emulators
 License:    BSD-2-Clause-Patent and OpenSSL and MIT
@@ -384,6 +384,8 @@ Patch114: edk2-NetworkPkg-TcpDxe-SECURITY-PATCH-CVE-2023-45236.patch
 # For RHEL-21856 - CVE-2023-45237 edk2: Use of a Weak PseudoRandom Number Generator [rhel-8]
 # For RHEL-40099 - CVE-2024-1298 edk2: Temporary DoS vulnerability [rhel-8.10.z]
 Patch115: edk2-NetworkPkg-TcpDxe-Fixed-system-stuck-on-PXE-boot-flo.patch
+# For RHEL-53009 - No http boot support on edk2-ovmf-20231122-6.el9_4.2 [rhel-8.10.z]
+Patch116: edk2-OvmfPkg-Add-Hash2DxeCrypto-to-OvmfPkg.patch
 
 
 # python3-devel and libuuid-devel are required for building tools.
@@ -830,6 +832,11 @@ true
 %endif
 
 %changelog
+* Mon Aug 26 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8.3
+- edk2-OvmfPkg-Add-Hash2DxeCrypto-to-OvmfPkg.patch [RHEL-53009]
+- Resolves: RHEL-53009
+  (No http boot support on edk2-ovmf-20231122-6.el9_4.2 [rhel-8.10.z])
+
 * Wed Jul 10 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8_10.2
 
 * Wed Jul 03 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20220126gitbb1bba3d77-13.el8_10.1
