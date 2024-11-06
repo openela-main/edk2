@@ -5,7 +5,7 @@ ExclusiveArch: x86_64 aarch64
 %define TOOLCHAIN      GCC5
 
 %define OPENSSL_VER    3.0.7
-%define OPENSSL_HASH   db0287935122edceb91dcda8dfb53b4090734e22
+%define OPENSSL_HASH   0205b589887203b065154ddc8e8107c4ac8625a1
 
 %define DBXDATE        20230509
 
@@ -20,7 +20,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    6%{?dist}.3
+Release:    6%{?dist}.4
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -631,6 +631,11 @@ install -m 0644 \
 
 
 %changelog
+* Wed Sep 18 2024 Jon Maloy <jmaloy@redhat.com> - 20231122-6.el9_4.4
+- edk2-Bumped-openssl-submodule-version-to-0205b5898872.patch [RHEL-55337]
+- Resolves: RHEL-55337
+  (CVE-2024-6119 edk2/openssl: Possible denial of service in X.509 name checks [rhel-9.4.z])
+
 * Tue Aug 20 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20231122-6.el9_4.3
 - edk2-OvmfPkg-Add-Hash2DxeCrypto-to-OvmfPkg.patch [RHEL-46976]
 - edk2-NetworkPkg-DxeNetLib-adjust-PseudoRandom-error-loggi.patch [RHEL-54188]
