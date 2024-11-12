@@ -1,0 +1,61 @@
+From 9b039f2eb195f37b724f86efc31c8a4d6abd217d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
+Date: Thu, 1 Jul 2021 20:29:22 +0200
+Subject: [PATCH] ArmVirtPkg: Remove UdfDxe filesystem driver (RHEL only)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
+RH-MergeRequest: 3: Disable features for RHEL9
+RH-Commit: [12/19] fcadb6a747b65e4d449d48131c9a2eeed4bd3c9a
+RH-Bugzilla: 1967747
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+
+Remove the UDF driver.
+
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+---
+ ArmVirtPkg/ArmVirtQemu.dsc           | 1 -
+ ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc | 1 -
+ ArmVirtPkg/ArmVirtQemuKernel.dsc     | 1 -
+ 3 files changed, 3 deletions(-)
+
+diff --git a/ArmVirtPkg/ArmVirtQemu.dsc b/ArmVirtPkg/ArmVirtQemu.dsc
+index d1deccaadc..f91bb09fa3 100644
+--- a/ArmVirtPkg/ArmVirtQemu.dsc
++++ b/ArmVirtPkg/ArmVirtQemu.dsc
+@@ -463,7 +463,6 @@
+   MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
+   MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
+   FatPkg/EnhancedFatDxe/Fat.inf
+-  MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
+ 
+   #
+   # Bds
+diff --git a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
+index 7205274bed..24a9dac2fd 100644
+--- a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
++++ b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
+@@ -84,7 +84,6 @@ READ_LOCK_STATUS   = TRUE
+   INF MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
+   INF FatPkg/EnhancedFatDxe/Fat.inf
+   INF MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
+-  INF MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
+ 
+   #
+   # Status Code Routing
+diff --git a/ArmVirtPkg/ArmVirtQemuKernel.dsc b/ArmVirtPkg/ArmVirtQemuKernel.dsc
+index 9643fd5427..c2825aa4c2 100644
+--- a/ArmVirtPkg/ArmVirtQemuKernel.dsc
++++ b/ArmVirtPkg/ArmVirtQemuKernel.dsc
+@@ -367,7 +367,6 @@
+   MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
+   MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
+   FatPkg/EnhancedFatDxe/Fat.inf
+-  MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
+ 
+   #
+   # Bds

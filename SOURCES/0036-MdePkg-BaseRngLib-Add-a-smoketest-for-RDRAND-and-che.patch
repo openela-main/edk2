@@ -1,0 +1,192 @@
+From 3899f089b8197f52ca63fe1561f8e5e1341f8198 Mon Sep 17 00:00:00 2001
+From: Pedro Falcato <pedro.falcato@gmail.com>
+Date: Tue, 22 Nov 2022 22:31:03 +0000
+Subject: [PATCH] MdePkg/BaseRngLib: Add a smoketest for RDRAND and check CPUID
+
+RDRAND has notoriously been broken many times over its lifespan.
+Add a smoketest to RDRAND, in order to better sniff out potential
+security concerns.
+
+Also add a proper CPUID test in order to support older CPUs which may
+not have it; it was previously being tested but then promptly ignored.
+
+Testing algorithm inspired by linux's arch/x86/kernel/cpu/rdrand.c
+:x86_init_rdrand() per commit 049f9ae9..
+
+Many thanks to Jason Donenfeld for relicensing his linux RDRAND detection
+code to MIT and the public domain.
+
+>On Tue, Nov 22, 2022 at 2:21 PM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
+  <..>
+>    I (re)wrote that function in Linux. I hereby relicense it as MIT, and
+>    also place it into public domain. Do with it what you will now.
+>
+>    Jason
+
+BZ: https://bugzilla.tianocore.org/show_bug.cgi?id=4163
+
+Signed-off-by: Pedro Falcato <pedro.falcato@gmail.com>
+Cc: Michael D Kinney <michael.d.kinney@intel.com>
+Cc: Liming Gao <gaoliming@byosoft.com.cn>
+Cc: Zhiguang Liu <zhiguang.liu@intel.com>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+(cherry picked from commit c3a8ca7b54a9fd17acdf16c6282a92cc989fa92a)
+---
+ MdePkg/Library/BaseRngLib/Rand/RdRand.c | 99 +++++++++++++++++++++++--
+ 1 file changed, 91 insertions(+), 8 deletions(-)
+
+diff --git a/MdePkg/Library/BaseRngLib/Rand/RdRand.c b/MdePkg/Library/BaseRngLib/Rand/RdRand.c
+index 9bd68352f9..06d2a6f12d 100644
+--- a/MdePkg/Library/BaseRngLib/Rand/RdRand.c
++++ b/MdePkg/Library/BaseRngLib/Rand/RdRand.c
+@@ -3,6 +3,7 @@
+   to provide high-quality random numbers.
+ 
+ Copyright (c) 2023, Arm Limited. All rights reserved.<BR>
++Copyright (c) 2022, Pedro Falcato. All rights reserved.<BR>
+ Copyright (c) 2021, NUVIA Inc. All rights reserved.<BR>
+ Copyright (c) 2015, Intel Corporation. All rights reserved.<BR>
+ 
+@@ -24,6 +25,88 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+ 
+ STATIC BOOLEAN  mRdRandSupported;
+ 
++//
++// Intel SDM says 10 tries is good enough for reliable RDRAND usage.
++//
++#define RDRAND_RETRIES  10
++
++#define RDRAND_TEST_SAMPLES  8
++
++#define RDRAND_MIN_CHANGE  5
++
++//
++// Add a define for native-word RDRAND, just for the test.
++//
++#ifdef MDE_CPU_X64
++#define ASM_RDRAND  AsmRdRand64
++#else
++#define ASM_RDRAND  AsmRdRand32
++#endif
++
++/**
++  Tests RDRAND for broken implementations.
++
++  @retval TRUE         RDRAND is reliable (and hopefully safe).
++  @retval FALSE        RDRAND is unreliable and should be disabled, despite CPUID.
++
++**/
++STATIC
++BOOLEAN
++TestRdRand (
++  VOID
++  )
++{
++  //
++  // Test for notoriously broken rdrand implementations that always return the same
++  // value, like the Zen 3 uarch (all-1s) or other several AMD families on suspend/resume (also all-1s).
++  // Note that this should be expanded to extensively test for other sorts of possible errata.
++  //
++
++  //
++  // Our algorithm samples rdrand $RDRAND_TEST_SAMPLES times and expects
++  // a different result $RDRAND_MIN_CHANGE times for reliable RDRAND usage.
++  //
++  UINTN   Prev;
++  UINT8   Idx;
++  UINT8   TestIteration;
++  UINT32  Changed;
++
++  Changed = 0;
++
++  for (TestIteration = 0; TestIteration < RDRAND_TEST_SAMPLES; TestIteration++) {
++    UINTN  Sample;
++    //
++    // Note: We use a retry loop for rdrand. Normal users get this in BaseRng.c
++    // Any failure to get a random number will assume RDRAND does not work.
++    //
++    for (Idx = 0; Idx < RDRAND_RETRIES; Idx++) {
++      if (ASM_RDRAND (&Sample)) {
++        break;
++      }
++    }
++
++    if (Idx == RDRAND_RETRIES) {
++      DEBUG ((DEBUG_ERROR, "BaseRngLib/x86: CPU BUG: Failed to get an RDRAND random number - disabling\n"));
++      return FALSE;
++    }
++
++    if (TestIteration != 0) {
++      Changed += Sample != Prev;
++    }
++
++    Prev = Sample;
++  }
++
++  if (Changed < RDRAND_MIN_CHANGE) {
++    DEBUG ((DEBUG_ERROR, "BaseRngLib/x86: CPU BUG: RDRAND not reliable - disabling\n"));
++    return FALSE;
++  }
++
++  return TRUE;
++}
++
++#undef ASM_RDRAND
++
+ /**
+   The constructor function checks whether or not RDRAND instruction is supported
+   by the host hardware.
+@@ -48,10 +131,13 @@ BaseRngLibConstructor (
+   // CPUID. A value of 1 indicates that processor support RDRAND instruction.
+   //
+   AsmCpuid (1, 0, 0, &RegEcx, 0);
+-  ASSERT ((RegEcx & RDRAND_MASK) == RDRAND_MASK);
+ 
+   mRdRandSupported = ((RegEcx & RDRAND_MASK) == RDRAND_MASK);
+ 
++  if (mRdRandSupported) {
++    mRdRandSupported = TestRdRand ();
++  }
++
+   return EFI_SUCCESS;
+ }
+ 
+@@ -70,6 +156,7 @@ ArchGetRandomNumber16 (
+   OUT     UINT16  *Rand
+   )
+ {
++  ASSERT (mRdRandSupported);
+   return AsmRdRand16 (Rand);
+ }
+ 
+@@ -88,6 +175,7 @@ ArchGetRandomNumber32 (
+   OUT     UINT32  *Rand
+   )
+ {
++  ASSERT (mRdRandSupported);
+   return AsmRdRand32 (Rand);
+ }
+ 
+@@ -106,6 +194,7 @@ ArchGetRandomNumber64 (
+   OUT     UINT64  *Rand
+   )
+ {
++  ASSERT (mRdRandSupported);
+   return AsmRdRand64 (Rand);
+ }
+ 
+@@ -122,13 +211,7 @@ ArchIsRngSupported (
+   VOID
+   )
+ {
+-  /*
+-     Existing software depends on this always returning TRUE, so for
+-     now hard-code it.
+-
+-     return mRdRandSupported;
+-  */
+-  return TRUE;
++  return mRdRandSupported;
+ }
+ 
+ /**

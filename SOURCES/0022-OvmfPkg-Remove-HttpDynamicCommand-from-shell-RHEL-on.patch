@@ -1,0 +1,63 @@
+From 8a68c775e8ba00da3d725396fd8c78f67fbc8697 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
+Date: Thu, 1 Jul 2021 20:29:31 +0200
+Subject: [PATCH] OvmfPkg: Remove HttpDynamicCommand from shell (RHEL only)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+rebase to edk2-stable202405:
+
+rewrite due to shell build config being moved to an include file
+
+Rebase to edk2-stable202311:
+
+Minor update, context change due to new variable policy shell command.
+
+RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
+RH-MergeRequest: 3: Disable features for RHEL9
+RH-Commit: [15/19] 1911cf04f27467ef1175b1976864c1111d93d19e
+RH-Bugzilla: 1967747
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+
+Remove the command to download files in the shell via HTTP(S).
+
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+---
+ OvmfPkg/Include/Dsc/ShellComponents.dsc.inc | 6 ------
+ OvmfPkg/Include/Fdf/ShellDxe.fdf.inc        | 3 ---
+ 2 files changed, 9 deletions(-)
+
+diff --git a/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc b/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
+index 3663938054..a568f1ecc5 100644
+--- a/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
++++ b/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
+@@ -5,12 +5,6 @@
+ !if $(BUILD_SHELL) == TRUE
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5"
+-!if $(NETWORK_ENABLE) == TRUE
+-  ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
+-!endif
+   ShellPkg/DynamicCommand/VariablePolicyDynamicCommand/VariablePolicyDynamicCommand.inf {
+     <PcdsFixedAtBuild>
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+diff --git a/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc b/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
+index 1637083ff1..c0118a46e2 100644
+--- a/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
++++ b/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
+@@ -5,9 +5,6 @@
+ !if $(BUILD_SHELL) == TRUE && $(SECURE_BOOT_ENABLE) == FALSE
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5"
+-!if $(NETWORK_ENABLE) == TRUE
+-INF  ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf
+-!endif
+ INF  ShellPkg/DynamicCommand/VariablePolicyDynamicCommand/VariablePolicyDynamicCommand.inf
+ INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ !endif

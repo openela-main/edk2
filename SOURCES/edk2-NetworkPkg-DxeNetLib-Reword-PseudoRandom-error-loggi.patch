@@ -1,12 +1,12 @@
-From 07d8292cce31630859b9e3138078d8cc8412a72f Mon Sep 17 00:00:00 2001
+From c5f142e26ea5e892a63ed35ca952c8b583a9f8c1 Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Wed, 14 Aug 2024 09:53:49 +0200
-Subject: [PATCH 3/3] NetworkPkg/DxeNetLib: Reword PseudoRandom error logging
+Subject: [PATCH 2/2] NetworkPkg/DxeNetLib: Reword PseudoRandom error logging
 
 RH-Author: Oliver Steffen <osteffen@redhat.com>
-RH-MergeRequest: 82: NetworkPkg/DxeNetLib: adjust PseudoRandom error logging
-RH-Jira: RHEL-54188
-RH-Commit: [2/2] acea6a5fd931cdb6854c69a4e3c6e49caed83e68
+RH-MergeRequest: 67: NetworkPkg/DxeNetLib: adjust PseudoRandom error logging
+RH-Jira: RHEL-45899
+RH-Commit: [2/2] 0d465ca0ea00598e6826446cd08e890c2ae4bea7 (osteffen/edk2)
 
 The word "Failed" is used when logging tired Rng algorithms.
 These mostly non-critical messages confused some users.

@@ -1,0 +1,63 @@
+From 481310a21104aba17bc0cddd236ecdf69d4ba662 Mon Sep 17 00:00:00 2001
+From: Oliver Steffen <osteffen@redhat.com>
+Date: Mon, 26 Aug 2024 19:25:52 +0200
+Subject: [PATCH] AmdSevDxe: Fix the shim fallback reboot workaround for SNP
+
+RH-Author: Oliver Steffen <osteffen@redhat.com>
+RH-MergeRequest: 68: AmdSevDxe: Fix the shim fallback reboot workaround for SNP
+RH-Jira: RHEL-56081
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [1/1] ab8678b61d171f9c19459e034483437b29037b4b (osteffen/edk2)
+
+The shim fallback reboot workaround (introduced for SEV-ES) does
+not always work for SEV-SNP, due to a conditional early return.
+
+Let's just register the workaround earlier in this function to
+fix that.
+
+Signed-off-by: Oliver Steffen <osteffen@redhat.com>
+---
+ OvmfPkg/AmdSevDxe/AmdSevDxe.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
+
+diff --git a/OvmfPkg/AmdSevDxe/AmdSevDxe.c b/OvmfPkg/AmdSevDxe/AmdSevDxe.c
+index 0eb88e50ff..ca345e95da 100644
+--- a/OvmfPkg/AmdSevDxe/AmdSevDxe.c
++++ b/OvmfPkg/AmdSevDxe/AmdSevDxe.c
+@@ -243,6 +243,17 @@ AmdSevDxeEntryPoint (
+     return EFI_UNSUPPORTED;
+   }
+ 
++  // Shim fallback reboot workaround
++  Status = gBS->CreateEventEx (
++                  EVT_NOTIFY_SIGNAL,
++                  TPL_CALLBACK,
++                  PopulateVarstore,
++                  SystemTable,
++                  &gEfiEndOfDxeEventGroupGuid,
++                  &PopulateVarstoreEvent
++                  );
++  ASSERT_EFI_ERROR (Status);
++
+   //
+   // Iterate through the GCD map and clear the C-bit from MMIO and NonExistent
+   // memory space. The NonExistent memory space will be used for mapping the
+@@ -393,15 +404,5 @@ AmdSevDxeEntryPoint (
+                   );
+   }
+ 
+-  Status = gBS->CreateEventEx (
+-                  EVT_NOTIFY_SIGNAL,
+-                  TPL_CALLBACK,
+-                  PopulateVarstore,
+-                  SystemTable,
+-                  &gEfiEndOfDxeEventGroupGuid,
+-                  &PopulateVarstoreEvent
+-                  );
+-  ASSERT_EFI_ERROR (Status);
+-
+   return EFI_SUCCESS;
+ }
+-- 
+2.39.3
+

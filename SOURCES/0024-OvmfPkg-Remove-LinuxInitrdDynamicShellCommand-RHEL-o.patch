@@ -1,0 +1,64 @@
+From cd1746c9920e93bf40994172881bc13cf185991c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
+Date: Thu, 1 Jul 2021 20:29:39 +0200
+Subject: [PATCH] OvmfPkg: Remove LinuxInitrdDynamicShellCommand (RHEL only)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+rebase to edk2-stable202405:
+
+rewrite due to shell build config being moved to an include file
+
+Rebase to edk2-stable202311:
+
+Minor update, context change due to new variable policy shell command.
+
+RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
+RH-MergeRequest: 3: Disable features for RHEL9
+RH-Commit: [17/19] 491fe1301ea29c7cb56c20272e45614d5fcb6f14
+RH-Bugzilla: 1967747
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+
+Remove the command to register a file in the shell as the
+initial ramdisk for a UEFI stubbed kernel, to be booted next.
+
+Note: as further dynamic shell commands might show up upstream,
+we intentionally preserve the empty !ifdef'ry context to ease
+future downstream rebases.
+
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+---
+ OvmfPkg/Include/Dsc/ShellComponents.dsc.inc | 4 ----
+ OvmfPkg/Include/Fdf/ShellDxe.fdf.inc        | 1 -
+ 2 files changed, 5 deletions(-)
+
+diff --git a/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc b/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
+index a568f1ecc5..f7e0f5e90e 100644
+--- a/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
++++ b/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
+@@ -9,10 +9,6 @@
+     <PcdsFixedAtBuild>
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+   }
+-  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
+ !endif
+ 
+   ShellPkg/Application/Shell/Shell.inf {
+diff --git a/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc b/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
+index c0118a46e2..dced75e388 100644
+--- a/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
++++ b/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
+@@ -6,7 +6,6 @@
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5"
+ INF  ShellPkg/DynamicCommand/VariablePolicyDynamicCommand/VariablePolicyDynamicCommand.inf
+-INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ !endif
+ 
+ INF  ShellPkg/Application/Shell/Shell.inf

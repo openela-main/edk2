@@ -1,0 +1,43 @@
+From 4947d363211159647e9266fa20ad9d4c8bc52f71 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Fri, 31 May 2024 09:49:13 +0200
+Subject: [PATCH] SecurityPkg/RngDxe: add rng test
+
+Check whenever RngLib actually returns random numbers, only return
+a non-zero number of Algorithms if that is the case.
+
+This has the effect that RndDxe loads and installs EFI_RNG_PROTOCOL
+only in case it can actually deliver random numbers.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+(cherry picked from commit a61bc0accb8a76edba4f073fdc7bafc908df045d)
+---
+ SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c b/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
+index 5723ed6957..8b0742bab6 100644
+--- a/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
++++ b/SecurityPkg/RandomNumberGenerator/RngDxe/Rand/RngDxe.c
+@@ -23,6 +23,7 @@
+ 
+ #include <Library/BaseLib.h>
+ #include <Library/BaseMemoryLib.h>
++#include <Library/RngLib.h>
+ 
+ #include "RngDxeInternals.h"
+ 
+@@ -43,7 +44,12 @@ GetAvailableAlgorithms (
+   VOID
+   )
+ {
+-  mAvailableAlgoArrayCount = RNG_ALGORITHM_COUNT;
++  UINT64  RngTest;
++
++  if (GetRandomNumber64 (&RngTest)) {
++    mAvailableAlgoArrayCount = RNG_ALGORITHM_COUNT;
++  }
++
+   return EFI_SUCCESS;
+ }
+ 

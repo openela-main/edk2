@@ -1,0 +1,127 @@
+From 3f8eab199430de18c1c6a98d1d0772499b17cc86 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Wed, 8 May 2024 13:14:26 +0200
+Subject: [PATCH] OvmfPkg: add morlock support
+
+Add dsc + fdf include files to add the MorLock drivers to the build.
+Add the include files to OVMF build configurations.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+(cherry picked from commit b45aff0dc9cb87f316eb17a11e5d4438175d9cca)
+---
+ OvmfPkg/Include/Dsc/MorLock.dsc.inc | 10 ++++++++++
+ OvmfPkg/Include/Fdf/MorLock.fdf.inc | 10 ++++++++++
+ OvmfPkg/OvmfPkgIa32.dsc             |  1 +
+ OvmfPkg/OvmfPkgIa32.fdf             |  1 +
+ OvmfPkg/OvmfPkgIa32X64.dsc          |  1 +
+ OvmfPkg/OvmfPkgIa32X64.fdf          |  1 +
+ OvmfPkg/OvmfPkgX64.dsc              |  1 +
+ OvmfPkg/OvmfPkgX64.fdf              |  1 +
+ 8 files changed, 26 insertions(+)
+ create mode 100644 OvmfPkg/Include/Dsc/MorLock.dsc.inc
+ create mode 100644 OvmfPkg/Include/Fdf/MorLock.fdf.inc
+
+diff --git a/OvmfPkg/Include/Dsc/MorLock.dsc.inc b/OvmfPkg/Include/Dsc/MorLock.dsc.inc
+new file mode 100644
+index 0000000000..a8c5fb24b8
+--- /dev/null
++++ b/OvmfPkg/Include/Dsc/MorLock.dsc.inc
+@@ -0,0 +1,10 @@
++##
++# SPDX-License-Identifier: BSD-2-Clause-Patent
++#
++# MorLock support
++##
++
++  SecurityPkg/Tcg/MemoryOverwriteControl/TcgMor.inf
++!if $(SMM_REQUIRE) == TRUE
++  SecurityPkg/Tcg/MemoryOverwriteRequestControlLock/TcgMorLockSmm.inf
++!endif
+diff --git a/OvmfPkg/Include/Fdf/MorLock.fdf.inc b/OvmfPkg/Include/Fdf/MorLock.fdf.inc
+new file mode 100644
+index 0000000000..20b7d6619a
+--- /dev/null
++++ b/OvmfPkg/Include/Fdf/MorLock.fdf.inc
+@@ -0,0 +1,10 @@
++##
++# SPDX-License-Identifier: BSD-2-Clause-Patent
++#
++# MorLock support
++##
++
++INF SecurityPkg/Tcg/MemoryOverwriteControl/TcgMor.inf
++!if $(SMM_REQUIRE) == TRUE
++INF SecurityPkg/Tcg/MemoryOverwriteRequestControlLock/TcgMorLockSmm.inf
++!endif
+diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
+index d8ae542686..65a866ae0c 100644
+--- a/OvmfPkg/OvmfPkgIa32.dsc
++++ b/OvmfPkg/OvmfPkgIa32.dsc
+@@ -887,6 +887,7 @@
+   MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+ 
+ !include OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
++!include OvmfPkg/Include/Dsc/MorLock.dsc.inc
+ 
+ !if $(SECURE_BOOT_ENABLE) == TRUE
+   SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf
+diff --git a/OvmfPkg/OvmfPkgIa32.fdf b/OvmfPkg/OvmfPkgIa32.fdf
+index 0ffa3be750..10eb6fe72b 100644
+--- a/OvmfPkg/OvmfPkgIa32.fdf
++++ b/OvmfPkg/OvmfPkgIa32.fdf
+@@ -355,6 +355,7 @@ INF  MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
+ !include OvmfPkg/Include/Fdf/OvmfTpmDxe.fdf.inc
+ 
+ !include OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
++!include OvmfPkg/Include/Fdf/MorLock.fdf.inc
+ 
+ !if $(LOAD_X64_ON_IA32_ENABLE) == TRUE
+ INF  OvmfPkg/CompatImageLoaderDxe/CompatImageLoaderDxe.inf
+diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
+index 52ac2c96fc..679e25501b 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.dsc
++++ b/OvmfPkg/OvmfPkgIa32X64.dsc
+@@ -901,6 +901,7 @@
+   MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+ 
+ !include OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
++!include OvmfPkg/Include/Dsc/MorLock.dsc.inc
+ 
+ !if $(SECURE_BOOT_ENABLE) == TRUE
+   SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf
+diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
+index c4f3ec0735..ff06bbfc6f 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.fdf
++++ b/OvmfPkg/OvmfPkgIa32X64.fdf
+@@ -362,6 +362,7 @@ INF  MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
+ !include OvmfPkg/Include/Fdf/OvmfTpmDxe.fdf.inc
+ 
+ !include OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
++!include OvmfPkg/Include/Fdf/MorLock.fdf.inc
+ 
+ ################################################################################
+ 
+diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
+index f76d0ef7bc..d294fd4625 100644
+--- a/OvmfPkg/OvmfPkgX64.dsc
++++ b/OvmfPkg/OvmfPkgX64.dsc
+@@ -969,6 +969,7 @@
+   MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+ 
+ !include OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
++!include OvmfPkg/Include/Dsc/MorLock.dsc.inc
+ 
+ !if $(SECURE_BOOT_ENABLE) == TRUE
+   SecurityPkg/VariableAuthenticated/SecureBootConfigDxe/SecureBootConfigDxe.inf
+diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
+index bedd85ef7a..f3b787201f 100644
+--- a/OvmfPkg/OvmfPkgX64.fdf
++++ b/OvmfPkg/OvmfPkgX64.fdf
+@@ -402,6 +402,7 @@ INF OvmfPkg/Tcg/TdTcg2Dxe/TdTcg2Dxe.inf
+ !include OvmfPkg/Include/Fdf/OvmfTpmDxe.fdf.inc
+ 
+ !include OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
++!include OvmfPkg/Include/Fdf/MorLock.fdf.inc
+ 
+ ################################################################################
+ 

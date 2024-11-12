@@ -1,0 +1,142 @@
+From c4aa4797fafa3a627205eaa346401e399d4a7146 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 27 Aug 2024 12:06:15 +0200
+Subject: [PATCH] UefiCpuPkg/PiSmmCpuDxeSmm: skip PatchInstructionX86 calls if
+ not needed.
+
+RH-Author: Oliver Steffen <osteffen@redhat.com>
+RH-MergeRequest: 71: UefiCpuPkg/PiSmmCpuDxeSmm: skip PatchInstructionX86 calls if not needed.
+RH-Jira: RHEL-45847
+RH-Acked-by: Gerd Hoffmann <None>
+RH-Commit: [1/1] 70ceffb2c1e695276af87d3aa334fe9be8e2e90e (osteffen/edk2)
+
+Add the new global mMsrIa32MiscEnableSupported variable to track
+whenever support for the IA32_MISC_ENABLE MSR is present or not.
+
+Add new local PatchingNeeded variable to CheckFeatureSupported()
+to track if patching the SMM setup code is needed or not.
+
+Issue PatchInstructionX86() calls only if needed, i.e. if one of
+the *Supported variables has been updated.
+
+Result is that on a typical SMP machine where all processors are
+identical the PatchInstructionX86() calls are issued only once,
+when checking the first processor.  Specifically this avoids
+PatchInstructionX86() being called in OVMF on CPU hotplug.  That
+is important because instruction patching at runtime does not not
+work and leads to page faults.
+
+This fixes CPU hotplug on OVMF not working with AMD cpus.
+
+Fixes: 6b3a89a9fdb5 ("OvmfPkg/PlatformPei: Relocate SmBases in PEI phase")
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+(cherry picked from commit 17ff8960848b2cb2e49fffb3dfbacd08865786a4)
+---
+ UefiCpuPkg/PiSmmCpuDxeSmm/SmmProfile.c | 49 +++++++++++++++++++++-----
+ 1 file changed, 40 insertions(+), 9 deletions(-)
+
+diff --git a/UefiCpuPkg/PiSmmCpuDxeSmm/SmmProfile.c b/UefiCpuPkg/PiSmmCpuDxeSmm/SmmProfile.c
+index 8142d3ceac..8e299fd29a 100644
+--- a/UefiCpuPkg/PiSmmCpuDxeSmm/SmmProfile.c
++++ b/UefiCpuPkg/PiSmmCpuDxeSmm/SmmProfile.c
+@@ -40,6 +40,11 @@ BOOLEAN  mXdEnabled = FALSE;
+ //
+ BOOLEAN  mBtsSupported = TRUE;
+ 
++//
++// The flag indicates if MSR_IA32_MISC_ENABLE is supported by processor
++//
++BOOLEAN  mMsrIa32MiscEnableSupported = TRUE;
++
+ //
+ // The flag indicates if SMM profile starts to record data.
+ //
+@@ -904,18 +909,23 @@ CheckFeatureSupported (
+   UINT32                         RegEcx;
+   UINT32                         RegEdx;
+   MSR_IA32_MISC_ENABLE_REGISTER  MiscEnableMsr;
++  BOOLEAN                        PatchingNeeded = FALSE;
+ 
+   if ((PcdGet32 (PcdControlFlowEnforcementPropertyMask) != 0) && mCetSupported) {
+     AsmCpuid (CPUID_SIGNATURE, &RegEax, NULL, NULL, NULL);
+     if (RegEax >= CPUID_STRUCTURED_EXTENDED_FEATURE_FLAGS) {
+       AsmCpuidEx (CPUID_STRUCTURED_EXTENDED_FEATURE_FLAGS, CPUID_STRUCTURED_EXTENDED_FEATURE_FLAGS_SUB_LEAF_INFO, NULL, NULL, &RegEcx, NULL);
+       if ((RegEcx & CPUID_CET_SS) == 0) {
+-        mCetSupported = FALSE;
+-        PatchInstructionX86 (mPatchCetSupported, mCetSupported, 1);
++        if (mCetSupported) {
++          mCetSupported  = FALSE;
++          PatchingNeeded = TRUE;
++        }
+       }
+     } else {
+-      mCetSupported = FALSE;
+-      PatchInstructionX86 (mPatchCetSupported, mCetSupported, 1);
++      if (mCetSupported) {
++        mCetSupported  = FALSE;
++        PatchingNeeded = TRUE;
++      }
+     }
+   }
+ 
+@@ -925,8 +935,10 @@ CheckFeatureSupported (
+       //
+       // Extended CPUID functions are not supported on this processor.
+       //
+-      mXdSupported = FALSE;
+-      PatchInstructionX86 (gPatchXdSupported, mXdSupported, 1);
++      if (mXdSupported) {
++        mXdSupported   = FALSE;
++        PatchingNeeded = TRUE;
++      }
+     }
+ 
+     AsmCpuid (CPUID_EXTENDED_CPU_SIG, NULL, NULL, NULL, &RegEdx);
+@@ -934,15 +946,20 @@ CheckFeatureSupported (
+       //
+       // Execute Disable Bit feature is not supported on this processor.
+       //
+-      mXdSupported = FALSE;
+-      PatchInstructionX86 (gPatchXdSupported, mXdSupported, 1);
++      if (mXdSupported) {
++        mXdSupported   = FALSE;
++        PatchingNeeded = TRUE;
++      }
+     }
+ 
+     if (StandardSignatureIsAuthenticAMD ()) {
+       //
+       // AMD processors do not support MSR_IA32_MISC_ENABLE
+       //
+-      PatchInstructionX86 (gPatchMsrIa32MiscEnableSupported, FALSE, 1);
++      if (mMsrIa32MiscEnableSupported) {
++        mMsrIa32MiscEnableSupported = FALSE;
++        PatchingNeeded              = TRUE;
++      }
+     }
+   }
+ 
+@@ -966,6 +983,20 @@ CheckFeatureSupported (
+       }
+     }
+   }
++
++  if (PatchingNeeded) {
++    if (!mCetSupported) {
++      PatchInstructionX86 (mPatchCetSupported, mCetSupported, 1);
++    }
++
++    if (!mXdSupported) {
++      PatchInstructionX86 (gPatchXdSupported, mXdSupported, 1);
++    }
++
++    if (!mMsrIa32MiscEnableSupported) {
++      PatchInstructionX86 (gPatchMsrIa32MiscEnableSupported, FALSE, 1);
++    }
++  }
+ }
+ 
+ /**
+-- 
+2.39.3
+

@@ -1,0 +1,126 @@
+From 42becc4c97abe443d06bb128a4b7d5e279842715 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
+Date: Thu, 1 Jul 2021 20:28:59 +0200
+Subject: [PATCH] OvmfPkg: Remove VirtioGpu device driver (RHEL only)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
+RH-MergeRequest: 3: Disable features for RHEL9
+RH-Commit: [4/19] f0a41317291f2e9e3b5bd3125149c3866f23ab08
+RH-Bugzilla: 1967747
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+
+QemuVideoDxe binds virtio-vga, so VirtioGpu is not needed.
+
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+---
+ OvmfPkg/AmdSev/AmdSevX64.dsc | 1 -
+ OvmfPkg/AmdSev/AmdSevX64.fdf | 1 -
+ OvmfPkg/OvmfPkgIa32.dsc      | 1 -
+ OvmfPkg/OvmfPkgIa32.fdf      | 1 -
+ OvmfPkg/OvmfPkgIa32X64.dsc   | 1 -
+ OvmfPkg/OvmfPkgIa32X64.fdf   | 1 -
+ OvmfPkg/OvmfPkgX64.dsc       | 1 -
+ OvmfPkg/OvmfPkgX64.fdf       | 1 -
+ 8 files changed, 8 deletions(-)
+
+diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
+index 6b6e108d11..5461c1290d 100644
+--- a/OvmfPkg/AmdSev/AmdSevX64.dsc
++++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
+@@ -701,7 +701,6 @@
+     <PcdsFixedAtBuild>
+       gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
+   }
+-  OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
+ 
+   #
+   # ISA Support
+diff --git a/OvmfPkg/AmdSev/AmdSevX64.fdf b/OvmfPkg/AmdSev/AmdSevX64.fdf
+index c176043482..10538a0465 100644
+--- a/OvmfPkg/AmdSev/AmdSevX64.fdf
++++ b/OvmfPkg/AmdSev/AmdSevX64.fdf
+@@ -300,7 +300,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+ INF  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
+ 
+ INF  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf
+-INF  OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
+ INF  OvmfPkg/PlatformDxe/Platform.inf
+ INF  OvmfPkg/AmdSevDxe/AmdSevDxe.inf
+ INF  OvmfPkg/IoMmuDxe/IoMmuDxe.inf
+diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
+index d368aa11fe..40e78014c4 100644
+--- a/OvmfPkg/OvmfPkgIa32.dsc
++++ b/OvmfPkg/OvmfPkgIa32.dsc
+@@ -838,7 +838,6 @@
+     <PcdsFixedAtBuild>
+       gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
+   }
+-  OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
+   OvmfPkg/VirtHstiDxe/VirtHstiDxe.inf
+ 
+   #
+diff --git a/OvmfPkg/OvmfPkgIa32.fdf b/OvmfPkg/OvmfPkgIa32.fdf
+index ef933def99..68d59968ec 100644
+--- a/OvmfPkg/OvmfPkgIa32.fdf
++++ b/OvmfPkg/OvmfPkgIa32.fdf
+@@ -317,7 +317,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+ 
+ INF  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
+ INF  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf
+-INF  OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
+ INF  OvmfPkg/PlatformDxe/Platform.inf
+ INF  OvmfPkg/IoMmuDxe/IoMmuDxe.inf
+ INF  OvmfPkg/VirtHstiDxe/VirtHstiDxe.inf
+diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
+index cf09bdf785..6ade9aa0ef 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.dsc
++++ b/OvmfPkg/OvmfPkgIa32X64.dsc
+@@ -852,7 +852,6 @@
+     <PcdsFixedAtBuild>
+       gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
+   }
+-  OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
+   OvmfPkg/VirtHstiDxe/VirtHstiDxe.inf
+ 
+   #
+diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
+index 0cd98ada5a..8891d96422 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.fdf
++++ b/OvmfPkg/OvmfPkgIa32X64.fdf
+@@ -323,7 +323,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+ 
+ INF  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
+ INF  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf
+-INF  OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
+ INF  OvmfPkg/PlatformDxe/Platform.inf
+ INF  OvmfPkg/AmdSevDxe/AmdSevDxe.inf
+ INF  OvmfPkg/IoMmuDxe/IoMmuDxe.inf
+diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
+index 098d569381..8563835ae5 100644
+--- a/OvmfPkg/OvmfPkgX64.dsc
++++ b/OvmfPkg/OvmfPkgX64.dsc
+@@ -920,7 +920,6 @@
+     <PcdsFixedAtBuild>
+       gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
+   }
+-  OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
+   OvmfPkg/VirtHstiDxe/VirtHstiDxe.inf
+ 
+   #
+diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
+index b201505214..06ac4423da 100644
+--- a/OvmfPkg/OvmfPkgX64.fdf
++++ b/OvmfPkg/OvmfPkgX64.fdf
+@@ -356,7 +356,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+ 
+ INF  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
+ INF  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf
+-INF  OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
+ INF  OvmfPkg/PlatformDxe/Platform.inf
+ INF  OvmfPkg/AmdSevDxe/AmdSevDxe.inf
+ INF  OvmfPkg/IoMmuDxe/IoMmuDxe.inf

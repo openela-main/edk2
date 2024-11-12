@@ -1,0 +1,66 @@
+From ec9c5e512252964f28c493d10b9f484b88c87c13 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
+Date: Thu, 1 Jul 2021 20:29:46 +0200
+Subject: [PATCH] ArmVirtPkg: Remove LinuxInitrdDynamicShellCommand (RHEL only)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Rebase to edk2-stable202311:
+
+Minor update, context change due to new variable policy shell command.
+
+RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
+RH-MergeRequest: 3: Disable features for RHEL9
+RH-Commit: [18/19] 8f4e4007108462533e3d2050b84d8830073a7c0d
+RH-Bugzilla: 1967747
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+
+Remove the command to register a file in the shell as the initial
+ramdisk for a UEFI stubbed kernel, to be booted next.
+
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+---
+ ArmVirtPkg/ArmVirt.dsc.inc           | 10 +++-------
+ ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc |  1 -
+ 2 files changed, 3 insertions(+), 8 deletions(-)
+
+diff --git a/ArmVirtPkg/ArmVirt.dsc.inc b/ArmVirtPkg/ArmVirt.dsc.inc
+index 996b4ddfc4..2561e10ff5 100644
+--- a/ArmVirtPkg/ArmVirt.dsc.inc
++++ b/ArmVirtPkg/ArmVirt.dsc.inc
+@@ -391,17 +391,13 @@
+   #
+   MdeModulePkg/Universal/Disk/RamDiskDxe/RamDiskDxe.inf
+ 
+-  #
+-  # UEFI application (Shell Embedded Boot Loader)
+-  #
++  #
++  # UEFI application (Shell Embedded Boot Loader)
++  #
+   ShellPkg/DynamicCommand/VariablePolicyDynamicCommand/VariablePolicyDynamicCommand.inf {
+     <PcdsFixedAtBuild>
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+   }
+-  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
+   ShellPkg/Application/Shell/Shell.inf {
+     <LibraryClasses>
+       ShellCommandLib|ShellPkg/Library/UefiShellCommandLib/UefiShellCommandLib.inf
+diff --git a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
+index b49bf7ad4e..753afd799b 100644
+--- a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
++++ b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
+@@ -101,7 +101,6 @@ READ_LOCK_STATUS   = TRUE
+ 
+   INF ShellPkg/Application/Shell/Shell.inf
+   INF ShellPkg/DynamicCommand/VariablePolicyDynamicCommand/VariablePolicyDynamicCommand.inf
+-  INF OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ 
+   #
+   # Bds
