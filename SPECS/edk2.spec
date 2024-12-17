@@ -7,7 +7,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}git%{GITCOMMIT}
-Release:    13%{?dist}.3
+Release:    13%{?dist}.4
 Summary:    UEFI firmware for 64-bit virtual machines
 Group:      Applications/Emulators
 License:    BSD-2-Clause-Patent and OpenSSL and MIT
@@ -386,6 +386,8 @@ Patch114: edk2-NetworkPkg-TcpDxe-SECURITY-PATCH-CVE-2023-45236.patch
 Patch115: edk2-NetworkPkg-TcpDxe-Fixed-system-stuck-on-PXE-boot-flo.patch
 # For RHEL-53009 - No http boot support on edk2-ovmf-20231122-6.el9_4.2 [rhel-8.10.z]
 Patch116: edk2-OvmfPkg-Add-Hash2DxeCrypto-to-OvmfPkg.patch
+# For RHEL-60830 - CVE-2024-38796 edk2: Integer overflows in PeCoffLoaderRelocateImage [rhel-8.10.z]
+Patch117: edk2-MdePkg-Fix-overflow-issue-in-BasePeCoffLib.patch
 
 
 # python3-devel and libuuid-devel are required for building tools.
@@ -832,6 +834,11 @@ true
 %endif
 
 %changelog
+* Tue Oct 29 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8.4
+- edk2-MdePkg-Fix-overflow-issue-in-BasePeCoffLib.patch [RHEL-60830]
+- Resolves: RHEL-60830
+  (CVE-2024-38796 edk2: Integer overflows in PeCoffLoaderRelocateImage [rhel-8.10.z])
+
 * Mon Aug 26 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8.3
 - edk2-OvmfPkg-Add-Hash2DxeCrypto-to-OvmfPkg.patch [RHEL-53009]
 - Resolves: RHEL-53009
