@@ -1,0 +1,50 @@
+From 10d25d4d502e419476c3846e0243bbf6be24d8e4 Mon Sep 17 00:00:00 2001
+From: Jon Maloy <jmaloy@redhat.com>
+Date: Tue, 1 Oct 2024 18:40:41 -0400
+Subject: [PATCH] MdePkg: Fix overflow issue in BasePeCoffLib
+
+RH-Author: Jon Maloy <jmaloy@redhat.com>
+RH-MergeRequest: 95: MdePkg: Fix overflow issue in BasePeCoffLib
+RH-Jira: RHEL-60831
+RH-Acked-by: Oliver Steffen <osteffen@redhat.com>
+RH-Commit: [1/1] 2f345a9e5f277598a78edc1aab33c6acc96c6caa
+
+JIRA: https://issues.redhat.com/browse/RHEL-60831
+CVE: CVE-2024-38796
+Upstream: Merged
+
+commit c95233b8525ca6828921affd1496146cff262e65
+Author: Doug Flick <dougflick@microsoft.com>
+Date:   Fri Sep 27 12:08:55 2024 -0700
+
+    MdePkg: Fix overflow issue in BasePeCoffLib
+
+    The RelocDir->Size is a UINT32 value, and RelocDir->VirtualAddress is
+    also a UINT32 value. The current code does not check for overflow when
+    adding RelocDir->Size to RelocDir->VirtualAddress. This patch adds a
+    check to ensure that the addition does not overflow.
+
+    Signed-off-by: Doug Flick <dougflick@microsoft.com>
+    Authored-by: sriraamx gobichettipalayam <sri..@intel.com>
+
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+---
+ MdePkg/Library/BasePeCoffLib/BasePeCoff.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/MdePkg/Library/BasePeCoffLib/BasePeCoff.c b/MdePkg/Library/BasePeCoffLib/BasePeCoff.c
+index 86ff2e769b..128090d98e 100644
+--- a/MdePkg/Library/BasePeCoffLib/BasePeCoff.c
++++ b/MdePkg/Library/BasePeCoffLib/BasePeCoff.c
+@@ -1054,7 +1054,7 @@ PeCoffLoaderRelocateImage (
+     RelocDir = &Hdr.Te->DataDirectory[0];
+   }
+ 
+-  if ((RelocDir != NULL) && (RelocDir->Size > 0)) {
++  if ((RelocDir != NULL) && (RelocDir->Size > 0) && (RelocDir->Size - 1 < MAX_UINT32 - RelocDir->VirtualAddress)) {
+     RelocBase    = (EFI_IMAGE_BASE_RELOCATION *)PeCoffLoaderImageAddress (ImageContext, RelocDir->VirtualAddress, TeStrippedOffset);
+     RelocBaseEnd = (EFI_IMAGE_BASE_RELOCATION *)PeCoffLoaderImageAddress (
+                                                   ImageContext,
+-- 
+2.39.3
+

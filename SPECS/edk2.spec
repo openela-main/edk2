@@ -21,7 +21,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    6%{?dist}
+Release:    6%{?dist}.3
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -101,6 +101,14 @@ Patch42: edk2-AmdSevDxe-Fix-the-shim-fallback-reboot-workaround-fo.patch
 Patch43: edk2-UefiCpuPkg-PiSmmCpuDxeSmm-skip-PatchInstructionX86-c.patch
 # For RHEL-56974 - qemu-kvm: warning: Blocked re-entrant IO on MemoryRegion: acpi-cpu-hotplug at addr: 0x0 [rhel-9]
 Patch44: edk2-OvmfPkg-CpuHotplugSmm-delay-SMM-exit.patch
+# For RHEL-60831 - CVE-2024-38796 edk2: Integer overflows in PeCoffLoaderRelocateImage [rhel-9.5]
+Patch45: edk2-MdePkg-Fix-overflow-issue-in-BasePeCoffLib.patch
+# For RHEL-65735 - [Regression] HTTP Boot not working on old vCPU without virtio-rng device present  [rhel-9.5.z]
+Patch46: edk2-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch
+# For RHEL-65735 - [Regression] HTTP Boot not working on old vCPU without virtio-rng device present  [rhel-9.5.z]
+Patch47: edk2-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch
+# For RHEL-63094 - [Regression] HTTP Boot fails to work with edk2-ovmf-20231122-6.el9_4.2 and greater [rhel-9.5]
+Patch48: edk2-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -435,6 +443,22 @@ install -m 0644 \
 
 
 %changelog
+* Fri Nov 22 2024 Jon Maloy <jmaloy@redhat.com> - 20240524-6.el9_5.3
+- edk2-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch [RHEL-63094]
+- Resolves: RHEL-63094
+  ([Regression] HTTP Boot fails to work with edk2-ovmf-20231122-6.el9_4.2 and greater [rhel-9.5])
+
+* Mon Nov 11 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20240524-6.el9_5.2
+- edk2-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch [RHEL-65735]
+- edk2-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch [RHEL-65735]
+- Resolves: RHEL-65735
+  ([Regression] HTTP Boot not working on old vCPU without virtio-rng device present  [rhel-9.5.z])
+
+* Wed Oct 16 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20240524-6.el9_5.1
+- edk2-MdePkg-Fix-overflow-issue-in-BasePeCoffLib.patch [RHEL-60831]
+- Resolves: RHEL-60831
+  (CVE-2024-38796 edk2: Integer overflows in PeCoffLoaderRelocateImage [rhel-9.5])
+
 * Fri Sep 13 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20240524-6
 - edk2-OvmfPkg-CpuHotplugSmm-delay-SMM-exit.patch [RHEL-56974]
 - edk2-Bumped-openssl-submodule-version-to-0205b5898872.patch [RHEL-55336]
