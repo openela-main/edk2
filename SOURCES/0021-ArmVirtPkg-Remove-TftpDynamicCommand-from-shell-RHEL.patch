@@ -1,4 +1,4 @@
-From b548dd4acf23412e9266be15d65d7f8cfccbf028 Mon Sep 17 00:00:00 2001
+From 686691ea29b51e87dbd61395e7baa5e81941ec70 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:28 +0200
 Subject: [PATCH] ArmVirtPkg: Remove TftpDynamicCommand from shell (RHEL only)
@@ -23,10 +23,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  2 files changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/ArmVirtPkg/ArmVirt.dsc.inc b/ArmVirtPkg/ArmVirt.dsc.inc
-index 7044790a1e..ee98673e98 100644
+index 5384a41818..2a8236e520 100644
 --- a/ArmVirtPkg/ArmVirt.dsc.inc
 +++ b/ArmVirtPkg/ArmVirt.dsc.inc
-@@ -391,10 +391,9 @@
+@@ -393,10 +393,9 @@
    #
    MdeModulePkg/Universal/Disk/RamDiskDxe/RamDiskDxe.inf
  

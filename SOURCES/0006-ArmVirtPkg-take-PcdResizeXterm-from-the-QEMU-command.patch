@@ -1,4 +1,4 @@
-From 4c45a397402f58a67b1d4ea1348bb79f3716c7a5 Mon Sep 17 00:00:00 2001
+From b2e0de02371c1327344dd735745b39f9abe32952 Mon Sep 17 00:00:00 2001
 From: Laszlo Ersek <lersek@redhat.com>
 Date: Sun, 26 Jul 2015 08:02:50 +0000
 Subject: [PATCH] ArmVirtPkg: take PcdResizeXterm from the QEMU command line
@@ -96,10 +96,10 @@ Signed-off-by: Laszlo Ersek <lersek@redhat.com>
  create mode 100644 ArmVirtPkg/Library/TerminalPcdProducerLib/TerminalPcdProducerLib.inf
 
 diff --git a/ArmVirtPkg/ArmVirtQemu.dsc b/ArmVirtPkg/ArmVirtQemu.dsc
-index 64aa4e96e5..c37c4ba61e 100644
+index 1ba63d2e16..fa98980acf 100644
 --- a/ArmVirtPkg/ArmVirtQemu.dsc
 +++ b/ArmVirtPkg/ArmVirtQemu.dsc
-@@ -311,6 +311,8 @@
+@@ -313,6 +313,8 @@
    gEfiSecurityPkgTokenSpaceGuid.PcdTpmBaseAddress|0x0
  !endif
  
@@ -108,7 +108,7 @@ index 64aa4e96e5..c37c4ba61e 100644
  [PcdsDynamicHii]
    gUefiOvmfPkgTokenSpaceGuid.PcdForceNoAcpi|L"ForceNoAcpi"|gOvmfVariableGuid|0x0|FALSE|NV,BS
  
-@@ -416,7 +418,10 @@
+@@ -422,7 +424,10 @@
    MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe.inf
    MdeModulePkg/Universal/Console/ConSplitterDxe/ConSplitterDxe.inf
    MdeModulePkg/Universal/Console/GraphicsConsoleDxe/GraphicsConsoleDxe.inf

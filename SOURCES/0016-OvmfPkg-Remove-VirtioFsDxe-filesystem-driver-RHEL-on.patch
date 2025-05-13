@@ -1,4 +1,4 @@
-From 67e5739ca9ba906914aade6b5ad84c420ad9af29 Mon Sep 17 00:00:00 2001
+From d9463c76697c178fca5edad35fee97c429598b22 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:13 +0200
 Subject: [PATCH] OvmfPkg: Remove VirtioFsDxe filesystem driver (RHEL only)
@@ -27,10 +27,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  6 files changed, 6 deletions(-)
 
 diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
-index 40e78014c4..afd2a3c5c0 100644
+index d35d04b39a..5a1c7058c8 100644
 --- a/OvmfPkg/OvmfPkgIa32.dsc
 +++ b/OvmfPkg/OvmfPkgIa32.dsc
-@@ -816,7 +816,6 @@
+@@ -818,7 +818,6 @@
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
    MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
@@ -39,10 +39,10 @@ index 40e78014c4..afd2a3c5c0 100644
    MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe.inf
    MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe.inf
 diff --git a/OvmfPkg/OvmfPkgIa32.fdf b/OvmfPkg/OvmfPkgIa32.fdf
-index 68d59968ec..c392b96470 100644
+index 7fd9203427..7e09e3aac9 100644
 --- a/OvmfPkg/OvmfPkgIa32.fdf
 +++ b/OvmfPkg/OvmfPkgIa32.fdf
-@@ -290,7 +290,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
+@@ -289,7 +289,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
  
  INF  FatPkg/EnhancedFatDxe/Fat.inf
  INF  MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
@@ -51,10 +51,10 @@ index 68d59968ec..c392b96470 100644
  INF MdeModulePkg/Logo/LogoDxe.inf
  
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index 6ade9aa0ef..f5a4c57c8e 100644
+index 5710183135..4fb8b9ba39 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
-@@ -830,7 +830,6 @@
+@@ -831,7 +831,6 @@
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
    MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
@@ -63,10 +63,10 @@ index 6ade9aa0ef..f5a4c57c8e 100644
    MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe.inf
    MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe.inf
 diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
-index 8891d96422..6278daeeee 100644
+index a15cd72f13..8ba0ce211d 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.fdf
 +++ b/OvmfPkg/OvmfPkgIa32X64.fdf
-@@ -291,7 +291,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
+@@ -290,7 +290,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
  
  INF  FatPkg/EnhancedFatDxe/Fat.inf
  INF  MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
@@ -75,10 +75,10 @@ index 8891d96422..6278daeeee 100644
  INF MdeModulePkg/Logo/LogoDxe.inf
  
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index 8563835ae5..08b73a64c9 100644
+index 11a05298b6..21c6a5b3c0 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
-@@ -898,7 +898,6 @@
+@@ -896,7 +896,6 @@
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
    MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
@@ -87,10 +87,10 @@ index 8563835ae5..08b73a64c9 100644
    MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe.inf
    MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe.inf
 diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
-index 06ac4423da..fc4b6dd3a4 100644
+index e8562442d3..f3cb0ea40c 100644
 --- a/OvmfPkg/OvmfPkgX64.fdf
 +++ b/OvmfPkg/OvmfPkgX64.fdf
-@@ -322,7 +322,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
+@@ -321,7 +321,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
  
  INF  FatPkg/EnhancedFatDxe/Fat.inf
  INF  MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf

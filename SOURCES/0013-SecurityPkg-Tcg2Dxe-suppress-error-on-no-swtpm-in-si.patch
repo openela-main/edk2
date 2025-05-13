@@ -1,4 +1,4 @@
-From de3d6fb999bd464f08c11b879cb4587295f3c0b1 Mon Sep 17 00:00:00 2001
+From 26594b660d11841de95aebf0938ab518a1b08f08 Mon Sep 17 00:00:00 2001
 From: Laszlo Ersek <lersek@redhat.com>
 Date: Wed, 24 Jun 2020 11:40:09 +0200
 Subject: [PATCH] SecurityPkg/Tcg2Dxe: suppress error on no swtpm in silent
@@ -31,7 +31,7 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  2 files changed, 18 insertions(+)
 
 diff --git a/SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.c b/SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.c
-index b55b6c12d2..0be885c391 100644
+index 4d0c241f4d..e228d5f39f 100644
 --- a/SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.c
 +++ b/SecurityPkg/Tcg/Tcg2Dxe/Tcg2Dxe.c
 @@ -29,6 +29,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
@@ -42,7 +42,7 @@ index b55b6c12d2..0be885c391 100644
  #include <Library/BaseMemoryLib.h>
  #include <Library/UefiRuntimeServicesTableLib.h>
  #include <Library/UefiDriverEntryPoint.h>
-@@ -2743,6 +2744,22 @@ DriverEntry (
+@@ -2754,6 +2755,22 @@ DriverEntry (
        CompareGuid (PcdGetPtr (PcdTpmInstanceGuid), &gEfiTpmDeviceInstanceTpm12Guid))
    {
      DEBUG ((DEBUG_INFO, "No TPM2 instance required!\n"));

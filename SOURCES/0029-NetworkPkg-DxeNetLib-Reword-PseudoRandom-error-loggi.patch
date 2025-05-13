@@ -1,7 +1,7 @@
-From c5f142e26ea5e892a63ed35ca952c8b583a9f8c1 Mon Sep 17 00:00:00 2001
+From 94ab405ecf38fb47edcb08afb523e8c1fc7fb44e Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Wed, 14 Aug 2024 09:53:49 +0200
-Subject: [PATCH 2/2] NetworkPkg/DxeNetLib: Reword PseudoRandom error logging
+Subject: [PATCH] NetworkPkg/DxeNetLib: Reword PseudoRandom error logging
 
 RH-Author: Oliver Steffen <osteffen@redhat.com>
 RH-MergeRequest: 67: NetworkPkg/DxeNetLib: adjust PseudoRandom error logging
@@ -15,15 +15,19 @@ Reword it and also add a message confirming eventual success to
 deescalate the importance somewhat.
 
 Signed-off-by: Oliver Steffen <osteffen@redhat.com>
+
+patch_name: edk2-NetworkPkg-DxeNetLib-Reword-PseudoRandom-error-loggi.patch
+present_in_specfile: true
+location_in_specfile: 41
 ---
  NetworkPkg/Library/DxeNetLib/DxeNetLib.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/NetworkPkg/Library/DxeNetLib/DxeNetLib.c b/NetworkPkg/Library/DxeNetLib/DxeNetLib.c
-index 4dfbe91a55..905a944975 100644
+index 9acc21caeb..73ddf8b0fb 100644
 --- a/NetworkPkg/Library/DxeNetLib/DxeNetLib.c
 +++ b/NetworkPkg/Library/DxeNetLib/DxeNetLib.c
-@@ -946,12 +946,13 @@ PseudoRandom (
+@@ -952,12 +952,13 @@ PseudoRandom (
          //
          // Secure Algorithm was supported on this platform
          //
@@ -38,6 +42,3 @@ index 4dfbe91a55..905a944975 100644
  
          //
          // Try the next secure algorithm
--- 
-2.39.3
-

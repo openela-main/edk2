@@ -1,0 +1,51 @@
+From ff94bd905431b9cdc3b3f376d029c769024579a0 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Fri, 23 Aug 2024 11:55:31 +0200
+Subject: [PATCH] OvmfPkg/PlatformInitLib: enable x2apic mode if needed
+
+Enable x2apic mode in case the number of possible CPUs (including
+hotplug-able CPus which are not (yet) online) is larger than 255.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+(cherry picked from commit 8c8e05db24d8578cf87669e491f983fbd8357d55)
+---
+ OvmfPkg/Library/PlatformInitLib/Platform.c          | 6 ++++++
+ OvmfPkg/Library/PlatformInitLib/PlatformInitLib.inf | 1 +
+ 2 files changed, 7 insertions(+)
+
+diff --git a/OvmfPkg/Library/PlatformInitLib/Platform.c b/OvmfPkg/Library/PlatformInitLib/Platform.c
+index 715533b1f2..afe8b0abd6 100644
+--- a/OvmfPkg/Library/PlatformInitLib/Platform.c
++++ b/OvmfPkg/Library/PlatformInitLib/Platform.c
+@@ -30,6 +30,7 @@
+ #include <Library/QemuFwCfgS3Lib.h>
+ #include <Library/QemuFwCfgSimpleParserLib.h>
+ #include <Library/PciLib.h>
++#include <Library/LocalApicLib.h>
+ #include <Guid/SystemNvDataGuid.h>
+ #include <Guid/VariableFormat.h>
+ #include <OvmfPlatforms.h>
+@@ -720,6 +721,11 @@ PlatformMaxCpuCountInitialization (
+     ));
+   ASSERT (BootCpuCount <= MaxCpuCount);
+ 
++  if (MaxCpuCount > 255) {
++    DEBUG ((DEBUG_INFO, "%a: enable x2apic mode\n", __func__));
++    SetApicMode (LOCAL_APIC_MODE_X2APIC);
++  }
++
+   PlatformInfoHob->PcdCpuMaxLogicalProcessorNumber  = MaxCpuCount;
+   PlatformInfoHob->PcdCpuBootLogicalProcessorNumber = BootCpuCount;
+ }
+diff --git a/OvmfPkg/Library/PlatformInitLib/PlatformInitLib.inf b/OvmfPkg/Library/PlatformInitLib/PlatformInitLib.inf
+index fb179e6791..c79b2ee106 100644
+--- a/OvmfPkg/Library/PlatformInitLib/PlatformInitLib.inf
++++ b/OvmfPkg/Library/PlatformInitLib/PlatformInitLib.inf
+@@ -48,6 +48,7 @@
+   HobLib
+   QemuFwCfgLib
+   QemuFwCfgSimpleParserLib
++  LocalApicLib
+   MemEncryptSevLib
+   MemoryAllocationLib
+   MtrrLib

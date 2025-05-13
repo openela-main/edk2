@@ -1,4 +1,4 @@
-From ec9c5e512252964f28c493d10b9f484b88c87c13 Mon Sep 17 00:00:00 2001
+From 23c3da15fa2cba3b800ea30f3954f6e8b3313670 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:46 +0200
 Subject: [PATCH] ArmVirtPkg: Remove LinuxInitrdDynamicShellCommand (RHEL only)
@@ -28,10 +28,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  2 files changed, 3 insertions(+), 8 deletions(-)
 
 diff --git a/ArmVirtPkg/ArmVirt.dsc.inc b/ArmVirtPkg/ArmVirt.dsc.inc
-index 996b4ddfc4..2561e10ff5 100644
+index 5bfb16c27e..49e3bf9de4 100644
 --- a/ArmVirtPkg/ArmVirt.dsc.inc
 +++ b/ArmVirtPkg/ArmVirt.dsc.inc
-@@ -391,17 +391,13 @@
+@@ -393,17 +393,13 @@
    #
    MdeModulePkg/Universal/Disk/RamDiskDxe/RamDiskDxe.inf
  

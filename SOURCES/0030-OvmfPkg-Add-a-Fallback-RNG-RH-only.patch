@@ -1,13 +1,13 @@
-From fb1162845ff2d0e5f7fc7bb890896a4a6bde2981 Mon Sep 17 00:00:00 2001
+From e73097cff3871a2c6633e56d8860679281ac1a37 Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Mon, 4 Nov 2024 12:40:12 +0100
-Subject: [PATCH 1/2] OvmfPkg: Add a Fallback RNG (RH only)
+Subject: [PATCH] OvmfPkg: Add a Fallback RNG (RH only)
 
 RH-Author: Oliver Steffen <osteffen@redhat.com>
-RH-MergeRequest: 101: Add a Fallback RNG (RH only)
-RH-Jira: RHEL-65735
+RH-MergeRequest: 80: OvmfPkg: Add a Fallback RNG (RH only)
+RH-Jira: RHEL-65725
 RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-RH-Commit: [1/2] d4aec962fd120ac2903b91403d87b86af944bd83
+RH-Commit: [1/1] 2865ef247c476418c88ba988449841aee4a93bea (osteffen/edk2)
 
 Since the pixiefail CVE fix, the network stack requires a random number
 generator.
@@ -16,6 +16,10 @@ have the Platform Boot Manager install a pseudo RNG to ensure
 the network can be used.
 
 Signed-off-by: Oliver Steffen <osteffen@redhat.com>
+
+patch_name: edk2-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch
+present_in_specfile: true
+location_in_specfile: 48
 ---
  .../PlatformBootManagerLib/BdsPlatform.c      |   7 +
  .../PlatformBootManagerLib/FallbackRng.c      | 222 ++++++++++++++++++
@@ -345,6 +349,3 @@ index c6ffc1ed9e..211716e30d 100644
    gUefiShellFileGuid
    gGrubFileGuid
 +  gEfiRngAlgorithmRaw
--- 
-2.39.3
-

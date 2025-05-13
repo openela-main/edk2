@@ -1,4 +1,4 @@
-From c916516d37fb50c187020bd01da21cca85c8e83a Mon Sep 17 00:00:00 2001
+From 7c1a9e0aecb6fea718ad7068f7e3aa17ed80a5d4 Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Wed, 16 Aug 2023 12:09:40 +0200
 Subject: [PATCH] OvmfPkg/AmdSevDxe: Shim Reboot workaround (RHEL only)
@@ -22,12 +22,12 @@ patch_name: edk2-OvmfPkg-AmdSevDxe-Shim-Reboot-workaround-RHEL-only.patch
 present_in_specfile: true
 location_in_specfile: 44
 ---
- OvmfPkg/AmdSevDxe/AmdSevDxe.c   | 42 +++++++++++++++++++++++++++++++++
+ OvmfPkg/AmdSevDxe/AmdSevDxe.c   | 43 +++++++++++++++++++++++++++++++++
  OvmfPkg/AmdSevDxe/AmdSevDxe.inf |  2 ++
- 2 files changed, 44 insertions(+)
+ 2 files changed, 45 insertions(+)
 
 diff --git a/OvmfPkg/AmdSevDxe/AmdSevDxe.c b/OvmfPkg/AmdSevDxe/AmdSevDxe.c
-index d497a343d3..0eb88e50ff 100644
+index d497a343d3..ca345e95da 100644
 --- a/OvmfPkg/AmdSevDxe/AmdSevDxe.c
 +++ b/OvmfPkg/AmdSevDxe/AmdSevDxe.c
 @@ -19,6 +19,7 @@
@@ -90,10 +90,11 @@ index d497a343d3..0eb88e50ff 100644
  
    //
    // Do nothing when SEV is not enabled
-@@ -361,5 +393,15 @@ AmdSevDxeEntryPoint (
-                   );
+@@ -211,6 +243,17 @@ AmdSevDxeEntryPoint (
+     return EFI_UNSUPPORTED;
    }
  
++  // Shim fallback reboot workaround
 +  Status = gBS->CreateEventEx (
 +                  EVT_NOTIFY_SIGNAL,
 +                  TPL_CALLBACK,
@@ -104,8 +105,9 @@ index d497a343d3..0eb88e50ff 100644
 +                  );
 +  ASSERT_EFI_ERROR (Status);
 +
-   return EFI_SUCCESS;
- }
+   //
+   // Iterate through the GCD map and clear the C-bit from MMIO and NonExistent
+   // memory space. The NonExistent memory space will be used for mapping the
 diff --git a/OvmfPkg/AmdSevDxe/AmdSevDxe.inf b/OvmfPkg/AmdSevDxe/AmdSevDxe.inf
 index e7c7d526c9..09cbd2b0ca 100644
 --- a/OvmfPkg/AmdSevDxe/AmdSevDxe.inf

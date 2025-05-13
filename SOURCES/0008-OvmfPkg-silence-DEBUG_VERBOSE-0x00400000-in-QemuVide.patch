@@ -1,4 +1,4 @@
-From ac8f2a85bad100eaf42d3537b6fcb37fa3db5fd9 Mon Sep 17 00:00:00 2001
+From 23808e1ec42a4ebb6e62c4c2108ec65190f8f288 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Tue, 21 Nov 2017 00:57:46 +0100
 Subject: [PATCH] OvmfPkg: silence DEBUG_VERBOSE (0x00400000) in
@@ -86,10 +86,10 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
  4 files changed, 32 insertions(+), 8 deletions(-)
 
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
-index cef43b34b7..f53380aca2 100644
+index 1128968857..0b29aa1157 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.dsc
 +++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
-@@ -691,8 +691,14 @@
+@@ -690,8 +690,14 @@
    MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
    MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
  
@@ -107,10 +107,10 @@ index cef43b34b7..f53380aca2 100644
  
    #
 diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
-index 270bd612e5..d942c7354a 100644
+index 9ff998dda5..92f5fd0850 100644
 --- a/OvmfPkg/OvmfPkgIa32.dsc
 +++ b/OvmfPkg/OvmfPkgIa32.dsc
-@@ -828,8 +828,14 @@
+@@ -830,8 +830,14 @@
    MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
    MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
  
@@ -128,10 +128,10 @@ index 270bd612e5..d942c7354a 100644
    OvmfPkg/VirtHstiDxe/VirtHstiDxe.inf
  
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index 269a4b2b21..d915b847cb 100644
+index 162f0cf385..feac55d1dd 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
-@@ -842,8 +842,14 @@
+@@ -843,8 +843,14 @@
    MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
    MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
  
@@ -149,10 +149,10 @@ index 269a4b2b21..d915b847cb 100644
    OvmfPkg/VirtHstiDxe/VirtHstiDxe.inf
  
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index 9614cc1c56..12ee5510bd 100644
+index d97ccb44cc..1c925296a2 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
-@@ -910,8 +910,14 @@
+@@ -908,8 +908,14 @@
    MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
    MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
  

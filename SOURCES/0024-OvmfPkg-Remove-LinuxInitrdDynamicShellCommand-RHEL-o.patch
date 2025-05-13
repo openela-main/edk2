@@ -1,4 +1,4 @@
-From cd1746c9920e93bf40994172881bc13cf185991c Mon Sep 17 00:00:00 2001
+From fbb98d8aedf36601cc4c4b267d08ffbfe919ad76 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:39 +0200
 Subject: [PATCH] OvmfPkg: Remove LinuxInitrdDynamicShellCommand (RHEL only)

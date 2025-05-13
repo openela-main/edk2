@@ -1,0 +1,37 @@
+From 02b2c1d2fd291cb56cc44f7c57f8720035390fdd Mon Sep 17 00:00:00 2001
+From: Tom Lendacky <thomas.lendacky@amd.com>
+Date: Mon, 18 Nov 2024 12:59:32 -0600
+Subject: [PATCH] OvmfPkg/QemuFlashFvbServicesRuntimeDxe: Do not use flash with
+ SEV-SNP
+
+SEV-SNP does not support the use of the Qemu flash device as SEV-SNP
+guests are started using the Qemu -bios option instead of the Qemu -drive
+if=pflash option. Perform runtime detection of SEV-SNP and exit early from
+the Qemu flash device initialization, indicating the Qemu flash device is
+not present. SEV-SNP guests will use the emulated variable support.
+
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+(cherry picked from commit f0d2bc3ab268c8e3c6da4158208df38bc9d3677e)
+---
+ OvmfPkg/QemuFlashFvbServicesRuntimeDxe/QemuFlash.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/OvmfPkg/QemuFlashFvbServicesRuntimeDxe/QemuFlash.c b/OvmfPkg/QemuFlashFvbServicesRuntimeDxe/QemuFlash.c
+index a577aea556..5e393e98ed 100644
+--- a/OvmfPkg/QemuFlashFvbServicesRuntimeDxe/QemuFlash.c
++++ b/OvmfPkg/QemuFlashFvbServicesRuntimeDxe/QemuFlash.c
+@@ -259,6 +259,14 @@ QemuFlashInitialize (
+   VOID
+   )
+ {
++  //
++  // The SNP model does not provide for QEMU flash device support, so exit
++  // early before attempting to initialize any QEMU flash device support.
++  //
++  if (MemEncryptSevSnpIsEnabled ()) {
++    return EFI_UNSUPPORTED;
++  }
++
+   mFlashBase   = (UINT8 *)(UINTN)PcdGet32 (PcdOvmfFdBaseAddress);
+   mFdBlockSize = PcdGet32 (PcdOvmfFirmwareBlockSize);
+   ASSERT (PcdGet32 (PcdOvmfFirmwareFdSize) % mFdBlockSize == 0);

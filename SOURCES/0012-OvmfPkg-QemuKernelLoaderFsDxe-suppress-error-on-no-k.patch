@@ -1,4 +1,4 @@
-From 8c67b1b96e42c39a3562c8790ae5985a240edfce Mon Sep 17 00:00:00 2001
+From 994d660325a68c1ee904205649e6e88e5e2da991 Mon Sep 17 00:00:00 2001
 From: Laszlo Ersek <lersek@redhat.com>
 Date: Wed, 24 Jun 2020 11:31:36 +0200
 Subject: [PATCH] OvmfPkg/QemuKernelLoaderFsDxe: suppress error on no "-kernel"
@@ -32,7 +32,7 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  2 files changed, 18 insertions(+)
 
 diff --git a/OvmfPkg/QemuKernelLoaderFsDxe/QemuKernelLoaderFsDxe.c b/OvmfPkg/QemuKernelLoaderFsDxe/QemuKernelLoaderFsDxe.c
-index 3c12085f6c..e192809198 100644
+index cf58c97cd2..023eece6d9 100644
 --- a/OvmfPkg/QemuKernelLoaderFsDxe/QemuKernelLoaderFsDxe.c
 +++ b/OvmfPkg/QemuKernelLoaderFsDxe/QemuKernelLoaderFsDxe.c
 @@ -19,6 +19,7 @@
@@ -43,7 +43,7 @@ index 3c12085f6c..e192809198 100644
  #include <Library/DevicePathLib.h>
  #include <Library/MemoryAllocationLib.h>
  #include <Library/QemuFwCfgLib.h>
-@@ -1081,6 +1082,22 @@ QemuKernelLoaderFsDxeEntrypoint (
+@@ -1080,6 +1081,22 @@ QemuKernelLoaderFsDxeEntrypoint (
  
    if (KernelBlob->Data == NULL) {
      Status = EFI_NOT_FOUND;

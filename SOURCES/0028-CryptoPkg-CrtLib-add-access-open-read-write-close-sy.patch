@@ -1,4 +1,4 @@
-From 168cfe83b250d3166817549c1e96e6b1f02bcab4 Mon Sep 17 00:00:00 2001
+From 9810b2cd7f2c2be33d1e0182de40eefecd765f49 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Mon, 28 Aug 2023 13:27:09 +0200
 Subject: [PATCH] CryptoPkg/CrtLib: add access/open/read/write/close syscalls
@@ -15,10 +15,10 @@ Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
  2 files changed, 87 insertions(+)
 
 diff --git a/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c b/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c
-index 37cdecc9bd..dfdb635536 100644
+index b114cc069a..6ba751c1f1 100644
 --- a/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c
 +++ b/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c
-@@ -550,6 +550,52 @@ fread (
+@@ -589,6 +589,52 @@ fread (
    return 0;
  }
  
@@ -72,10 +72,10 @@ index 37cdecc9bd..dfdb635536 100644
  getuid (
    void
 diff --git a/CryptoPkg/Library/Include/CrtLibSupport.h b/CryptoPkg/Library/Include/CrtLibSupport.h
-index f36fe08f0c..7d98496af8 100644
+index cd51e197e7..b1616a7b4c 100644
 --- a/CryptoPkg/Library/Include/CrtLibSupport.h
 +++ b/CryptoPkg/Library/Include/CrtLibSupport.h
-@@ -78,6 +78,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+@@ -79,6 +79,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
  //
  // Definitions for global constants used by CRT library routines
  //
@@ -83,7 +83,7 @@ index f36fe08f0c..7d98496af8 100644
  #define EINVAL        22              /* Invalid argument */
  #define EAFNOSUPPORT  47              /* Address family not supported by protocol family */
  #define INT_MAX       0x7FFFFFFF      /* Maximum (signed) int value */
-@@ -102,6 +103,15 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+@@ -103,6 +104,15 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
  #define NS_INADDRSZ   4   /*%< IPv4 T_A */
  #define NS_IN6ADDRSZ  16  /*%< IPv6 T_AAAA */
  
@@ -99,7 +99,7 @@ index f36fe08f0c..7d98496af8 100644
  //
  // Basic types mapping
  //
-@@ -324,6 +334,37 @@ fprintf     (
+@@ -329,6 +339,37 @@ fprintf     (
    ...
    );
  

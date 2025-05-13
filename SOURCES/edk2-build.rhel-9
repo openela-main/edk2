@@ -16,14 +16,12 @@ FD_SIZE_4MB              = TRUE
 [opts.ovmf.sb.smm]
 SECURE_BOOT_ENABLE       = TRUE
 SMM_REQUIRE              = TRUE
-# old downstream
-EXCLUDE_SHELL_FROM_FD    = TRUE
-# new upstream
 BUILD_SHELL              = FALSE
 
 [opts.ovmf.sb.stateless]
 SECURE_BOOT_ENABLE       = TRUE
 SMM_REQUIRE              = FALSE
+BUILD_SHELL              = FALSE
 
 [opts.armvirt.verbose]
 DEBUG_PRINT_ERROR_LEVEL  = 0x8040004F
@@ -31,6 +29,9 @@ DEBUG_PRINT_ERROR_LEVEL  = 0x8040004F
 [opts.armvirt.silent]
 DEBUG_PRINT_ERROR_LEVEL  = 0x80000000
 
+
+[pcds.la57]
+PcdUse5LevelPageTable    = TRUE
 
 [pcds.nx.strict]
 PcdDxeNxMemoryProtectionPolicy = 0xC000000000007FD5
@@ -52,6 +53,7 @@ conf = OvmfPkg/OvmfPkgX64.dsc
 arch = X64
 opts = ovmf.common
        ovmf.4m
+pcds = la57
 plat = OvmfX64
 dest = RHEL-9/ovmf
 cpy1 = FV/OVMF_CODE.fd OVMF_CODE.fd
@@ -65,6 +67,7 @@ arch = X64
 opts = ovmf.common
        ovmf.4m
        ovmf.sb.smm
+pcds = la57
 plat = OvmfX64
 dest = RHEL-9/ovmf
 cpy1 = FV/OVMF_CODE.fd OVMF_CODE.secboot.fd
@@ -91,6 +94,7 @@ arch = X64
 opts = ovmf.common
        ovmf.4m
        ovmf.sb.stateless
+pcds = la57
 plat = IntelTdx
 dest = RHEL-9/ovmf
 cpy1 = FV/OVMF.fd OVMF.inteltdx.fd

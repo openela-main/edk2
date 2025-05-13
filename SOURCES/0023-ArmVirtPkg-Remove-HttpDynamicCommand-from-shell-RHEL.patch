@@ -1,4 +1,4 @@
-From 1f15cf34691e2f9604ee6efe142c2d710aad579c Mon Sep 17 00:00:00 2001
+From 35b5c9d7745891548730c6611aed7e12e5b84786 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:34 +0200
 Subject: [PATCH] ArmVirtPkg: Remove HttpDynamicCommand from shell (RHEL only)
@@ -27,10 +27,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  2 files changed, 5 deletions(-)
 
 diff --git a/ArmVirtPkg/ArmVirt.dsc.inc b/ArmVirtPkg/ArmVirt.dsc.inc
-index ee98673e98..996b4ddfc4 100644
+index 2a8236e520..5bfb16c27e 100644
 --- a/ArmVirtPkg/ArmVirt.dsc.inc
 +++ b/ArmVirtPkg/ArmVirt.dsc.inc
-@@ -394,10 +394,6 @@
+@@ -396,10 +396,6 @@
    #
    # UEFI application (Shell Embedded Boot Loader)
    #

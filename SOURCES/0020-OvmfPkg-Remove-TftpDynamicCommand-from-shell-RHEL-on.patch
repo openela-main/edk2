@@ -1,4 +1,4 @@
-From d417cfeb0ed76b3187b44e2491611f55d6de33b3 Mon Sep 17 00:00:00 2001
+From 7dd26632cf79f0e103c609b2b47bcc7c9c4af409 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:25 +0200
 Subject: [PATCH] OvmfPkg: Remove TftpDynamicCommand from shell (RHEL only)

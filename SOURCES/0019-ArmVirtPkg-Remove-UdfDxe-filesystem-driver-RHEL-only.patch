@@ -1,4 +1,4 @@
-From 9b039f2eb195f37b724f86efc31c8a4d6abd217d Mon Sep 17 00:00:00 2001
+From e11619096c12d5f048d3692328d1d1d02d998dc9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:22 +0200
 Subject: [PATCH] ArmVirtPkg: Remove UdfDxe filesystem driver (RHEL only)
@@ -24,10 +24,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  3 files changed, 3 deletions(-)
 
 diff --git a/ArmVirtPkg/ArmVirtQemu.dsc b/ArmVirtPkg/ArmVirtQemu.dsc
-index d1deccaadc..f91bb09fa3 100644
+index 44bee7c339..e7e9df3b42 100644
 --- a/ArmVirtPkg/ArmVirtQemu.dsc
 +++ b/ArmVirtPkg/ArmVirtQemu.dsc
-@@ -463,7 +463,6 @@
+@@ -469,7 +469,6 @@
    MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
@@ -48,10 +48,10 @@ index 7205274bed..24a9dac2fd 100644
    #
    # Status Code Routing
 diff --git a/ArmVirtPkg/ArmVirtQemuKernel.dsc b/ArmVirtPkg/ArmVirtQemuKernel.dsc
-index 9643fd5427..c2825aa4c2 100644
+index e0bc37ac7c..ee2459e31d 100644
 --- a/ArmVirtPkg/ArmVirtQemuKernel.dsc
 +++ b/ArmVirtPkg/ArmVirtQemuKernel.dsc
-@@ -367,7 +367,6 @@
+@@ -374,7 +374,6 @@
    MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf

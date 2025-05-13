@@ -1,8 +1,8 @@
 ExclusiveArch: x86_64 aarch64
 
-# edk2-stable202405
-%define GITDATE        20240524
-%define GITCOMMIT      3e722403cd
+# edk2-stable202411
+%define GITDATE        20241117
+%define GITCOMMIT      0f3867fa6ef0
 %define TOOLCHAIN      GCC
 
 %define OPENSSL_VER    3.0.7
@@ -21,7 +21,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    6%{?dist}.3
+Release:    2%{?dist}
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -33,6 +33,7 @@ URL:        http://www.tianocore.org
 Source0: edk2-%{GITCOMMIT}.tar.xz
 Source1: ovmf-whitepaper-c770f8c.txt
 Source2: openssl-rhel-%{OPENSSL_HASH}.tar.xz
+Source3: dtc-1.7.0.tar.xz
 
 # json description files
 Source10: 50-edk2-aarch64-qcow2.json
@@ -74,41 +75,18 @@ Patch20: 0022-OvmfPkg-Remove-HttpDynamicCommand-from-shell-RHEL-on.patch
 Patch21: 0023-ArmVirtPkg-Remove-HttpDynamicCommand-from-shell-RHEL.patch
 Patch22: 0024-OvmfPkg-Remove-LinuxInitrdDynamicShellCommand-RHEL-o.patch
 Patch23: 0025-ArmVirtPkg-Remove-LinuxInitrdDynamicShellCommand-RHE.patch
-Patch24: 0026-UefiCpuPkg-MpInitLib-fix-apic-mode-for-cpu-hotplug.patch
-Patch25: 0027-OvmfPkg-AmdSevDxe-Shim-Reboot-workaround-RHEL-only.patch
-Patch26: 0028-CryptoPkg-CrtLib-add-stat.h-include-file.patch
-Patch27: 0029-CryptoPkg-CrtLib-add-access-open-read-write-close-sy.patch
-Patch28: 0030-OvmfPkg-Sec-Setup-MTRR-early-in-the-boot-process.patch
-Patch29: 0031-MdePkg-ArchitecturalMsr.h-add-defines-for-MTRR-cache.patch
-Patch30: 0032-UefiCpuPkg-MtrrLib.h-use-cache-type-defines-from-Arc.patch
-Patch31: 0033-OvmfPkg-Sec-use-cache-type-defines-from-Architectura.patch
-Patch32: 0034-NetworkPkg-TcpDxe-Fixed-system-stuck-on-PXE-boot-flo.patch
-Patch33: 0035-OvmfPkg-add-morlock-support.patch
-Patch34: 0036-MdePkg-BaseRngLib-Add-a-smoketest-for-RDRAND-and-che.patch
-Patch35: 0037-SecurityPkg-RngDxe-add-rng-test.patch
-Patch36: 0038-OvmfPkg-wire-up-RngDxe.patch
-Patch37: 0039-CryptoPkg-Test-call-ProcessLibraryConstructorList.patch
-Patch38: 0040-MdePkg-X86UnitTestHost-set-rdrand-cpuid-bit.patch
-# For RHEL-43442 - edk2 disconnects abnormally before loading the kernel
-Patch39: edk2-MdeModulePkg-Warn-if-out-of-flash-space-when-writing.patch
-# For RHEL-45899 - [RHEL-9.5.0] edk2 hit Failed to generate random data
-Patch40: edk2-NetworkPkg-DxeNetLib-adjust-PseudoRandom-error-loggi.patch
-# For RHEL-45899 - [RHEL-9.5.0] edk2 hit Failed to generate random data
-Patch41: edk2-NetworkPkg-DxeNetLib-Reword-PseudoRandom-error-loggi.patch
-# For RHEL-56081 - [EDK2] Shim fallback reboot workaround might not work on SNP
-Patch42: edk2-AmdSevDxe-Fix-the-shim-fallback-reboot-workaround-fo.patch
-# For RHEL-45847 - [RHEL9.5] Hotplug vcpu to a guest cause guest kernel panic
-Patch43: edk2-UefiCpuPkg-PiSmmCpuDxeSmm-skip-PatchInstructionX86-c.patch
-# For RHEL-56974 - qemu-kvm: warning: Blocked re-entrant IO on MemoryRegion: acpi-cpu-hotplug at addr: 0x0 [rhel-9]
-Patch44: edk2-OvmfPkg-CpuHotplugSmm-delay-SMM-exit.patch
-# For RHEL-60831 - CVE-2024-38796 edk2: Integer overflows in PeCoffLoaderRelocateImage [rhel-9.5]
-Patch45: edk2-MdePkg-Fix-overflow-issue-in-BasePeCoffLib.patch
-# For RHEL-65735 - [Regression] HTTP Boot not working on old vCPU without virtio-rng device present  [rhel-9.5.z]
-Patch46: edk2-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch
-# For RHEL-65735 - [Regression] HTTP Boot not working on old vCPU without virtio-rng device present  [rhel-9.5.z]
-Patch47: edk2-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch
-# For RHEL-63094 - [Regression] HTTP Boot fails to work with edk2-ovmf-20231122-6.el9_4.2 and greater [rhel-9.5]
-Patch48: edk2-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch
+Patch24: 0026-OvmfPkg-AmdSevDxe-Shim-Reboot-workaround-RHEL-only.patch
+Patch25: 0027-CryptoPkg-CrtLib-add-stat.h-include-file.patch
+Patch26: 0028-CryptoPkg-CrtLib-add-access-open-read-write-close-sy.patch
+Patch27: 0029-NetworkPkg-DxeNetLib-Reword-PseudoRandom-error-loggi.patch
+Patch28: 0030-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch
+Patch29: 0031-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch
+Patch30: 0032-OvmfPkg-QemuFlashFvbServicesRuntimeDxe-Do-not-use-fl.patch
+Patch31: 0033-OvmfPkg-PlatformPei-Move-NV-vars-init-to-after-SEV-S.patch
+Patch32: 0034-OvmfPkg-PlatformInitLib-Retry-NV-vars-FV-check-as-sh.patch
+Patch33: 0035-OvmfPkg-EmuVariableFvbRuntimeDxe-Issue-NV-vars-initi.patch
+Patch34: 0036-OvmfPkg-PlatformInitLib-enable-x2apic-mode-if-needed.patch
+Patch35: 0037-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -218,6 +196,7 @@ cp -a -- %{SOURCE40} %{SOURCE41} %{SOURCE43} %{SOURCE44} %{SOURCE45} .
 cp -a -- %{SOURCE80} %{SOURCE82} .
 cp -a -- %{SOURCE90} .
 tar -C CryptoPkg/Library/OpensslLib -a -f %{SOURCE2} -x
+tar -xf %{SOURCE3} --strip-components=1 --directory MdePkg/Library/BaseFdtLib/libfdt
 
 # Done by %setup, but we do not use it for the auxiliary tarballs
 chmod -Rf a+rX,u+w,g-w,o-w .
@@ -443,21 +422,39 @@ install -m 0644 \
 
 
 %changelog
-* Fri Nov 22 2024 Jon Maloy <jmaloy@redhat.com> - 20240524-6.el9_5.3
-- edk2-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch [RHEL-63094]
-- Resolves: RHEL-63094
-  ([Regression] HTTP Boot fails to work with edk2-ovmf-20231122-6.el9_4.2 and greater [rhel-9.5])
+* Mon Jan 20 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20241117-2
+- edk2-Fix-amd-sev-firmware-file-for-amd-snp.patch [RHEL-72447]
+- Resolves: RHEL-72447
+  ( QEMU should creating new json file that will correctly describe firmware for amd-sev-snp [rhel-9])
 
-* Mon Nov 11 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20240524-6.el9_5.2
-- edk2-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch [RHEL-65735]
-- edk2-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch [RHEL-65735]
-- Resolves: RHEL-65735
-  ([Regression] HTTP Boot not working on old vCPU without virtio-rng device present  [rhel-9.5.z])
+* Mon Dec 09 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20241117-1
+- Update to edk2-stable202411
+- Resolves: RHEL-58063
+ ([edk2,rhel-9] rebase to edk2-stable202411)
 
-* Wed Oct 16 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20240524-6.el9_5.1
-- edk2-MdePkg-Fix-overflow-issue-in-BasePeCoffLib.patch [RHEL-60831]
-- Resolves: RHEL-60831
-  (CVE-2024-38796 edk2: Integer overflows in PeCoffLoaderRelocateImage [rhel-9.5])
+* Fri Nov 22 2024 Jon Maloy <jmaloy@redhat.com> - 20240524-10
+- edk2-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch [RHEL-58631]
+- Resolves: RHEL-58631
+  ([Regression] HTTP Boot fails to work with edk2-ovmf-20231122-6.el9_4.2 and greater)
+
+* Mon Nov 11 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20240524-9
+- edk2-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch [RHEL-66230]
+- Resolves: RHEL-66230
+  ([Regression] [aarch64] HTTP Boot not working on old vCPU without virtio-rng device present [rhel-9.6])
+
+* Wed Nov 06 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20240524-8
+- edk2-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch [RHEL-65725]
+- Resolves: RHEL-65725
+  ([Regression] HTTP Boot not working on old vCPU without virtio-rng device present [rhel-9.6])
+
+* Tue Oct 08 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20240524-7
+- edk2-OvmfPkg-VirtioGpuDxe-ignore-display-resolutions-smal.patch [RHEL-56248]
+- edk2-OvmfPkg-QemuVideoDxe-ignore-display-resolutions-smal.patch [RHEL-56248]
+- edk2-MdePkg-Fix-overflow-issue-in-BasePeCoffLib.patch [RHEL-60833]
+- Resolves: RHEL-56248
+  (507x510 display resolution should not crash the firmware [edk2,rhel-9.6])
+- Resolves: RHEL-60833
+  (CVE-2024-38796 edk2: Integer overflows in PeCoffLoaderRelocateImage [rhel-9.6])
 
 * Fri Sep 13 2024 Miroslav Rezanina <mrezanin@redhat.com> - 20240524-6
 - edk2-OvmfPkg-CpuHotplugSmm-delay-SMM-exit.patch [RHEL-56974]

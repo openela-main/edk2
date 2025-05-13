@@ -1,4 +1,4 @@
-From 3dbb4913b3e1c0413dd3016681aca3a3d12edd0d Mon Sep 17 00:00:00 2001
+From 2c8e25b287c112ec4a2d89a9bc84e44db93bf4ee Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Tue, 21 Nov 2017 00:57:45 +0100
 Subject: [PATCH] OvmfPkg: enable DEBUG_VERBOSE (RHEL only)
@@ -65,7 +65,7 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
  4 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
-index 627fded641..cef43b34b7 100644
+index b51eba71fc..1128968857 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.dsc
 +++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
 @@ -429,7 +429,7 @@
@@ -78,10 +78,10 @@ index 627fded641..cef43b34b7 100644
  !if $(SOURCE_DEBUG_ENABLE) == TRUE
    gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x17
 diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
-index dddef5ed0e..270bd612e5 100644
+index c56d24a676..9ff998dda5 100644
 --- a/OvmfPkg/OvmfPkgIa32.dsc
 +++ b/OvmfPkg/OvmfPkgIa32.dsc
-@@ -535,7 +535,7 @@
+@@ -536,7 +536,7 @@
    # DEBUG_VERBOSE   0x00400000  // Detailed debug messages that may
    #                             // significantly impact boot performance
    # DEBUG_ERROR     0x80000000  // Error
@@ -91,7 +91,7 @@ index dddef5ed0e..270bd612e5 100644
  !if $(SOURCE_DEBUG_ENABLE) == TRUE
    gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x17
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index 933abb258f..269a4b2b21 100644
+index b560fb7718..162f0cf385 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
 @@ -542,7 +542,7 @@
@@ -104,7 +104,7 @@ index 933abb258f..269a4b2b21 100644
  !if $(SOURCE_DEBUG_ENABLE) == TRUE
    gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x17
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index 04157ab14b..9614cc1c56 100644
+index c46a8e05d6..d97ccb44cc 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
 @@ -561,7 +561,7 @@

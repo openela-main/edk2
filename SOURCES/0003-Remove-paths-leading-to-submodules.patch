@@ -1,4 +1,4 @@
-From de9f92d118c1374243d9d3f006088a29ec7dcf8d Mon Sep 17 00:00:00 2001
+From 0884bb8f69f09746ea3c1cf8e7f1c4992759bca7 Mon Sep 17 00:00:00 2001
 From: Miroslav Rezanina <mrezanin@redhat.com>
 Date: Thu, 24 Mar 2022 03:23:02 -0400
 Subject: [PATCH] Remove paths leading to submodules
@@ -27,7 +27,7 @@ index 5275f657ef..39d7199753 100644
    EfiRom \
    GenFfs \
 diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
-index f7339f0aec..badb93238f 100644
+index b9bc7041f2..168f224d4b 100644
 --- a/MdeModulePkg/MdeModulePkg.dec
 +++ b/MdeModulePkg/MdeModulePkg.dec
 @@ -26,9 +26,6 @@
@@ -41,7 +41,7 @@ index f7339f0aec..badb93238f 100644
    ##  @libraryclass  Defines a set of methods to reset whole system.
    ResetSystemLib|Include/Library/ResetSystemLib.h
 diff --git a/MdePkg/MdePkg.dec b/MdePkg/MdePkg.dec
-index bf94549cbf..605b0f1be8 100644
+index 624f626360..46ce26916b 100644
 --- a/MdePkg/MdePkg.dec
 +++ b/MdePkg/MdePkg.dec
 @@ -29,7 +29,6 @@

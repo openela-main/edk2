@@ -1,4 +1,4 @@
-From 98e35df340a8a5cd18cb386361c7da6350c54800 Mon Sep 17 00:00:00 2001
+From 17cfa7a7f8e17ddea0d3e5d224b6b0cbc6e874da Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:19 +0200
 Subject: [PATCH] OvmfPkg: Remove UdfDxe filesystem driver (RHEL only)
@@ -29,10 +29,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  8 files changed, 8 deletions(-)
 
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
-index 5461c1290d..cf1ad83e09 100644
+index 89c9b610d1..4edc2a9069 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.dsc
 +++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
-@@ -679,7 +679,6 @@
+@@ -678,7 +678,6 @@
    MdeModulePkg/Universal/Disk/RamDiskDxe/RamDiskDxe.inf
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
@@ -41,10 +41,10 @@ index 5461c1290d..cf1ad83e09 100644
    MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe.inf
    MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe.inf
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.fdf b/OvmfPkg/AmdSev/AmdSevX64.fdf
-index 10538a0465..c56c98dc85 100644
+index 899f02981f..2fe05eccdd 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.fdf
 +++ b/OvmfPkg/AmdSev/AmdSevX64.fdf
-@@ -280,7 +280,6 @@ INF  MdeModulePkg/Universal/Acpi/BootScriptExecutorDxe/BootScriptExecutorDxe.inf
+@@ -279,7 +279,6 @@ INF  MdeModulePkg/Universal/Acpi/BootScriptExecutorDxe/BootScriptExecutorDxe.inf
  INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
  
  INF  FatPkg/EnhancedFatDxe/Fat.inf
@@ -53,10 +53,10 @@ index 10538a0465..c56c98dc85 100644
  INF OvmfPkg/AmdSev/SecretDxe/SecretDxe.inf
  INF  OvmfPkg/AmdSev/Grub/Grub.inf
 diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
-index afd2a3c5c0..d8ae542686 100644
+index 5a1c7058c8..5333708216 100644
 --- a/OvmfPkg/OvmfPkgIa32.dsc
 +++ b/OvmfPkg/OvmfPkgIa32.dsc
-@@ -815,7 +815,6 @@
+@@ -817,7 +817,6 @@
    MdeModulePkg/Universal/Disk/RamDiskDxe/RamDiskDxe.inf
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
@@ -65,10 +65,10 @@ index afd2a3c5c0..d8ae542686 100644
    MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe.inf
    MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe.inf
 diff --git a/OvmfPkg/OvmfPkgIa32.fdf b/OvmfPkg/OvmfPkgIa32.fdf
-index c392b96470..0ffa3be750 100644
+index 7e09e3aac9..30649699cd 100644
 --- a/OvmfPkg/OvmfPkgIa32.fdf
 +++ b/OvmfPkg/OvmfPkgIa32.fdf
-@@ -289,7 +289,6 @@ INF  MdeModulePkg/Universal/Acpi/BootScriptExecutorDxe/BootScriptExecutorDxe.inf
+@@ -288,7 +288,6 @@ INF  MdeModulePkg/Universal/Acpi/BootScriptExecutorDxe/BootScriptExecutorDxe.inf
  INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
  
  INF  FatPkg/EnhancedFatDxe/Fat.inf
@@ -77,10 +77,10 @@ index c392b96470..0ffa3be750 100644
  INF MdeModulePkg/Logo/LogoDxe.inf
  
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index f5a4c57c8e..52ac2c96fc 100644
+index 4fb8b9ba39..9e6f35607d 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
-@@ -829,7 +829,6 @@
+@@ -830,7 +830,6 @@
    MdeModulePkg/Universal/Disk/RamDiskDxe/RamDiskDxe.inf
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
@@ -89,10 +89,10 @@ index f5a4c57c8e..52ac2c96fc 100644
    MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe.inf
    MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe.inf
 diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
-index 6278daeeee..c4f3ec0735 100644
+index 8ba0ce211d..8ef8519cfe 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.fdf
 +++ b/OvmfPkg/OvmfPkgIa32X64.fdf
-@@ -290,7 +290,6 @@ INF  MdeModulePkg/Universal/Acpi/BootScriptExecutorDxe/BootScriptExecutorDxe.inf
+@@ -289,7 +289,6 @@ INF  MdeModulePkg/Universal/Acpi/BootScriptExecutorDxe/BootScriptExecutorDxe.inf
  INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
  
  INF  FatPkg/EnhancedFatDxe/Fat.inf
@@ -101,10 +101,10 @@ index 6278daeeee..c4f3ec0735 100644
  INF MdeModulePkg/Logo/LogoDxe.inf
  
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index 08b73a64c9..f76d0ef7bc 100644
+index 21c6a5b3c0..c127ace963 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
-@@ -897,7 +897,6 @@
+@@ -895,7 +895,6 @@
    MdeModulePkg/Universal/Disk/RamDiskDxe/RamDiskDxe.inf
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
@@ -113,10 +113,10 @@ index 08b73a64c9..f76d0ef7bc 100644
    MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe.inf
    MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe.inf
 diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
-index fc4b6dd3a4..bedd85ef7a 100644
+index f3cb0ea40c..c0da2672a3 100644
 --- a/OvmfPkg/OvmfPkgX64.fdf
 +++ b/OvmfPkg/OvmfPkgX64.fdf
-@@ -321,7 +321,6 @@ INF  MdeModulePkg/Universal/Acpi/BootScriptExecutorDxe/BootScriptExecutorDxe.inf
+@@ -320,7 +320,6 @@ INF  MdeModulePkg/Universal/Acpi/BootScriptExecutorDxe/BootScriptExecutorDxe.inf
  INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResourceTableDxe.inf
  
  INF  FatPkg/EnhancedFatDxe/Fat.inf

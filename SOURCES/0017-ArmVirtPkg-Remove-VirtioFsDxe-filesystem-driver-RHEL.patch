@@ -1,4 +1,4 @@
-From 9827ce562f432da36410ef0e9ce6d7971e502b99 Mon Sep 17 00:00:00 2001
+From e23b7fc026b31882c4ded58805af9df9d3c3b574 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:16 +0200
 Subject: [PATCH] ArmVirtPkg: Remove VirtioFsDxe filesystem driver (RHEL only)
@@ -24,10 +24,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  3 files changed, 3 deletions(-)
 
 diff --git a/ArmVirtPkg/ArmVirtQemu.dsc b/ArmVirtPkg/ArmVirtQemu.dsc
-index 00e656d0c9..d1deccaadc 100644
+index 8735d2881e..44bee7c339 100644
 --- a/ArmVirtPkg/ArmVirtQemu.dsc
 +++ b/ArmVirtPkg/ArmVirtQemu.dsc
-@@ -464,7 +464,6 @@
+@@ -470,7 +470,6 @@
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
    MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
@@ -48,10 +48,10 @@ index 38906004d7..7205274bed 100644
    #
    # Status Code Routing
 diff --git a/ArmVirtPkg/ArmVirtQemuKernel.dsc b/ArmVirtPkg/ArmVirtQemuKernel.dsc
-index c7918c8cf3..9643fd5427 100644
+index c15d51dab0..e0bc37ac7c 100644
 --- a/ArmVirtPkg/ArmVirtQemuKernel.dsc
 +++ b/ArmVirtPkg/ArmVirtQemuKernel.dsc
-@@ -368,7 +368,6 @@
+@@ -375,7 +375,6 @@
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
    MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf

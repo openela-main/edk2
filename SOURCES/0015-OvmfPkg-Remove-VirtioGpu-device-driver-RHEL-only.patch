@@ -1,4 +1,4 @@
-From 42becc4c97abe443d06bb128a4b7d5e279842715 Mon Sep 17 00:00:00 2001
+From 775140417987bc1ed4ea35300a71085d34c9ea76 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:28:59 +0200
 Subject: [PATCH] OvmfPkg: Remove VirtioGpu device driver (RHEL only)
@@ -29,10 +29,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  8 files changed, 8 deletions(-)
 
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
-index 6b6e108d11..5461c1290d 100644
+index 0d21eb795e..89c9b610d1 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.dsc
 +++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
-@@ -701,7 +701,6 @@
+@@ -700,7 +700,6 @@
      <PcdsFixedAtBuild>
        gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
    }
@@ -41,10 +41,10 @@ index 6b6e108d11..5461c1290d 100644
    #
    # ISA Support
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.fdf b/OvmfPkg/AmdSev/AmdSevX64.fdf
-index c176043482..10538a0465 100644
+index 3dea9b36f8..899f02981f 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.fdf
 +++ b/OvmfPkg/AmdSev/AmdSevX64.fdf
-@@ -300,7 +300,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+@@ -299,7 +299,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
  INF  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
  
  INF  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf
@@ -53,10 +53,10 @@ index c176043482..10538a0465 100644
  INF  OvmfPkg/AmdSevDxe/AmdSevDxe.inf
  INF  OvmfPkg/IoMmuDxe/IoMmuDxe.inf
 diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
-index d368aa11fe..40e78014c4 100644
+index cbe9a503e8..d35d04b39a 100644
 --- a/OvmfPkg/OvmfPkgIa32.dsc
 +++ b/OvmfPkg/OvmfPkgIa32.dsc
-@@ -838,7 +838,6 @@
+@@ -840,7 +840,6 @@
      <PcdsFixedAtBuild>
        gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
    }
@@ -65,10 +65,10 @@ index d368aa11fe..40e78014c4 100644
  
    #
 diff --git a/OvmfPkg/OvmfPkgIa32.fdf b/OvmfPkg/OvmfPkgIa32.fdf
-index ef933def99..68d59968ec 100644
+index 59d15bb77d..7fd9203427 100644
 --- a/OvmfPkg/OvmfPkgIa32.fdf
 +++ b/OvmfPkg/OvmfPkgIa32.fdf
-@@ -317,7 +317,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+@@ -316,7 +316,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
  
  INF  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
  INF  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf
@@ -77,10 +77,10 @@ index ef933def99..68d59968ec 100644
  INF  OvmfPkg/IoMmuDxe/IoMmuDxe.inf
  INF  OvmfPkg/VirtHstiDxe/VirtHstiDxe.inf
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index cf09bdf785..6ade9aa0ef 100644
+index 315ecf7d89..5710183135 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
-@@ -852,7 +852,6 @@
+@@ -853,7 +853,6 @@
      <PcdsFixedAtBuild>
        gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
    }
@@ -89,10 +89,10 @@ index cf09bdf785..6ade9aa0ef 100644
  
    #
 diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
-index 0cd98ada5a..8891d96422 100644
+index 048fda9f16..a15cd72f13 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.fdf
 +++ b/OvmfPkg/OvmfPkgIa32X64.fdf
-@@ -323,7 +323,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+@@ -322,7 +322,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
  
  INF  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
  INF  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf
@@ -101,10 +101,10 @@ index 0cd98ada5a..8891d96422 100644
  INF  OvmfPkg/AmdSevDxe/AmdSevDxe.inf
  INF  OvmfPkg/IoMmuDxe/IoMmuDxe.inf
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index 098d569381..8563835ae5 100644
+index 156e52e430..11a05298b6 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
-@@ -920,7 +920,6 @@
+@@ -918,7 +918,6 @@
      <PcdsFixedAtBuild>
        gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
    }
@@ -113,10 +113,10 @@ index 098d569381..8563835ae5 100644
  
    #
 diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
-index b201505214..06ac4423da 100644
+index ef01da45e6..e8562442d3 100644
 --- a/OvmfPkg/OvmfPkgX64.fdf
 +++ b/OvmfPkg/OvmfPkgX64.fdf
-@@ -356,7 +356,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+@@ -355,7 +355,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
  
  INF  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
  INF  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf
