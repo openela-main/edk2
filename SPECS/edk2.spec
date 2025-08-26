@@ -7,7 +7,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}git%{GITCOMMIT}
-Release:    13%{?dist}.4
+Release:    13%{?dist}.8
 Summary:    UEFI firmware for 64-bit virtual machines
 Group:      Applications/Emulators
 License:    BSD-2-Clause-Patent and OpenSSL and MIT
@@ -388,6 +388,14 @@ Patch115: edk2-NetworkPkg-TcpDxe-Fixed-system-stuck-on-PXE-boot-flo.patch
 Patch116: edk2-OvmfPkg-Add-Hash2DxeCrypto-to-OvmfPkg.patch
 # For RHEL-60830 - CVE-2024-38796 edk2: Integer overflows in PeCoffLoaderRelocateImage [rhel-8.10.z]
 Patch117: edk2-MdePkg-Fix-overflow-issue-in-BasePeCoffLib.patch
+# For RHEL-66236 - [Regression] HTTP Boot not working on old vCPU without virtio-rng device present [rhel-8.10]
+Patch118: edk2-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch
+# For RHEL-66236 - [Regression] HTTP Boot not working on old vCPU without virtio-rng device present [rhel-8.10]
+Patch119: edk2-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch
+# For RHEL-66188 - [Regression] HTTP Boot fails to work with edk2-ovmf-20231122-6.el9_4.2 and greater [rhel-8.10]
+Patch120: edk2-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch
+# For RHEL-71687 - [Regression] HTTP boot not available [aarch64] [rhel-8.10.z]
+Patch121: edk2-ArmVirtPkg-Add-Hash2DxeCrypto-to-ArmVirtPkg.patch
 
 
 # python3-devel and libuuid-devel are required for building tools.
@@ -834,6 +842,27 @@ true
 %endif
 
 %changelog
+* Mon Jan 06 2025 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8.8
+- edk2-ArmVirtPkg-Add-Hash2DxeCrypto-to-ArmVirtPkg.patch [RHEL-71687]
+- Resolves: RHEL-71687
+  ([Regression] HTTP boot not available [aarch64] [rhel-8.10.z])
+
+* Fri Dec 06 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8.7
+- edk2-redhat-Fix-ovmf-vars-generator-RH-only.patch [RHEL-66236]
+- Resolves: RHEL-66236
+  ([Regression] HTTP Boot fails to work with edk2-ovmf-20231122-6.el9_4.2 and greater [rhel-8.10])
+
+* Fri Nov 29 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8.6
+- edk2-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch [RHEL-66188]
+- Resolves: RHEL-66188
+  ([Regression] HTTP Boot fails to work with edk2-ovmf-20231122-6.el9_4.2 and greater [rhel-8.10])
+
+* Thu Nov 14 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8.5
+- edk2-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch [RHEL-66236]
+- edk2-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch [RHEL-66236]
+- Resolves: RHEL-66236
+  ([Regression] HTTP Boot not working on old vCPU without virtio-rng device present [rhel-8.10])
+
 * Tue Oct 29 2024 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8.4
 - edk2-MdePkg-Fix-overflow-issue-in-BasePeCoffLib.patch [RHEL-60830]
 - Resolves: RHEL-60830
