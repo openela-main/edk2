@@ -1,0 +1,45 @@
+From 2837b67434701fc5e3d2ef846e0e3c7d409df631 Mon Sep 17 00:00:00 2001
+From: Oliver Steffen <osteffen@redhat.com>
+Date: Wed, 14 Aug 2024 09:53:49 +0200
+Subject: [PATCH] NetworkPkg/DxeNetLib: Reword PseudoRandom error logging
+
+RH-Author: Oliver Steffen <osteffen@redhat.com>
+RH-MergeRequest: 66: NetworkPkg/DxeNetLib: adjust PseudoRandom error logging
+RH-Jira: RHEL-45829
+RH-Acked-by: Miroslav Rezanina <mrezanin@redhat.com>
+RH-Commit: [2/2] d1f24c14ccea7346d395c263ed577039f91debfd (osteffen/edk2)
+
+The word "Failed" is used when logging tired Rng algorithms.
+These mostly non-critical messages confused some users.
+
+Reword it and also add a message confirming eventual success to
+deescalate the importance somewhat.
+
+Signed-off-by: Oliver Steffen <osteffen@redhat.com>
+
+patch_name: edk2-NetworkPkg-DxeNetLib-Reword-PseudoRandom-error-loggi.patch
+present_in_specfile: true
+location_in_specfile: 41
+---
+ NetworkPkg/Library/DxeNetLib/DxeNetLib.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/NetworkPkg/Library/DxeNetLib/DxeNetLib.c b/NetworkPkg/Library/DxeNetLib/DxeNetLib.c
+index 9acc21caeb..73ddf8b0fb 100644
+--- a/NetworkPkg/Library/DxeNetLib/DxeNetLib.c
++++ b/NetworkPkg/Library/DxeNetLib/DxeNetLib.c
+@@ -952,12 +952,13 @@ PseudoRandom (
+         //
+         // Secure Algorithm was supported on this platform
+         //
++        DEBUG ((DEBUG_VERBOSE, "Generated random data using secure algorithm %d: %r\n", AlgorithmIndex, Status));
+         return EFI_SUCCESS;
+       } else if (Status == EFI_UNSUPPORTED) {
+         //
+         // Secure Algorithm was not supported on this platform
+         //
+-        DEBUG ((DEBUG_VERBOSE, "Failed to generate random data using secure algorithm %d: %r\n", AlgorithmIndex, Status));
++        DEBUG ((DEBUG_VERBOSE, "Unable to generate random data using secure algorithm %d not available: %r\n", AlgorithmIndex, Status));
+ 
+         //
+         // Try the next secure algorithm

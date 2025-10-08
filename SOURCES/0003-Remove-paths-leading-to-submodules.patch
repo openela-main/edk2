@@ -1,0 +1,65 @@
+From 7c992488db69cd0f5f4e26eb7819907f3bb3b5b4 Mon Sep 17 00:00:00 2001
+From: Miroslav Rezanina <mrezanin@redhat.com>
+Date: Thu, 24 Mar 2022 03:23:02 -0400
+Subject: [PATCH] Remove paths leading to submodules
+
+We removed submodules used upstream. However, edk2 build system requires
+such include paths to resolve successfully, regardless of the firmware
+platform being built.
+
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+---
+ BaseTools/Source/C/GNUmakefile | 1 -
+ MdeModulePkg/MdeModulePkg.dec  | 3 ---
+ MdePkg/MdePkg.dec              | 5 -----
+ 3 files changed, 9 deletions(-)
+
+diff --git a/BaseTools/Source/C/GNUmakefile b/BaseTools/Source/C/GNUmakefile
+index 5275f657ef..39d7199753 100644
+--- a/BaseTools/Source/C/GNUmakefile
++++ b/BaseTools/Source/C/GNUmakefile
+@@ -51,7 +51,6 @@ all: makerootdir subdirs
+ LIBRARIES = Common
+ VFRAUTOGEN = VfrCompile/VfrLexer.h
+ APPLICATIONS = \
+-  BrotliCompress \
+   VfrCompile \
+   EfiRom \
+   GenFfs \
+diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
+index b9bc7041f2..168f224d4b 100644
+--- a/MdeModulePkg/MdeModulePkg.dec
++++ b/MdeModulePkg/MdeModulePkg.dec
+@@ -26,9 +26,6 @@
+   Include
+   Test/Mock/Include
+ 
+-[Includes.Common.Private]
+-  Library/BrotliCustomDecompressLib/brotli/c/include
+-
+ [LibraryClasses]
+   ##  @libraryclass  Defines a set of methods to reset whole system.
+   ResetSystemLib|Include/Library/ResetSystemLib.h
+diff --git a/MdePkg/MdePkg.dec b/MdePkg/MdePkg.dec
+index 624f626360..46ce26916b 100644
+--- a/MdePkg/MdePkg.dec
++++ b/MdePkg/MdePkg.dec
+@@ -29,7 +29,6 @@
+   Include
+   Test/UnitTest/Include
+   Test/Mock/Include
+-  Library/MipiSysTLib/mipisyst/library/include
+ 
+ [Includes.IA32]
+   Include/Ia32
+@@ -295,10 +294,6 @@
+   #
+   FdtLib|Include/Library/FdtLib.h
+ 
+-  ##  @libraryclass  Provides general mipi sys-T services.
+-  #
+-  MipiSysTLib|Include/Library/MipiSysTLib.h
+-
+   ##  @libraryclass  Provides API to output Trace Hub debug message.
+   #
+   TraceHubDebugSysTLib|Include/Library/TraceHubDebugSysTLib.h

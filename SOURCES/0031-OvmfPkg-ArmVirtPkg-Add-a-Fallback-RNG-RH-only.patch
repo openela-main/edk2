@@ -1,0 +1,102 @@
+From 14ce76be0e92a9926a7f2b33d64b13966c6bfaf2 Mon Sep 17 00:00:00 2001
+From: Oliver Steffen <osteffen@redhat.com>
+Date: Thu, 7 Nov 2024 11:36:22 +0100
+Subject: [PATCH] OvmfPkg/ArmVirtPkg: Add a Fallback RNG (RH only)
+
+RH-Author: Oliver Steffen <osteffen@redhat.com>
+RH-MergeRequest: 82: Add a Fallback RNG (RH only)
+RH-Jira: RHEL-66234
+RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+RH-Commit: [2/2] ae2c04680e6420e096c667a22c52ec6f6fb46935 (osteffen/edk2)
+
+Since the pixiefail CVE fix, the network stack requires a random number
+generator.
+In case there is no hardware random number generator available,
+have the Platform Boot Manager install a pseudo RNG to ensure
+the network can be used.
+
+This patch adds the fallback rng which was introduced in a
+previous commit also to the ArmVirtPkg PlatformBootManagerLib.
+
+Signed-off-by: Oliver Steffen <osteffen@redhat.com>
+
+patch_name: edk2-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch
+present_in_specfile: true
+location_in_specfile: 49
+---
+ OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBm.c    | 6 ++++++
+ .../PlatformBootManagerLibLight/PlatformBootManagerLib.inf  | 5 +++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBm.c b/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBm.c
+index 8e93f3cfed..8aa1e8e2df 100644
+--- a/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBm.c
++++ b/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBm.c
+@@ -30,6 +30,7 @@
+ #include <Guid/GlobalVariable.h>
+ #include <Guid/RootBridgesConnectedEventGroup.h>
+ #include <Guid/SerialPortLibVendor.h>
++#include "FallbackRng.h"
+ 
+ #include "PlatformBm.h"
+ 
+@@ -1029,6 +1030,7 @@ PlatformBootManagerBeforeConsole (
+   //
+   FilterAndProcess (&gEfiGraphicsOutputProtocolGuid, NULL, AddOutput);
+ 
++
+   //
+   // Add the hardcoded short-form USB keyboard device path to ConIn.
+   //
+@@ -1110,6 +1112,8 @@ PlatformBootManagerBeforeConsole (
+   //
+   FilterAndProcess (&gVirtioDeviceProtocolGuid, IsVirtioSerial, SetupVirtioSerial);
+   FilterAndProcess (&gEfiPciIoProtocolGuid, IsVirtioPciSerial, SetupVirtioSerial);
++
++  FallbackRngCheckAndInstall ();
+ }
+ 
+ /**
+@@ -1175,6 +1179,8 @@ PlatformBootManagerAfterConsole (
+   RETURN_STATUS  Status;
+   BOOLEAN        Uninstall;
+ 
++  FallbackRngPrintWarning ();
++
+   //
+   // Show the splash screen.
+   //
+diff --git a/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBootManagerLib.inf b/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBootManagerLib.inf
+index 8e7cd5605f..4583c05ef4 100644
+--- a/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBootManagerLib.inf
++++ b/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBootManagerLib.inf
+@@ -27,6 +27,8 @@
+   PlatformBm.c
+   PlatformBm.h
+   QemuKernel.c
++  ../PlatformBootManagerLib/FallbackRng.h
++  ../PlatformBootManagerLib/FallbackRng.c
+ 
+ [Packages]
+   MdeModulePkg/MdeModulePkg.dec
+@@ -53,6 +55,7 @@
+   UefiBootServicesTableLib
+   UefiLib
+   UefiRuntimeServicesTableLib
++  RngLib
+ 
+ [FixedPcd]
+   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate
+@@ -70,6 +73,7 @@
+   gEfiGlobalVariableGuid
+   gRootBridgesConnectedEventGroupGuid
+   gUefiShellFileGuid
++  gEfiRngAlgorithmRaw
+ 
+ [Protocols]
+   gEfiFirmwareVolume2ProtocolGuid
+@@ -77,3 +81,4 @@
+   gEfiMemoryAttributeProtocolGuid
+   gEfiPciRootBridgeIoProtocolGuid
+   gVirtioDeviceProtocolGuid
++  gEfiRngProtocolGuid

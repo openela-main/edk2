@@ -1,0 +1,103 @@
+From 3ae6cb5329ce5e48efc29989943e19cfccbfb38b Mon Sep 17 00:00:00 2001
+From: Tom Lendacky <thomas.lendacky@amd.com>
+Date: Mon, 18 Nov 2024 12:59:32 -0600
+Subject: [PATCH] OvmfPkg/PlatformInitLib: Retry NV vars FV check as shared
+
+When OVMF is built with SECURE_BOOT_ENABLE, the variable store will be
+populated and validated in PlatformValidateNvVarStore(). When an SEV
+or an SEV-ES guest is running, this may be encrypted or unencrypted
+depending on how the guest was started. If the guest was started with the
+combined code and variable contents (OVMF.fd), then the variable store
+will be encrypted. If the guest was started with the separate code and
+variables contents (OVMF_CODE.fd and OVMF_VARS.fd), then the variable
+store will be unencrypted.
+
+When PlatformValidateNvVarStore() is first invoked, the variable store
+area is initially mapped encrypted, which may or may not pass the variable
+validation step depending how the guest was launched. To accomodate this,
+retry the validation step on failure after remapping the variable store
+area as unencrypted.
+
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+(cherry picked from commit d502cc7702e4d537c2bcbe5256e26cba6d4ca8c6)
+---
+ OvmfPkg/Library/PlatformInitLib/Platform.c    | 32 +++++++++++++++++--
+ .../PlatformInitLib/PlatformInitLib.inf       |  1 +
+ 2 files changed, 31 insertions(+), 2 deletions(-)
+
+diff --git a/OvmfPkg/Library/PlatformInitLib/Platform.c b/OvmfPkg/Library/PlatformInitLib/Platform.c
+index 10fc17355f..715533b1f2 100644
+--- a/OvmfPkg/Library/PlatformInitLib/Platform.c
++++ b/OvmfPkg/Library/PlatformInitLib/Platform.c
+@@ -34,6 +34,7 @@
+ #include <Guid/VariableFormat.h>
+ #include <OvmfPlatforms.h>
+ #include <Library/TdxLib.h>
++#include <Library/MemEncryptSevLib.h>
+ 
+ #include <Library/PlatformInitLib.h>
+ 
+@@ -774,6 +775,8 @@ PlatformValidateNvVarStore (
+   EFI_FIRMWARE_VOLUME_HEADER     *NvVarStoreFvHeader;
+   VARIABLE_STORE_HEADER          *NvVarStoreHeader;
+   AUTHENTICATED_VARIABLE_HEADER  *VariableHeader;
++  BOOLEAN                        Retry;
++  EFI_STATUS                     Status;
+ 
+   static EFI_GUID  FvHdrGUID       = EFI_SYSTEM_NV_DATA_FV_GUID;
+   static EFI_GUID  VarStoreHdrGUID = EFI_AUTHENTICATED_VARIABLE_GUID;
+@@ -792,6 +795,15 @@ PlatformValidateNvVarStore (
+   //
+   NvVarStoreFvHeader = (EFI_FIRMWARE_VOLUME_HEADER *)NvVarStoreBase;
+ 
++  //
++  // SEV and SEV-ES can use separate flash devices for OVMF code and
++  // OVMF variables. In this case, the OVMF variables will need to be
++  // mapped unencrypted. If the initial validation fails, remap the
++  // NV variable store as unencrypted and retry the validation.
++  //
++  Retry = MemEncryptSevIsEnabled ();
++
++RETRY:
+   if ((!IsZeroBuffer (NvVarStoreFvHeader->ZeroVector, 16)) ||
+       (!CompareGuid (&FvHdrGUID, &NvVarStoreFvHeader->FileSystemGuid)) ||
+       (NvVarStoreFvHeader->Signature != EFI_FVH_SIGNATURE) ||
+@@ -801,8 +813,24 @@ PlatformValidateNvVarStore (
+       (NvVarStoreFvHeader->FvLength != NvVarStoreSize)
+       )
+   {
+-    DEBUG ((DEBUG_ERROR, "NvVarStore FV headers were invalid.\n"));
+-    return FALSE;
++    if (!Retry) {
++      DEBUG ((DEBUG_ERROR, "NvVarStore FV headers were invalid.\n"));
++      return FALSE;
++    }
++
++    DEBUG ((DEBUG_INFO, "Remapping NvVarStore as shared\n"));
++    Status = MemEncryptSevClearMmioPageEncMask (
++               0,
++               (UINTN)NvVarStoreBase,
++               EFI_SIZE_TO_PAGES (NvVarStoreSize)
++               );
++    if (EFI_ERROR (Status)) {
++      DEBUG ((DEBUG_ERROR, "Failed to map NvVarStore as shared\n"));
++      return FALSE;
++    }
++
++    Retry = FALSE;
++    goto RETRY;
+   }
+ 
+   //
+diff --git a/OvmfPkg/Library/PlatformInitLib/PlatformInitLib.inf b/OvmfPkg/Library/PlatformInitLib/PlatformInitLib.inf
+index 3e63ef4423..fb179e6791 100644
+--- a/OvmfPkg/Library/PlatformInitLib/PlatformInitLib.inf
++++ b/OvmfPkg/Library/PlatformInitLib/PlatformInitLib.inf
+@@ -48,6 +48,7 @@
+   HobLib
+   QemuFwCfgLib
+   QemuFwCfgSimpleParserLib
++  MemEncryptSevLib
+   MemoryAllocationLib
+   MtrrLib
+   PcdLib

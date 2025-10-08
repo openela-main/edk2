@@ -1,0 +1,55 @@
+From 96eac5543ee94478cec9db044bea2903adb8940b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
+Date: Thu, 1 Jul 2021 20:29:25 +0200
+Subject: [PATCH] OvmfPkg: Remove TftpDynamicCommand from shell (RHEL only)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+rebase to edk2-stable202405:
+
+rewrite due to shell build config being moved to an include file
+
+RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
+RH-MergeRequest: 3: Disable features for RHEL9
+RH-Commit: [13/19] cf9ef346386ac89fa05b29d429d8d1b27cf0e3b0
+RH-Bugzilla: 1967747
+RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
+
+Remove the command to download files in the shell via TFTP.
+
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
+---
+ OvmfPkg/Include/Dsc/ShellComponents.dsc.inc | 4 ----
+ OvmfPkg/Include/Fdf/ShellDxe.fdf.inc        | 1 -
+ 2 files changed, 5 deletions(-)
+
+diff --git a/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc b/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
+index 4075688e41..3663938054 100644
+--- a/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
++++ b/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
+@@ -6,10 +6,6 @@
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5"
+ !if $(NETWORK_ENABLE) == TRUE
+-  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf {
+-    <PcdsFixedAtBuild>
+-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+-  }
+   ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf {
+     <PcdsFixedAtBuild>
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
+diff --git a/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc b/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
+index 38f69747b0..1637083ff1 100644
+--- a/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
++++ b/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
+@@ -6,7 +6,6 @@
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5"
+ !if $(NETWORK_ENABLE) == TRUE
+-INF  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
+ INF  ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf
+ !endif
+ INF  ShellPkg/DynamicCommand/VariablePolicyDynamicCommand/VariablePolicyDynamicCommand.inf
