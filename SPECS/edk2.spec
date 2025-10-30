@@ -8,7 +8,7 @@ ExclusiveArch: x86_64 aarch64
 %define OPENSSL_VER    3.0.7
 %define OPENSSL_HASH   0205b589887203b065154ddc8e8107c4ac8625a1
 
-%define DBXDATE        20230509
+%define DBXDATE        20250224
 
 %define build_ovmf 0
 %define build_aarch64 0
@@ -21,7 +21,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    2%{?dist}
+Release:    2%{?dist}.1
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -422,6 +422,11 @@ install -m 0644 \
 
 
 %changelog
+* Wed Mar 19 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-2.el9_6.1
+- edk2-Update-dbx-revocation-list-to-2025-02-24-version.patch [RHEL-83018]
+- Resolves: RHEL-83018
+  (The newer revocation file and Server 2025 required to update it [rhel-9.6.z])
+
 * Mon Jan 20 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20241117-2
 - edk2-Fix-amd-sev-firmware-file-for-amd-snp.patch [RHEL-72447]
 - Resolves: RHEL-72447
