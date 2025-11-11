@@ -8,7 +8,7 @@ ExclusiveArch: x86_64 aarch64
 %define OPENSSL_VER    3.0.7
 %define OPENSSL_HASH   0205b589887203b065154ddc8e8107c4ac8625a1
 
-%define DBXDATE        20250224
+%define DBXDATE        20250610
 
 %define build_ovmf 0
 %define build_aarch64 0
@@ -21,7 +21,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    2%{?dist}.1
+Release:    4%{?dist}
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -87,6 +87,8 @@ Patch32: 0034-OvmfPkg-PlatformInitLib-Retry-NV-vars-FV-check-as-sh.patch
 Patch33: 0035-OvmfPkg-EmuVariableFvbRuntimeDxe-Issue-NV-vars-initi.patch
 Patch34: 0036-OvmfPkg-PlatformInitLib-enable-x2apic-mode-if-needed.patch
 Patch35: 0037-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch
+# For RHEL-70865 - SNP guest failed to boot with SVSM using OVMF.amdsev.fd [rhel-9.7]
+Patch36: edk2-OvmfPkg-Use-the-OvmfPkg-version-of-CcProbeLib.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -422,10 +424,18 @@ install -m 0644 \
 
 
 %changelog
-* Wed Mar 19 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-2.el9_6.1
-- edk2-Update-dbx-revocation-list-to-2025-02-24-version.patch [RHEL-83018]
-- Resolves: RHEL-83018
-  (The newer revocation file and Server 2025 required to update it [rhel-9.6.z])
+* Fri Jul 04 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20241117-4
+- edk2-update-dbx-to-20250610.patch [RHEL-96869]
+- Resolves: RHEL-96869
+  ([edk2,rhel-9] dbx update 20250610)
+
+* Wed Mar 19 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-3
+- edk2-OvmfPkg-Use-the-OvmfPkg-version-of-CcProbeLib.patch [RHEL-70865]
+- edk2-Update-dbx-revocation-list-to-2025-02-24-version.patch [RHEL-83019]
+- Resolves: RHEL-70865
+  (SNP guest failed to boot with SVSM using OVMF.amdsev.fd [rhel-9.7])
+- Resolves: RHEL-83019
+  (The newer revocation file and Server 2025 required to update it [rhel-9])
 
 * Mon Jan 20 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20241117-2
 - edk2-Fix-amd-sev-firmware-file-for-amd-snp.patch [RHEL-72447]
