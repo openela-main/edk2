@@ -1,7 +1,7 @@
-From d140a278bde8ed85efd41f228c471c5d89971ce9 Mon Sep 17 00:00:00 2001
+From 3b489c30495c4dd2da0b98925b2135d8bbfff382 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
-Date: Thu, 1 Jul 2021 20:29:39 +0200
-Subject: [PATCH] OvmfPkg: Remove LinuxInitrdDynamicShellCommand (RHEL only)
+Date: Thu, 1 Jul 2021 20:29:31 +0200
+Subject: [PATCH] OvmfPkg: Remove HttpDynamicCommand from shell (RHEL only)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -16,49 +16,48 @@ Minor update, context change due to new variable policy shell command.
 
 RH-Author: Philippe Mathieu-Daudé <philmd@redhat.com>
 RH-MergeRequest: 3: Disable features for RHEL9
-RH-Commit: [17/19] 491fe1301ea29c7cb56c20272e45614d5fcb6f14
+RH-Commit: [15/19] 1911cf04f27467ef1175b1976864c1111d93d19e
 RH-Bugzilla: 1967747
 RH-Acked-by: Laszlo Ersek <lersek@redhat.com>
 
-Remove the command to register a file in the shell as the
-initial ramdisk for a UEFI stubbed kernel, to be booted next.
-
-Note: as further dynamic shell commands might show up upstream,
-we intentionally preserve the empty !ifdef'ry context to ease
-future downstream rebases.
+Remove the command to download files in the shell via HTTP(S).
 
 Suggested-by: Laszlo Ersek <lersek@redhat.com>
 Signed-off-by: Philippe Mathieu-Daudé <philmd@redhat.com>
 Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
 ---
- OvmfPkg/Include/Dsc/ShellComponents.dsc.inc | 4 ----
- OvmfPkg/Include/Fdf/ShellDxe.fdf.inc        | 1 -
- 2 files changed, 5 deletions(-)
+ OvmfPkg/Include/Dsc/ShellComponents.dsc.inc | 6 ------
+ OvmfPkg/Include/Fdf/ShellDxe.fdf.inc        | 3 ---
+ 2 files changed, 9 deletions(-)
 
 diff --git a/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc b/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
-index a568f1ecc5..f7e0f5e90e 100644
+index 9df0a29c17..eca62339c9 100644
 --- a/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
 +++ b/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
-@@ -9,10 +9,6 @@
-     <PcdsFixedAtBuild>
-       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
-   }
--  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf {
+@@ -5,12 +5,6 @@
+ !if $(BUILD_SHELL) == TRUE
+ 
+ !if $(TOOL_CHAIN_TAG) != "XCODE5"
+-!if $(NETWORK_ENABLE) == TRUE
+-  ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf {
 -    <PcdsFixedAtBuild>
 -      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
 -  }
- !endif
- 
-   ShellPkg/Application/Shell/Shell.inf {
+-!endif
+   ShellPkg/DynamicCommand/VariablePolicyDynamicCommand/VariablePolicyDynamicCommand.inf {
+     <PcdsFixedAtBuild>
+       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
 diff --git a/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc b/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
-index c0118a46e2..dced75e388 100644
+index a0e0d10e76..59b5f55ce5 100644
 --- a/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
 +++ b/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
-@@ -6,7 +6,6 @@
+@@ -9,9 +9,6 @@
+ !if $(BUILD_SHELL) == TRUE && $(SECURE_BOOT_ENABLE) == FALSE
  
  !if $(TOOL_CHAIN_TAG) != "XCODE5"
+-!if $(NETWORK_ENABLE) == TRUE
+-INF  ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf
+-!endif
  INF  ShellPkg/DynamicCommand/VariablePolicyDynamicCommand/VariablePolicyDynamicCommand.inf
--INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
+ INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
  !endif
- 
- INF  ShellPkg/Application/Shell/Shell.inf

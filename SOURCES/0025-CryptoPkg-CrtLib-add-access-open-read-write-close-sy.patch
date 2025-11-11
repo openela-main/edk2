@@ -1,7 +1,8 @@
-From b9adc98473593da055c45f036219a469ceddbc34 Mon Sep 17 00:00:00 2001
+From 2ed4c608de4ef70c7c417eca540bc59edcb9fb71 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Mon, 28 Aug 2023 13:27:09 +0200
 Subject: [PATCH] CryptoPkg/CrtLib: add access/open/read/write/close syscalls
+ (RH only)
 
 Needed by rhel downstream openssl patches, they use unix syscalls
 for file access (instead of fopen + friends like the rest of the
@@ -15,10 +16,10 @@ Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
  2 files changed, 87 insertions(+)
 
 diff --git a/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c b/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c
-index b114cc069a..6ba751c1f1 100644
+index 8046ef9b20..aa0c967c53 100644
 --- a/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c
 +++ b/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c
-@@ -589,6 +589,52 @@ fread (
+@@ -592,6 +592,52 @@ fread (
    return 0;
  }
  
@@ -72,10 +73,10 @@ index b114cc069a..6ba751c1f1 100644
  getuid (
    void
 diff --git a/CryptoPkg/Library/Include/CrtLibSupport.h b/CryptoPkg/Library/Include/CrtLibSupport.h
-index cd51e197e7..b1616a7b4c 100644
+index b43bfd41b1..8663554960 100644
 --- a/CryptoPkg/Library/Include/CrtLibSupport.h
 +++ b/CryptoPkg/Library/Include/CrtLibSupport.h
-@@ -79,6 +79,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+@@ -68,6 +68,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
  //
  // Definitions for global constants used by CRT library routines
  //
@@ -83,7 +84,7 @@ index cd51e197e7..b1616a7b4c 100644
  #define EINVAL        22              /* Invalid argument */
  #define EAFNOSUPPORT  47              /* Address family not supported by protocol family */
  #define INT_MAX       0x7FFFFFFF      /* Maximum (signed) int value */
-@@ -103,6 +104,15 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+@@ -92,6 +93,15 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
  #define NS_INADDRSZ   4   /*%< IPv4 T_A */
  #define NS_IN6ADDRSZ  16  /*%< IPv6 T_AAAA */
  
@@ -99,7 +100,7 @@ index cd51e197e7..b1616a7b4c 100644
  //
  // Basic types mapping
  //
-@@ -329,6 +339,37 @@ fprintf     (
+@@ -318,6 +328,37 @@ fprintf     (
    ...
    );
  

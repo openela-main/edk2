@@ -1,4 +1,4 @@
-From 24da4bc42a6f16094ea589ffb2a9326cf8a596cc Mon Sep 17 00:00:00 2001
+From 629f1f37f2a56fb185ccab39df1bed6c7743f315 Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Mon, 4 Nov 2024 12:40:12 +0100
 Subject: [PATCH] OvmfPkg: Add a Fallback RNG (RH only)
@@ -21,28 +21,27 @@ patch_name: edk2-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch
 present_in_specfile: true
 location_in_specfile: 48
 ---
- .../PlatformBootManagerLib/BdsPlatform.c      |   7 +
+ .../PlatformBootManagerLib/BdsPlatform.c      |   6 +
  .../PlatformBootManagerLib/FallbackRng.c      | 222 ++++++++++++++++++
  .../PlatformBootManagerLib/FallbackRng.h      |  20 ++
  .../PlatformBootManagerLib.inf                |   5 +
- 4 files changed, 254 insertions(+)
+ 4 files changed, 253 insertions(+)
  create mode 100644 OvmfPkg/Library/PlatformBootManagerLib/FallbackRng.c
  create mode 100644 OvmfPkg/Library/PlatformBootManagerLib/FallbackRng.h
 
 diff --git a/OvmfPkg/Library/PlatformBootManagerLib/BdsPlatform.c b/OvmfPkg/Library/PlatformBootManagerLib/BdsPlatform.c
-index d9f61757cf..87d1ac3142 100644
+index b696f1b338..2982b4f288 100644
 --- a/OvmfPkg/Library/PlatformBootManagerLib/BdsPlatform.c
 +++ b/OvmfPkg/Library/PlatformBootManagerLib/BdsPlatform.c
-@@ -15,6 +15,8 @@
- #include <Library/Tcg2PhysicalPresenceLib.h>
- #include <Library/XenPlatformLib.h>
+@@ -17,6 +17,7 @@
  
+ #include <Library/QemuFwCfgSimpleParserLib.h>
+ #include <Library/PlatformBootManagerCommonLib.h>
 +#include "FallbackRng.h"
-+
+ 
  //
  // Global data
- //
-@@ -539,6 +541,9 @@ PlatformBootManagerBeforeConsole (
+@@ -350,6 +351,9 @@ PlatformBootManagerBeforeConsole (
      ConnectVirtioPciRng,
      NULL
      );
@@ -52,7 +51,7 @@ index d9f61757cf..87d1ac3142 100644
  }
  
  EFI_STATUS
-@@ -1778,6 +1783,8 @@ PlatformBootManagerAfterConsole (
+@@ -1619,6 +1623,8 @@ PlatformBootManagerAfterConsole (
  
    DEBUG ((DEBUG_INFO, "PlatformBootManagerAfterConsole\n"));
  
@@ -316,7 +315,7 @@ index 0000000000..77332bc51c
 +
 +#endif
 diff --git a/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf b/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
-index c6ffc1ed9e..211716e30d 100644
+index 8257862662..50a9ee94ad 100644
 --- a/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
 +++ b/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
 @@ -25,6 +25,8 @@
@@ -328,15 +327,15 @@ index c6ffc1ed9e..211716e30d 100644
  
  [Packages]
    MdePkg/MdePkg.dec
-@@ -56,6 +58,7 @@
-   PlatformBmPrintScLib
-   Tcg2PhysicalPresenceLib
+@@ -58,6 +60,7 @@
    XenPlatformLib
+   QemuFwCfgSimpleParserLib
+   PlatformBootManagerCommonLib
 +  RngLib
  
  [Pcd]
    gUefiOvmfPkgTokenSpaceGuid.PcdEmuVariableEvent
-@@ -80,6 +83,7 @@
+@@ -82,6 +85,7 @@
    gEfiDxeSmmReadyToLockProtocolGuid             # PROTOCOL SOMETIMES_PRODUCED
    gEfiLoadedImageProtocolGuid                   # PROTOCOL SOMETIMES_PRODUCED
    gEfiFirmwareVolume2ProtocolGuid               # PROTOCOL SOMETIMES_CONSUMED
@@ -344,8 +343,8 @@ index c6ffc1ed9e..211716e30d 100644
  
  [Guids]
    gEfiEndOfDxeEventGroupGuid
-@@ -87,3 +91,4 @@
-   gRootBridgesConnectedEventGroupGuid
+@@ -90,3 +94,4 @@
    gUefiShellFileGuid
    gGrubFileGuid
+   gUiAppFileGuid
 +  gEfiRngAlgorithmRaw

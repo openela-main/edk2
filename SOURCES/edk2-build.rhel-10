@@ -18,6 +18,11 @@ SECURE_BOOT_ENABLE       = TRUE
 SMM_REQUIRE              = TRUE
 BUILD_SHELL              = FALSE
 
+[opts.ovmf.qemu.vars]
+QEMU_PV_VARS             = TRUE
+SECURE_BOOT_ENABLE       = TRUE
+BUILD_SHELL              = FALSE
+
 [opts.ovmf.sb.stateless]
 SECURE_BOOT_ENABLE       = TRUE
 SMM_REQUIRE              = FALSE
@@ -34,14 +39,21 @@ DEBUG_PRINT_ERROR_LEVEL  = 0x80000000
 PcdUse5LevelPageTable    = TRUE
 
 [pcds.nx.strict]
-PcdDxeNxMemoryProtectionPolicy = 0xC000000000007FD5
-PcdUninstallMemAttrProtocol    = FALSE
+PcdDxeNxMemoryProtectionPolicy      = 0xC000000000007FD5
+PcdImageProtectionPolicy            = 0x03
+PcdSetNxForStack                    = TRUE
+PcdNullPointerDetectionPropertyMask = 0x03
+PcdUninstallMemAttrProtocol         = TRUE
 
-[pcds.nx.broken.shim.grub]
-# grub.efi uses EfiLoaderData for code
-PcdDxeNxMemoryProtectionPolicy = 0xC000000000007FD1
-# shim.efi has broken MemAttr code
-PcdUninstallMemAttrProtocol    = TRUE
+[pcds.nx.compat.aa64]
+# workaround for bugs in shim.efi and grub.efi
+PcdDxeNxMemoryProtectionPolicy      = 0xC000000000007FD1
+PcdUninstallMemAttrProtocol         = TRUE
+
+[pcds.nx.compat.x64]
+# workaround for bugs in shim.efi and grub.efi
+PcdDxeNxMemoryProtectionPolicy      = 0
+PcdUninstallMemAttrProtocol         = TRUE
 
 
 #####################################################################
@@ -53,9 +65,10 @@ conf = OvmfPkg/OvmfPkgX64.dsc
 arch = X64
 opts = ovmf.common
        ovmf.4m
-pcds = la57
+pcds = nx.compat.x64
+       la57
 plat = OvmfX64
-dest = RHEL-9/ovmf
+dest = RHEL-10/ovmf
 cpy1 = FV/OVMF_CODE.fd OVMF_CODE.fd
 cpy2 = FV/OVMF_VARS.fd
 cpy3 = X64/Shell.efi
@@ -67,11 +80,25 @@ arch = X64
 opts = ovmf.common
        ovmf.4m
        ovmf.sb.smm
-pcds = la57
+pcds = nx.compat.x64
+       la57
 plat = OvmfX64
-dest = RHEL-9/ovmf
+dest = RHEL-10/ovmf
 cpy1 = FV/OVMF_CODE.fd OVMF_CODE.secboot.fd
 cpy2 = X64/EnrollDefaultKeys.efi
+
+[build.ovmf.qemu.vars]
+desc = ovmf build (64-bit, 4MB, qemu vars, secure boot)
+conf = OvmfPkg/OvmfPkgX64.dsc
+arch = X64
+opts = ovmf.common
+       ovmf.4m
+       ovmf.qemu.vars
+pcds = nx.strict
+       la57
+plat = OvmfX64
+dest = RHEL-10/ovmf
+cpy1 = FV/OVMF.fd OVMF.qemuvars.fd
 
 
 #####################################################################
@@ -83,8 +110,9 @@ conf = OvmfPkg/AmdSev/AmdSevX64.dsc
 arch = X64
 opts = ovmf.common
        ovmf.4m
+pcds = nx.compat.x64
 plat = AmdSev
-dest = RHEL-9/ovmf
+dest = RHEL-10/ovmf
 cpy1 = FV/OVMF.fd OVMF.amdsev.fd
 
 [build.ovmf.inteltdx]
@@ -94,9 +122,10 @@ arch = X64
 opts = ovmf.common
        ovmf.4m
        ovmf.sb.stateless
-pcds = la57
+pcds = nx.compat.x64
+       la57
 plat = IntelTdx
-dest = RHEL-9/ovmf
+dest = RHEL-10/ovmf
 cpy1 = FV/OVMF.fd OVMF.inteltdx.fd
 
 
@@ -109,9 +138,9 @@ conf = ArmVirtPkg/ArmVirtQemu.dsc
 arch = AARCH64
 opts = ovmf.common
        armvirt.verbose
-pcds = nx.broken.shim.grub
+pcds = nx.compat.aa64
 plat = ArmVirtQemu-AARCH64
-dest = RHEL-9/aarch64
+dest = RHEL-10/aarch64
 cpy1 = FV/QEMU_EFI.fd
 cpy2 = FV/QEMU_VARS.fd
 cpy3 = FV/QEMU_EFI.fd  QEMU_EFI-pflash.raw
@@ -125,9 +154,39 @@ conf = ArmVirtPkg/ArmVirtQemu.dsc
 arch = AARCH64
 opts = ovmf.common
        armvirt.silent
-pcds = nx.broken.shim.grub
+pcds = nx.compat.aa64
 plat = ArmVirtQemu-AARCH64
-dest = RHEL-9/aarch64
+dest = RHEL-10/aarch64
 cpy1 = FV/QEMU_EFI.fd  QEMU_EFI.silent.fd
 cpy2 = FV/QEMU_EFI.fd  QEMU_EFI-silent-pflash.raw
 pad2 = QEMU_EFI-silent-pflash.raw 64m
+
+[build.armvirt.aa64.qemu.vars]
+desc = ArmVirt build for qemu, 64-bit (arm v8), qemu vars, secure boot
+conf = ArmVirtPkg/ArmVirtQemu.dsc
+arch = AARCH64
+opts = ovmf.common
+       ovmf.qemu.vars
+       armvirt.silent
+pcds = nx.strict
+plat = ArmVirtQemu-AARCH64
+dest = RHEL-10/aarch64
+cpy1 = FV/QEMU_EFI.fd  QEMU_EFI.qemuvars.fd
+cpy2 = FV/QEMU_EFI.fd  QEMU_EFI-qemuvars-pflash.raw
+pad2 = QEMU_EFI-qemuvars-pflash.raw 64m
+
+
+#####################################################################
+# riscv build
+
+[build.riscv.qemu]
+conf = OvmfPkg/RiscVVirt/RiscVVirtQemu.dsc
+arch = RISCV64
+plat = RiscVVirtQemu
+dest = RHEL-10/riscv
+cpy1 = FV/RISCV_VIRT_CODE.fd
+cpy2 = FV/RISCV_VIRT_CODE.fd RISCV_VIRT_CODE.raw
+cpy3 = FV/RISCV_VIRT_VARS.fd
+cpy4 = FV/RISCV_VIRT_VARS.fd RISCV_VIRT_VARS.raw
+pad1 = RISCV_VIRT_CODE.raw 32m
+pad2 = RISCV_VIRT_VARS.raw 32m

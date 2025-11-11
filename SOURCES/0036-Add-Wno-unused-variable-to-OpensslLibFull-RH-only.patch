@@ -1,0 +1,43 @@
+From cf6bc5b5d84e61f1fad76edab1891a8fe28f1864 Mon Sep 17 00:00:00 2001
+From: Luigi Leonardi <leonardi@redhat.com>
+Date: Thu, 29 May 2025 16:59:00 +0200
+Subject: [PATCH] Add Wno-unused-variable to OpensslLibFull (RH only)
+
+RHEL OpenSSL has an unused variable, this stops the compilation.
+Prevent the compiler from stopping when dealing with this issue.
+
+Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
+---
+ .../Library/OpensslLib/OpensslLibFull.inf      | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/CryptoPkg/Library/OpensslLib/OpensslLibFull.inf b/CryptoPkg/Library/OpensslLib/OpensslLibFull.inf
+index fbeb22f5b3..c46e4ac7e5 100644
+--- a/CryptoPkg/Library/OpensslLib/OpensslLibFull.inf
++++ b/CryptoPkg/Library/OpensslLib/OpensslLibFull.inf
+@@ -852,16 +852,16 @@
+   #                   types appropriate to the format string specified.
+   #   -Werror=unused-but-set-variable: Warn whenever a local variable is assigned to, but otherwise unused (aside from its declaration).
+   #
+-  GCC:*_*_IA32_CC_FLAGS    = -U_WIN32 -U_WIN64 $(OPENSSL_FLAGS) $(OPENSSL_FLAGS_NOASM) -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
+-  GCC:*_*_X64_CC_FLAGS     = -U_WIN32 -U_WIN64 $(OPENSSL_FLAGS) $(OPENSSL_FLAGS_NOASM) -Wno-error=maybe-uninitialized -Wno-error=format -Wno-format -Wno-error=unused-but-set-variable -DNO_MSABI_VA_FUNCS
+-  GCC:*_*_ARM_CC_FLAGS     = $(OPENSSL_FLAGS) -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable
+-  GCC:*_*_AARCH64_CC_FLAGS = $(OPENSSL_FLAGS) -Wno-error=maybe-uninitialized -Wno-format -Wno-error=unused-but-set-variable -Wno-error=format
+-  GCC:*_*_RISCV64_CC_FLAGS = $(OPENSSL_FLAGS) -Wno-error=maybe-uninitialized -Wno-format -Wno-error=unused-but-set-variable
+-  GCC:*_*_LOONGARCH64_CC_FLAGS = $(OPENSSL_FLAGS) -Wno-error=maybe-uninitialized -Wno-format -Wno-error=unused-but-set-variable
+-  GCC:*_CLANGDWARF_*_CC_FLAGS = -std=c99 -Wno-error=uninitialized -Wno-error=incompatible-pointer-types -Wno-error=pointer-sign -Wno-error=implicit-function-declaration -Wno-error=ignored-pragma-optimize
+-  GCC:*_CLANGPDB_*_CC_FLAGS = -std=c99 -Wno-error=uninitialized -Wno-error=incompatible-pointer-types -Wno-error=pointer-sign -Wno-error=implicit-function-declaration -Wno-error=ignored-pragma-optimize -Wno-error=unused-function
++  GCC:*_*_IA32_CC_FLAGS    = -U_WIN32 -U_WIN64 $(OPENSSL_FLAGS) $(OPENSSL_FLAGS_NOASM) -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable -Wno-unused-variable
++  GCC:*_*_X64_CC_FLAGS     = -U_WIN32 -U_WIN64 $(OPENSSL_FLAGS) $(OPENSSL_FLAGS_NOASM) -Wno-error=maybe-uninitialized -Wno-error=format -Wno-format -Wno-error=unused-but-set-variable -DNO_MSABI_VA_FUNCS -Wno-unused-variable
++  GCC:*_*_ARM_CC_FLAGS     = $(OPENSSL_FLAGS) -Wno-error=maybe-uninitialized -Wno-error=unused-but-set-variable -Wno-unused-variable
++  GCC:*_*_AARCH64_CC_FLAGS = $(OPENSSL_FLAGS) -Wno-error=maybe-uninitialized -Wno-format -Wno-error=unused-but-set-variable -Wno-error=format -Wno-unused-variable
++  GCC:*_*_RISCV64_CC_FLAGS = $(OPENSSL_FLAGS) -Wno-error=maybe-uninitialized -Wno-format -Wno-error=unused-but-set-variable -Wno-unused-variable
++  GCC:*_*_LOONGARCH64_CC_FLAGS = $(OPENSSL_FLAGS) -Wno-error=maybe-uninitialized -Wno-format -Wno-error=unused-but-set-variable -Wno-unused-variable
++  GCC:*_CLANGDWARF_*_CC_FLAGS = -std=c99 -Wno-error=uninitialized -Wno-error=incompatible-pointer-types -Wno-error=pointer-sign -Wno-error=implicit-function-declaration -Wno-error=ignored-pragma-optimize -Wno-unused-variable
++  GCC:*_CLANGPDB_*_CC_FLAGS = -std=c99 -Wno-error=uninitialized -Wno-error=incompatible-pointer-types -Wno-error=pointer-sign -Wno-error=implicit-function-declaration -Wno-error=ignored-pragma-optimize -Wno-error=unused-function -Wno-unused-variable
+   # Revisit after switching to 3.0 branch
+-  GCC:*_GCC5_*_CC_FLAGS    = -Wno-unused-but-set-variable
++  GCC:*_GCC5_*_CC_FLAGS    = -Wno-unused-but-set-variable -Wno-unused-variable
+ 
+   # suppress the following warnings in openssl so we don't break the build with warnings-as-errors:
+   # 1295: Deprecated declaration <entity> - give arg types

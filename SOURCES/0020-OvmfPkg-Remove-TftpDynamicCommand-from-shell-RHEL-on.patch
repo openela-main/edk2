@@ -1,4 +1,4 @@
-From 96eac5543ee94478cec9db044bea2903adb8940b Mon Sep 17 00:00:00 2001
+From fe71b5e20423c16f35abfbb0c2ac3c7b96136cc8 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:25 +0200
 Subject: [PATCH] OvmfPkg: Remove TftpDynamicCommand from shell (RHEL only)
@@ -27,7 +27,7 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  2 files changed, 5 deletions(-)
 
 diff --git a/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc b/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
-index 4075688e41..3663938054 100644
+index e8f4f42b33..9df0a29c17 100644
 --- a/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
 +++ b/OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
 @@ -6,10 +6,6 @@
@@ -42,10 +42,10 @@ index 4075688e41..3663938054 100644
      <PcdsFixedAtBuild>
        gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
 diff --git a/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc b/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
-index 38f69747b0..1637083ff1 100644
+index eef89be88e..a0e0d10e76 100644
 --- a/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
 +++ b/OvmfPkg/Include/Fdf/ShellDxe.fdf.inc
-@@ -6,7 +6,6 @@
+@@ -10,7 +10,6 @@
  
  !if $(TOOL_CHAIN_TAG) != "XCODE5"
  !if $(NETWORK_ENABLE) == TRUE

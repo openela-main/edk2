@@ -1,4 +1,4 @@
-From 384f25e733e073e3641c7e1889cd423f9f038298 Mon Sep 17 00:00:00 2001
+From 90952108059a48921f76f61fe1cda5eef258be01 Mon Sep 17 00:00:00 2001
 From: Laszlo Ersek <lersek@redhat.com>
 Date: Wed, 14 Oct 2015 15:59:06 +0200
 Subject: [PATCH] OvmfPkg: take PcdResizeXterm from the QEMU command line (RH
@@ -83,10 +83,10 @@ Signed-off-by: Laszlo Ersek <lersek@redhat.com>
  9 files changed, 21 insertions(+), 1 deletion(-)
 
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
-index 40553c0019..b51eba71fc 100644
+index e99fb3bd95..b28f014dcd 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.dsc
 +++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
-@@ -484,6 +484,7 @@
+@@ -489,6 +489,7 @@
  [PcdsDynamicDefault]
    gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvStoreReserved|0
  
@@ -95,10 +95,10 @@ index 40553c0019..b51eba71fc 100644
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64|0
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase64|0
 diff --git a/OvmfPkg/CloudHv/CloudHvX64.dsc b/OvmfPkg/CloudHv/CloudHvX64.dsc
-index 38137d8c13..542ca013e2 100644
+index a4f6d1c10a..08a66f0d43 100644
 --- a/OvmfPkg/CloudHv/CloudHvX64.dsc
 +++ b/OvmfPkg/CloudHv/CloudHvX64.dsc
-@@ -581,6 +581,7 @@
+@@ -603,6 +603,7 @@
    #   ($(SMM_REQUIRE) == FALSE)
    gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvStoreReserved|0
  
@@ -107,10 +107,10 @@ index 38137d8c13..542ca013e2 100644
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase64|0
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64|0
 diff --git a/OvmfPkg/IntelTdx/IntelTdxX64.dsc b/OvmfPkg/IntelTdx/IntelTdxX64.dsc
-index fc1332598e..4b7e1596fc 100644
+index f1d070ca8c..a2201ec10b 100644
 --- a/OvmfPkg/IntelTdx/IntelTdxX64.dsc
 +++ b/OvmfPkg/IntelTdx/IntelTdxX64.dsc
-@@ -477,6 +477,7 @@
+@@ -481,6 +481,7 @@
    #   ($(SMM_REQUIRE) == FALSE)
    gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvStoreReserved|0
  
@@ -119,10 +119,10 @@ index fc1332598e..4b7e1596fc 100644
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64|0
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase64|0
 diff --git a/OvmfPkg/Microvm/MicrovmX64.dsc b/OvmfPkg/Microvm/MicrovmX64.dsc
-index bc9be1c5c2..d76fa4269f 100644
+index 8bd8b686b5..31c5ccda14 100644
 --- a/OvmfPkg/Microvm/MicrovmX64.dsc
 +++ b/OvmfPkg/Microvm/MicrovmX64.dsc
-@@ -590,7 +590,7 @@
+@@ -588,7 +588,7 @@
    # only set when
    #   ($(SMM_REQUIRE) == FALSE)
    gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvStoreReserved|0
@@ -132,10 +132,10 @@ index bc9be1c5c2..d76fa4269f 100644
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64|0
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase64|0
 diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
-index 7ab6af3a69..c56d24a676 100644
+index fa73d355ea..cede7c2424 100644
 --- a/OvmfPkg/OvmfPkgIa32.dsc
 +++ b/OvmfPkg/OvmfPkgIa32.dsc
-@@ -600,6 +600,7 @@
+@@ -594,6 +594,7 @@
    #   ($(SMM_REQUIRE) == FALSE)
    gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvStoreReserved|0
  
@@ -144,10 +144,10 @@ index 7ab6af3a69..c56d24a676 100644
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase64|0
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64|0
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index e7fff78df9..b560fb7718 100644
+index 384bb310c3..89ed05431a 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
-@@ -611,6 +611,7 @@
+@@ -605,6 +605,7 @@
    #   ($(SMM_REQUIRE) == FALSE)
    gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvStoreReserved|0
  
@@ -156,10 +156,10 @@ index e7fff78df9..b560fb7718 100644
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase64|0
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64|0
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index 556984bdaa..c46a8e05d6 100644
+index 60fccc19d2..8f8711f519 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
-@@ -629,6 +629,7 @@
+@@ -632,6 +632,7 @@
    #   ($(SMM_REQUIRE) == FALSE)
    gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvStoreReserved|0
  
@@ -168,7 +168,7 @@ index 556984bdaa..c46a8e05d6 100644
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase64|0
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64|0
 diff --git a/OvmfPkg/PlatformPei/Platform.c b/OvmfPkg/PlatformPei/Platform.c
-index dc81ce9e2b..05b924f99f 100644
+index a354e0641f..bb791fba71 100644
 --- a/OvmfPkg/PlatformPei/Platform.c
 +++ b/OvmfPkg/PlatformPei/Platform.c
 @@ -43,6 +43,18 @@
@@ -190,7 +190,7 @@ index dc81ce9e2b..05b924f99f 100644
  EFI_PEI_PPI_DESCRIPTOR  mPpiBootMode[] = {
    {
      EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST,
-@@ -361,6 +373,7 @@ InitializePlatform (
+@@ -365,6 +377,7 @@ InitializePlatform (
      MemTypeInfoInitialization (PlatformInfoHob);
      MemMapInitialization (PlatformInfoHob);
      NoexecDxeInitialization (PlatformInfoHob);
@@ -199,10 +199,10 @@ index dc81ce9e2b..05b924f99f 100644
  
    InstallClearCacheCallback ();
 diff --git a/OvmfPkg/PlatformPei/PlatformPei.inf b/OvmfPkg/PlatformPei/PlatformPei.inf
-index 0bb1a46291..9185c2398c 100644
+index 1b2af6f3e6..d01575528e 100644
 --- a/OvmfPkg/PlatformPei/PlatformPei.inf
 +++ b/OvmfPkg/PlatformPei/PlatformPei.inf
-@@ -106,6 +106,7 @@
+@@ -107,6 +107,7 @@
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize
    gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvStoreReserved

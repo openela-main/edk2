@@ -1,27 +1,31 @@
-ExclusiveArch: x86_64 aarch64
+ExclusiveArch: x86_64 aarch64 riscv64
 
-# edk2-stable202411
-%define GITDATE        20241117
-%define GITCOMMIT      0f3867fa6ef0
+# edk2-stable202505
+%define GITDATE        20250523
+%define GITCOMMIT      6951dfe7d59d
 %define TOOLCHAIN      GCC
 
-%define OPENSSL_VER    3.0.7
-%define OPENSSL_HASH   0205b589887203b065154ddc8e8107c4ac8625a1
+%define OPENSSL_VER    3.5.0
+%define OPENSSL_HASH   63b528e6476ff36efcf2cda5c083f3f3d7cf9210
 
-%define DBXDATE        20250224
+%define DBXDATE        20250610
 
 %define build_ovmf 0
 %define build_aarch64 0
+%define build_riscv64 0
 %ifarch x86_64
   %define build_ovmf 1
 %endif
 %ifarch aarch64
   %define build_aarch64 1
 %endif
+%ifarch riscv64
+  %define build_riscv64 1
+%endif
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    2%{?dist}.1
+Release:    2%{?dist}
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -47,9 +51,11 @@ Source43: 50-edk2-ovmf-x64-nosb.json
 Source44: 60-edk2-ovmf-x64-amdsev.json
 Source45: 60-edk2-ovmf-x64-inteltdx.json
 
+Source50: 50-edk2-riscv-qcow2.json
+
 # https://gitlab.com/kraxel/edk2-build-config
 Source80: edk2-build.py
-Source82: edk2-build.rhel-9
+Source82: edk2-build.rhel-10
 
 Source90: DBXUpdate-%{DBXDATE}.x64.bin
 Patch1: 0003-Remove-paths-leading-to-submodules.patch
@@ -70,23 +76,22 @@ Patch15: 0017-ArmVirtPkg-Remove-VirtioFsDxe-filesystem-driver-RHEL.patch
 Patch16: 0018-OvmfPkg-Remove-UdfDxe-filesystem-driver-RHEL-only.patch
 Patch17: 0019-ArmVirtPkg-Remove-UdfDxe-filesystem-driver-RHEL-only.patch
 Patch18: 0020-OvmfPkg-Remove-TftpDynamicCommand-from-shell-RHEL-on.patch
-Patch19: 0021-ArmVirtPkg-Remove-TftpDynamicCommand-from-shell-RHEL.patch
-Patch20: 0022-OvmfPkg-Remove-HttpDynamicCommand-from-shell-RHEL-on.patch
-Patch21: 0023-ArmVirtPkg-Remove-HttpDynamicCommand-from-shell-RHEL.patch
-Patch22: 0024-OvmfPkg-Remove-LinuxInitrdDynamicShellCommand-RHEL-o.patch
-Patch23: 0025-ArmVirtPkg-Remove-LinuxInitrdDynamicShellCommand-RHE.patch
-Patch24: 0026-OvmfPkg-AmdSevDxe-Shim-Reboot-workaround-RHEL-only.patch
-Patch25: 0027-CryptoPkg-CrtLib-add-stat.h-include-file.patch
-Patch26: 0028-CryptoPkg-CrtLib-add-access-open-read-write-close-sy.patch
-Patch27: 0029-NetworkPkg-DxeNetLib-Reword-PseudoRandom-error-loggi.patch
-Patch28: 0030-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch
-Patch29: 0031-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch
-Patch30: 0032-OvmfPkg-QemuFlashFvbServicesRuntimeDxe-Do-not-use-fl.patch
-Patch31: 0033-OvmfPkg-PlatformPei-Move-NV-vars-init-to-after-SEV-S.patch
-Patch32: 0034-OvmfPkg-PlatformInitLib-Retry-NV-vars-FV-check-as-sh.patch
-Patch33: 0035-OvmfPkg-EmuVariableFvbRuntimeDxe-Issue-NV-vars-initi.patch
-Patch34: 0036-OvmfPkg-PlatformInitLib-enable-x2apic-mode-if-needed.patch
-Patch35: 0037-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch
+Patch19: 0021-OvmfPkg-Remove-HttpDynamicCommand-from-shell-RHEL-on.patch
+Patch20: 0022-OvmfPkg-Remove-LinuxInitrdDynamicShellCommand-RHEL-o.patch
+Patch21: 0023-OvmfPkg-AmdSevDxe-Shim-Reboot-workaround-RHEL-only.patch
+Patch22: 0024-CryptoPkg-CrtLib-add-stat.h-include-file-RH-only.patch
+Patch23: 0025-CryptoPkg-CrtLib-add-access-open-read-write-close-sy.patch
+Patch24: 0026-NetworkPkg-DxeNetLib-Reword-PseudoRandom-error-loggi.patch
+Patch25: 0027-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch
+Patch26: 0028-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch
+Patch27: 0029-OvmfPkg-X64-add-opt-org.tianocore-UninstallMemAttrPr.patch
+Patch28: 0030-CryptoPkg-openssl-update-generated-files.patch
+Patch29: 0031-CryptoPkg-openssl-add-new-generated-files-to-uncrust.patch
+Patch30: 0032-CryptoPkg-openssl-add-ossl_bio_print_labeled_buf-stu.patch
+Patch31: 0033-CryptoPkg-CrtLib-add-strpbrk-implementation.patch
+Patch32: 0034-CryptoPkg-CrtLib-explicitly-define-INT32-constants.patch
+Patch33: 0035-CryptoPkg-openssl-turn-off-warning-4130-for-microsof.patch
+Patch34: 0036-Add-Wno-unused-variable-to-OpensslLibFull-RH-only.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -109,7 +114,7 @@ BuildRequires:  mtools
 BuildRequires:  xorriso
 
 # secure boot enrollment
-BuildRequires:  python3dist(virt-firmware) >= 23.4
+BuildRequires:  python3dist(virt-firmware) >= 25.4
 
 # endif build_ovmf
 %endif
@@ -157,6 +162,19 @@ platform that enables UEFI support for QEMU/KVM ARM Virtual Machines. This
 package contains a 64-bit build.
 
 
+%package riscv64
+Summary:    UEFI firmware for riscv64 virtual machines
+BuildArch:  noarch
+
+# No Secure Boot for riscv64 yet, but we include OpenSSL for the IPv6 stack.
+Provides:   bundled(openssl) = %{OPENSSL_VER}
+License:    BSD-2-Clause-Patent and Apache-2.0
+
+%description riscv64
+EFI Development Kit II platform that enables UEFI support for QEMU/KVM
+RISC-V Virtual Machines. This package contains a 64-bit build.
+
+
 %package tools
 Summary:        EFI Development Kit II Tools
 License:        BSD-2-Clause-Patent
@@ -193,12 +211,13 @@ git config am.keepcr true
 cp -a -- %{SOURCE1} .
 cp -a -- %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} .
 cp -a -- %{SOURCE40} %{SOURCE41} %{SOURCE43} %{SOURCE44} %{SOURCE45} .
+cp -a -- %{SOURCE50} .
 cp -a -- %{SOURCE80} %{SOURCE82} .
 cp -a -- %{SOURCE90} .
 tar -C CryptoPkg/Library/OpensslLib -a -f %{SOURCE2} -x
 tar -xf %{SOURCE3} --strip-components=1 --directory MdePkg/Library/BaseFdtLib/libfdt
 
-# Done by %setup, but we do not use it for the auxiliary tarballs
+# Done by setup macro, but we do not use it for the auxiliary tarballs
 chmod -Rf a+rX,u+w,g-w,o-w .
 
 %build
@@ -251,25 +270,34 @@ mkdir -p CryptoPkg/Library/MbedTlsLib/mbedtls/library
 mkdir -p SecurityPkg/DeviceSecurity/SpdmLib/libspdm/include
 
 %if %{build_ovmf}
-./edk2-build.py --config edk2-build.rhel-9 -m ovmf --release-date "$RELEASE_DATE"
-build_iso RHEL-9/ovmf
-cp DBXUpdate-%{DBXDATE}.x64.bin RHEL-9/ovmf
-virt-fw-vars --input   RHEL-9/ovmf/OVMF_VARS.fd \
-             --output  RHEL-9/ovmf/OVMF_VARS.secboot.fd \
+./edk2-build.py --config edk2-build.rhel-10 -m ovmf --release-date "$RELEASE_DATE"
+build_iso RHEL-10/ovmf
+cp DBXUpdate-%{DBXDATE}.x64.bin RHEL-10/ovmf
+virt-fw-vars --input   RHEL-10/ovmf/OVMF_VARS.fd \
+             --output  RHEL-10/ovmf/OVMF_VARS.secboot.fd \
              --set-dbx DBXUpdate-%{DBXDATE}.x64.bin \
              --enroll-redhat --secure-boot
-virt-fw-vars --input   RHEL-9/ovmf/OVMF.inteltdx.fd \
-             --output  RHEL-9/ovmf/OVMF.inteltdx.secboot.fd \
+virt-fw-vars --input   RHEL-10/ovmf/OVMF.inteltdx.fd \
+             --output  RHEL-10/ovmf/OVMF.inteltdx.secboot.fd \
              --set-dbx DBXUpdate-%{DBXDATE}.x64.bin \
              --enroll-redhat --secure-boot \
              --set-fallback-no-reboot
 %endif
 
 %if %{build_aarch64}
-./edk2-build.py --config edk2-build.rhel-9 -m armvirt --release-date "$RELEASE_DATE"
+./edk2-build.py --config edk2-build.rhel-10 -m armvirt --release-date "$RELEASE_DATE"
 for raw in */aarch64/*.raw; do
     qcow2="${raw%.raw}.qcow2"
     qemu-img convert -f raw -O qcow2 -o cluster_size=4096 -S 4096 "$raw" "$qcow2"
+done
+%endif
+
+%if %{build_riscv64}
+./edk2-build.py --config edk2-build.rhel-10 -m riscv --release-date "$RELEASE_DATE"
+for raw in */riscv/*.raw; do
+    qcow2="${raw%.raw}.qcow2"
+    qemu-img convert -f raw -O qcow2 -o cluster_size=4096 -S 4096 "$raw" "$qcow2"
+    rm -f "$raw"
 done
 %endif
 
@@ -295,7 +323,7 @@ install BaseTools/Scripts/GccBase.lds \
         %{buildroot}%{_datadir}/%{name}/Scripts
 
 mkdir -p %{buildroot}%{_datadir}/%{name}
-cp -av RHEL-9/* %{buildroot}%{_datadir}/%{name}
+cp -av RHEL-10/* %{buildroot}%{_datadir}/%{name}
 
 %if %{build_ovmf}
 mkdir -p %{buildroot}%{_datadir}/OVMF
@@ -337,6 +365,12 @@ install -m 0644 \
 # endif build_aarch64
 %endif
 
+%if %{build_riscv64}
+install -m 0644 \
+        50-edk2-riscv-qcow2.json \
+        %{buildroot}%{_datadir}/qemu/firmware
+%endif
+
 %check
 
 %global common_files \
@@ -360,6 +394,7 @@ install -m 0644 \
 %{_datadir}/%{name}/ovmf/OVMF.amdsev.fd
 %{_datadir}/%{name}/ovmf/OVMF.inteltdx.fd
 %{_datadir}/%{name}/ovmf/OVMF.inteltdx.secboot.fd
+%{_datadir}/%{name}/ovmf/OVMF.qemuvars.fd
 %{_datadir}/%{name}/ovmf/DBXUpdate*.bin
 %{_datadir}/%{name}/ovmf/UefiShell.iso
 %{_datadir}/OVMF/OVMF_CODE.secboot.fd
@@ -383,18 +418,28 @@ install -m 0644 \
 %dir %{_datadir}/%{name}/aarch64/
 %{_datadir}/%{name}/aarch64/QEMU_EFI-pflash.*
 %{_datadir}/%{name}/aarch64/QEMU_EFI-silent-pflash.*
+%{_datadir}/%{name}/aarch64/QEMU_EFI-qemuvars-pflash.*
 %{_datadir}/%{name}/aarch64/vars-template-pflash.*
 %{_datadir}/AAVMF/AAVMF_CODE.verbose.fd
 %{_datadir}/AAVMF/AAVMF_CODE.fd
 %{_datadir}/AAVMF/AAVMF_VARS.fd
 %{_datadir}/%{name}/aarch64/QEMU_EFI.fd
 %{_datadir}/%{name}/aarch64/QEMU_EFI.silent.fd
+%{_datadir}/%{name}/aarch64/QEMU_EFI.qemuvars.fd
 %{_datadir}/%{name}/aarch64/QEMU_VARS.fd
 %{_datadir}/qemu/firmware/50-edk2-aarch64-qcow2.json
 %{_datadir}/qemu/firmware/51-edk2-aarch64-raw.json
 %{_datadir}/qemu/firmware/52-edk2-aarch64-verbose-qcow2.json
 %{_datadir}/qemu/firmware/53-edk2-aarch64-verbose-raw.json
 # endif build_aarch64
+%endif
+
+%if %{build_riscv64}
+%files riscv64
+%common_files
+%{_datadir}/%{name}/riscv/*.fd
+%{_datadir}/%{name}/riscv/*.qcow2
+%{_datadir}/qemu/firmware/50-edk2-riscv-qcow2.json
 %endif
 
 %files tools
@@ -422,10 +467,40 @@ install -m 0644 \
 
 
 %changelog
-* Tue Mar 18 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20241117-2.el10_0.1
-- edk2-Update-dbx-revocation-list-to-2025-02-24-version.patch [RHEL-83020]
-- Resolves: RHEL-83020
-  (The newer revocation file and Server 2025 required to update it [rhel-10.0.z])
+* Mon Jun 30 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250523-2
+- edk2-add-qemu-vars-builds-to-build-config-and-file-lists.patch [RHEL-2908]
+- edk2-add-dbx-update-script.patch [RHEL-96866]
+- edk2-update-dbx-to-20250610.patch [RHEL-96866]
+- Resolves: RHEL-2908
+  ([aarch64][EDK2] UEFI writable variable service in QEMU)
+- Resolves: RHEL-96866
+  ([edk2,rhel-10] dbx update 20250610)
+
+* Tue Jun 10 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250523-1
+- Rebase to edk2-stable202505 [RHEL-82556]
+- Resolves: RHEL-82556
+  ([edk2,rhel-10] rebase to edk2-stable202505)
+
+* Fri May 02 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250221-3
+- edk2-.distro-make-sure-virt-firmware-is-new-enough.patch [RHEL-85759]
+- Resolves: RHEL-85759
+  (RFE: Add riscv64 build and sub-package)
+
+* Mon Apr 07 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250221-2
+- edk2-.distro-drop-setup-macro-in-specfile-comment.patch [RHEL-85759]
+- edk2-.distro-switch-to-rhel-10-build-config.patch [RHEL-85759]
+- edk2-.distro-add-riscv64-sub-rpm.patch [RHEL-85759]
+- Resolves: RHEL-85759
+  (RFE: Add riscv64 build and sub-package)
+
+* Wed Mar 26 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250221-1
+- Rebase to edk2-stable202502 [RHEL-75592]
+- Resolves: RHEL-75592
+  (rebase to edk2-stable202502)
+- Resulves: RHEL-82646
+  (fix typo in fwcfg file name)
+- Resolves: RHEL-82837
+  (The newer revocation file and Server 2025 required to update it)
 
 * Mon Jan 20 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20241117-2
 - edk2-Fix-amd-sev-firmware-file-for-amd-snp.patch [RHEL-72446]

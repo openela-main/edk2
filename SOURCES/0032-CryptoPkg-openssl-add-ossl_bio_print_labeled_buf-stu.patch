@@ -1,0 +1,32 @@
+From ef3811a1c3f3c21d475d5c1fba15b21c495b4193 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Mon, 7 Apr 2025 19:22:04 +0200
+Subject: [PATCH] CryptoPkg/openssl: add ossl_bio_print_labeled_buf stub
+
+New function in openssl 3.5 in a file edk2 replaces with stubs.
+Add a stub for the new function.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ .../Library/OpensslLib/OpensslStub/EncoderNull.c      | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/CryptoPkg/Library/OpensslLib/OpensslStub/EncoderNull.c b/CryptoPkg/Library/OpensslLib/OpensslStub/EncoderNull.c
+index f3106cf8ab..1430696462 100644
+--- a/CryptoPkg/Library/OpensslLib/OpensslStub/EncoderNull.c
++++ b/CryptoPkg/Library/OpensslLib/OpensslStub/EncoderNull.c
+@@ -362,3 +362,14 @@ ossl_encoder_store_cache_flush (
+ {
+   return -1;
+ }
++
++int
++ossl_bio_print_labeled_buf (
++  BIO                  *out,
++  const char           *label,
++  const unsigned char  *buf,
++  size_t               buflen
++  )
++{
++  return -1;
++}

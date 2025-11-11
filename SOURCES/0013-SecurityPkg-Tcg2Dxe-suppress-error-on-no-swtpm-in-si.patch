@@ -1,4 +1,4 @@
-From b185c171fa05b8b366dfdbe8c1ae6a057ef42fd1 Mon Sep 17 00:00:00 2001
+From 956ea6ccb8bbf96e262d25c80d658ad024a3ad6a Mon Sep 17 00:00:00 2001
 From: Laszlo Ersek <lersek@redhat.com>
 Date: Wed, 24 Jun 2020 11:40:09 +0200
 Subject: [PATCH] SecurityPkg/Tcg2Dxe: suppress error on no swtpm in silent

@@ -1,8 +1,13 @@
-From 36fd1664301ede2fb27811f03db77333170bcf05 Mon Sep 17 00:00:00 2001
+From c530c3ada9b21af6ceecd381a5688a615d48b8a4 Mon Sep 17 00:00:00 2001
 From: Laszlo Ersek <lersek@redhat.com>
 Date: Tue, 25 Feb 2014 22:40:01 +0100
 Subject: [PATCH] MdeModulePkg: TerminalDxe: set xterm resolution on mode
  change (RH only)
+
+Notes for rebase to edk2-stable202505:
+
+- Minor context changes due to be03ceb ArmPkg: ArmFfaLib: Move ArmFfaLib
+implementation to MdeModulePkg
 
 Notes for rebase to edk2-stable202311:
 
@@ -99,12 +104,12 @@ Signed-off-by: Laszlo Ersek <lersek@redhat.com>
  3 files changed, 36 insertions(+)
 
 diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
-index 168f224d4b..5b6287341f 100644
+index 5250d77ecc..5a4808c267 100644
 --- a/MdeModulePkg/MdeModulePkg.dec
 +++ b/MdeModulePkg/MdeModulePkg.dec
-@@ -2275,6 +2275,10 @@
-   # @Prompt The value is use for Usb Network rate limiting supported.
-   gEfiMdeModulePkgTokenSpaceGuid.PcdUsbNetworkRateLimitingFactor|100|UINT32|0x10000028
+@@ -2287,6 +2287,10 @@
+   # @Prompt Conduit to use in ArmFfaLib.
+   gEfiMdeModulePkgTokenSpaceGuid.PcdFfaLibConduitSmc|TRUE|BOOLEAN|0x10000029
  
 +  ## Controls whether TerminalDxe outputs an XTerm resize sequence on terminal
 +  #  mode change.
@@ -114,10 +119,10 @@ index 168f224d4b..5b6287341f 100644
    ## Specify memory size with page number for PEI code when
    #  Loading Module at Fixed Address feature is enabled.
 diff --git a/MdeModulePkg/Universal/Console/TerminalDxe/TerminalConOut.c b/MdeModulePkg/Universal/Console/TerminalDxe/TerminalConOut.c
-index 7809869e7d..3be801039b 100644
+index eb8658c892..6d62cbf500 100644
 --- a/MdeModulePkg/Universal/Console/TerminalDxe/TerminalConOut.c
 +++ b/MdeModulePkg/Universal/Console/TerminalDxe/TerminalConOut.c
-@@ -7,6 +7,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+@@ -8,6 +8,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
  
  **/
  
@@ -126,7 +131,7 @@ index 7809869e7d..3be801039b 100644
  #include "Terminal.h"
  
  //
-@@ -80,6 +82,16 @@ CHAR16  mSetCursorPositionString[] = { ESC, '[', '0', '0', ';', '0', '0', 'H', 0
+@@ -82,6 +84,16 @@ CHAR16  mSetCursorPositionString[] = { ESC, '[', '0', '0', ';', '0', '0', 'H', 0
  CHAR16  mCursorForwardString[]     = { ESC, '[', '0', '0', 'C', 0 };
  CHAR16  mCursorBackwardString[]    = { ESC, '[', '0', '0', 'D', 0 };
  
@@ -143,7 +148,7 @@ index 7809869e7d..3be801039b 100644
  //
  // Body of the ConOut functions
  //
-@@ -498,6 +510,24 @@ TerminalConOutSetMode (
+@@ -521,6 +533,24 @@ TerminalConOutSetMode (
      return EFI_DEVICE_ERROR;
    }
  

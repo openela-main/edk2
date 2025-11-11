@@ -1,4 +1,4 @@
-From b34701a562571a8d03c3e9609dea1abafc65d18b Mon Sep 17 00:00:00 2001
+From f910836bc0c2c10c4bd8bc8ff3ee028bcfc986f1 Mon Sep 17 00:00:00 2001
 From: Laszlo Ersek <lersek@redhat.com>
 Date: Wed, 24 Jun 2020 11:31:36 +0200
 Subject: [PATCH] OvmfPkg/QemuKernelLoaderFsDxe: suppress error on no "-kernel"
@@ -32,7 +32,7 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  2 files changed, 18 insertions(+)
 
 diff --git a/OvmfPkg/QemuKernelLoaderFsDxe/QemuKernelLoaderFsDxe.c b/OvmfPkg/QemuKernelLoaderFsDxe/QemuKernelLoaderFsDxe.c
-index cf58c97cd2..023eece6d9 100644
+index 646a9a5f15..98e2f1f74a 100644
 --- a/OvmfPkg/QemuKernelLoaderFsDxe/QemuKernelLoaderFsDxe.c
 +++ b/OvmfPkg/QemuKernelLoaderFsDxe/QemuKernelLoaderFsDxe.c
 @@ -19,6 +19,7 @@
@@ -42,10 +42,10 @@ index cf58c97cd2..023eece6d9 100644
 +#include <Library/DebugPrintErrorLevelLib.h>
  #include <Library/DevicePathLib.h>
  #include <Library/MemoryAllocationLib.h>
- #include <Library/QemuFwCfgLib.h>
-@@ -1080,6 +1081,22 @@ QemuKernelLoaderFsDxeEntrypoint (
- 
-   if (KernelBlob->Data == NULL) {
+ #include <Library/PrintLib.h>
+@@ -1224,6 +1225,22 @@ QemuKernelLoaderFsDxeEntrypoint (
+   if ((Blob == NULL) && (mKernelNamedBlobCount == 0)) {
+     DEBUG ((DEBUG_INFO, "%a: no kernel and no named blobs present -> quit\n", __func__));
      Status = EFI_NOT_FOUND;
 +#if defined (MDE_CPU_AARCH64)
 +    //
@@ -67,7 +67,7 @@ index cf58c97cd2..023eece6d9 100644
    }
  
 diff --git a/OvmfPkg/QemuKernelLoaderFsDxe/QemuKernelLoaderFsDxe.inf b/OvmfPkg/QemuKernelLoaderFsDxe/QemuKernelLoaderFsDxe.inf
-index 7b35adb8e0..23d9f5fca1 100644
+index a2f44bbca1..e46e5e47d1 100644
 --- a/OvmfPkg/QemuKernelLoaderFsDxe/QemuKernelLoaderFsDxe.inf
 +++ b/OvmfPkg/QemuKernelLoaderFsDxe/QemuKernelLoaderFsDxe.inf
 @@ -28,6 +28,7 @@
@@ -77,4 +77,4 @@ index 7b35adb8e0..23d9f5fca1 100644
 +  DebugPrintErrorLevelLib
    DevicePathLib
    MemoryAllocationLib
-   QemuFwCfgLib
+   PrintLib

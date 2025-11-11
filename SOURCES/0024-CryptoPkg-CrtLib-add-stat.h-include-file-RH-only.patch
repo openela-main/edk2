@@ -1,7 +1,7 @@
-From 0454b8eaabf7fa0240b6d7c4f6409584161552d4 Mon Sep 17 00:00:00 2001
+From 312ead5fd6e27166a642cd4ea85b29a8ea4c3dd0 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Mon, 28 Aug 2023 13:11:02 +0200
-Subject: [PATCH] CryptoPkg/CrtLib: add stat.h include file.
+Subject: [PATCH] CryptoPkg/CrtLib: add stat.h include file (RH only)
 
 Needed by rhel downstream openssl patches.
 

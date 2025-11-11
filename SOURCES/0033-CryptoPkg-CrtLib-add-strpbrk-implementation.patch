@@ -1,0 +1,60 @@
+From 259acb5ec295d0f498ea035eaff5acd39ce71144 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Thu, 24 Apr 2025 12:06:05 +0200
+Subject: [PATCH] CryptoPkg/CrtLib: add strpbrk implementation
+
+Needed by openssl-3.5.1.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ .../Library/BaseCryptLib/SysCall/CrtWrapper.c | 19 +++++++++++++++++++
+ CryptoPkg/Library/Include/CrtLibSupport.h     |  6 ++++++
+ 2 files changed, 25 insertions(+)
+
+diff --git a/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c b/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c
+index aa0c967c53..11d01106d4 100644
+--- a/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c
++++ b/CryptoPkg/Library/BaseCryptLib/SysCall/CrtWrapper.c
+@@ -425,6 +425,25 @@ strtoul (
+   return 0;
+ }
+ 
++char *
++strpbrk (
++  const char  *s,
++  const char  *accept
++  )
++{
++  int  i;
++
++  for ( ; *s != '\0'; s++) {
++    for (i = 0; accept[i] != '\0'; i++) {
++      if (*s == accept[i]) {
++        return (char *)s;
++      }
++    }
++  }
++
++  return NULL;
++}
++
+ /* Convert character to lowercase */
+ int
+ tolower (
+diff --git a/CryptoPkg/Library/Include/CrtLibSupport.h b/CryptoPkg/Library/Include/CrtLibSupport.h
+index 8663554960..21780780f0 100644
+--- a/CryptoPkg/Library/Include/CrtLibSupport.h
++++ b/CryptoPkg/Library/Include/CrtLibSupport.h
+@@ -467,6 +467,12 @@ strcat (
+   const char  *strSource
+   );
+ 
++char *
++strpbrk (
++  const char  *s,
++  const char  *accept
++  );
++
+ //
+ // Macros that directly map functions to BaseLib, BaseMemoryLib, and DebugLib functions
+ //

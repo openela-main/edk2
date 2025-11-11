@@ -1,4 +1,4 @@
-From ca812e951cc824d6d7db16ec04a23a4b7fbb6830 Mon Sep 17 00:00:00 2001
+From 61a6d756d7a88c79a033c386a0b2dd575d7a8b9f Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Wed, 16 Aug 2023 12:09:40 +0200
 Subject: [PATCH] OvmfPkg/AmdSevDxe: Shim Reboot workaround (RHEL only)

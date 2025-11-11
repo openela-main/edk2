@@ -1,4 +1,4 @@
-From 14ce76be0e92a9926a7f2b33d64b13966c6bfaf2 Mon Sep 17 00:00:00 2001
+From 79fd7ddc704daf97929cb7f8ee62a6f89e1805c2 Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Thu, 7 Nov 2024 11:36:22 +0100
 Subject: [PATCH] OvmfPkg/ArmVirtPkg: Add a Fallback RNG (RH only)
@@ -29,18 +29,18 @@ location_in_specfile: 49
  2 files changed, 11 insertions(+)
 
 diff --git a/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBm.c b/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBm.c
-index 8e93f3cfed..8aa1e8e2df 100644
+index 2c24c65489..273e6f6a7e 100644
 --- a/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBm.c
 +++ b/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBm.c
 @@ -30,6 +30,7 @@
- #include <Guid/GlobalVariable.h>
  #include <Guid/RootBridgesConnectedEventGroup.h>
  #include <Guid/SerialPortLibVendor.h>
+ #include <Library/PlatformBootManagerCommonLib.h>
 +#include "FallbackRng.h"
  
  #include "PlatformBm.h"
  
-@@ -1029,6 +1030,7 @@ PlatformBootManagerBeforeConsole (
+@@ -819,6 +820,7 @@ PlatformBootManagerBeforeConsole (
    //
    FilterAndProcess (&gEfiGraphicsOutputProtocolGuid, NULL, AddOutput);
  
@@ -48,7 +48,7 @@ index 8e93f3cfed..8aa1e8e2df 100644
    //
    // Add the hardcoded short-form USB keyboard device path to ConIn.
    //
-@@ -1110,6 +1112,8 @@ PlatformBootManagerBeforeConsole (
+@@ -916,6 +918,8 @@ PlatformBootManagerBeforeConsole (
    //
    FilterAndProcess (&gVirtioDeviceProtocolGuid, IsVirtioSerial, SetupVirtioSerial);
    FilterAndProcess (&gEfiPciIoProtocolGuid, IsVirtioPciSerial, SetupVirtioSerial);
@@ -57,9 +57,9 @@ index 8e93f3cfed..8aa1e8e2df 100644
  }
  
  /**
-@@ -1175,6 +1179,8 @@ PlatformBootManagerAfterConsole (
-   RETURN_STATUS  Status;
+@@ -982,6 +986,8 @@ PlatformBootManagerAfterConsole (
    BOOLEAN        Uninstall;
+   BOOLEAN        ShellEnabled;
  
 +  FallbackRngPrintWarning ();
 +
@@ -67,7 +67,7 @@ index 8e93f3cfed..8aa1e8e2df 100644
    // Show the splash screen.
    //
 diff --git a/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBootManagerLib.inf b/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBootManagerLib.inf
-index 8e7cd5605f..4583c05ef4 100644
+index 6c5552da16..1de19eb507 100644
 --- a/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBootManagerLib.inf
 +++ b/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBootManagerLib.inf
 @@ -27,6 +27,8 @@
@@ -79,23 +79,23 @@ index 8e7cd5605f..4583c05ef4 100644
  
  [Packages]
    MdeModulePkg/MdeModulePkg.dec
-@@ -53,6 +55,7 @@
-   UefiBootServicesTableLib
+@@ -54,6 +56,7 @@
    UefiLib
    UefiRuntimeServicesTableLib
+   PlatformBootManagerCommonLib
 +  RngLib
  
  [FixedPcd]
    gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate
-@@ -70,6 +73,7 @@
-   gEfiGlobalVariableGuid
+@@ -72,6 +75,7 @@
    gRootBridgesConnectedEventGroupGuid
    gUefiShellFileGuid
+   gUiAppFileGuid
 +  gEfiRngAlgorithmRaw
  
  [Protocols]
    gEfiFirmwareVolume2ProtocolGuid
-@@ -77,3 +81,4 @@
+@@ -79,3 +83,4 @@
    gEfiMemoryAttributeProtocolGuid
    gEfiPciRootBridgeIoProtocolGuid
    gVirtioDeviceProtocolGuid
