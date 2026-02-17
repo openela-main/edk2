@@ -6,7 +6,7 @@ ExclusiveArch: x86_64 aarch64
 %define TOOLCHAIN      GCC
 
 %define OPENSSL_VER    3.0.7
-%define OPENSSL_HASH   0205b589887203b065154ddc8e8107c4ac8625a1
+%define OPENSSL_HASH   4000c8f49c400db3c5b4e8ccdd9af6cc3d04da19
 
 %define DBXDATE        20250610
 
@@ -21,7 +21,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    4%{?dist}
+Release:    4%{?dist}.3
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -89,6 +89,16 @@ Patch34: 0036-OvmfPkg-PlatformInitLib-enable-x2apic-mode-if-needed.patch
 Patch35: 0037-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch
 # For RHEL-70865 - SNP guest failed to boot with SVSM using OVMF.amdsev.fd [rhel-9.7]
 Patch36: edk2-OvmfPkg-Use-the-OvmfPkg-version-of-CcProbeLib.patch
+# For RHEL-121875 - Fail to create AMD SEV SLES 15 SP4 guest via virt-install --cdrom [rhel-9.7.z]
+Patch37: edk2-OvmfPkg-IoMmuDxe-Fix-1M-and-2M-buffer-handling.patch
+# For RHEL-125104 - [edk2] VM panic on booting SNP guest with large memory on Genoa [rhel-9.7.z]
+Patch38: edk2-OvmfPkg-MemEncryptSevLib-Evict-cache-lines-during-SN.patch
+# For RHEL-125104 - [edk2] VM panic on booting SNP guest with large memory on Genoa [rhel-9.7.z]
+Patch39: edk2-MdePkg-Add-the-COHERENCY_SFW_NO-CPUID-bit-field.patch
+# For RHEL-125104 - [edk2] VM panic on booting SNP guest with large memory on Genoa [rhel-9.7.z]
+Patch40: edk2-OvmfPkg-ResetVector-Make-ReceivedVc-a-flag-in-SEV-ES.patch
+# For RHEL-125104 - [edk2] VM panic on booting SNP guest with large memory on Genoa [rhel-9.7.z]
+Patch41: edk2-OvmfPkg-MemEncryptSevLib-Check-if-SEV-SNP-coherency-.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -424,6 +434,28 @@ install -m 0644 \
 
 
 %changelog
+* Mon Nov 17 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-4.el9_7.3
+- edk2-OvmfPkg-MemEncryptSevLib-Evict-cache-lines-during-SN.patch [RHEL-125104]
+- edk2-MdePkg-Add-the-COHERENCY_SFW_NO-CPUID-bit-field.patch [RHEL-125104]
+- edk2-OvmfPkg-ResetVector-Make-ReceivedVc-a-flag-in-SEV-ES.patch [RHEL-125104]
+- edk2-OvmfPkg-MemEncryptSevLib-Check-if-SEV-SNP-coherency-.patch [RHEL-125104]
+- edk2-openssl-flatten-contents-of-openssl-tarball.patch [RHEL-115923]
+- edk2-Bumped-openssl-submodule-to-version-3.0.7-29.1.patch [RHEL-115923]
+- Resolves: RHEL-125104
+  ([edk2] VM panic on booting SNP guest with large memory on Genoa [rhel-9.7.z])
+- Resolves: RHEL-115923
+  (CVE-2025-9230 edk2: Out-of-bounds read & write in RFC 3211 KEK Unwrap [rhel-9.7.z])
+
+* Thu Oct 30 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-4.el9_7.2
+- edk2-OvmfPkg-IoMmuDxe-Fix-1M-and-2M-buffer-handling.patch [RHEL-121875]
+- Resolves: RHEL-121875
+  (Fail to create AMD SEV SLES 15 SP4 guest via virt-install --cdrom [rhel-9.7.z])
+
+* Tue Oct 28 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-4.el9_7.1
+- edk2-OvmfPkg-IoMmuDxe-Fix-1M-and-2M-buffer-handling.patch [RHEL-121875]
+- Resolves: RHEL-121875
+  (Fail to create AMD SEV SLES 15 SP4 guest via virt-install --cdrom [rhel-9.7.z])
+
 * Fri Jul 04 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20241117-4
 - edk2-update-dbx-to-20250610.patch [RHEL-96869]
 - Resolves: RHEL-96869

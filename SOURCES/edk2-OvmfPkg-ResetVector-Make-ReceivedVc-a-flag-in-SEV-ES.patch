@@ -1,0 +1,98 @@
+From f70bc75a9a7f096716e2003da96821f80ad6abbe Mon Sep 17 00:00:00 2001
+From: Tom Lendacky <thomas.lendacky@amd.com>
+Date: Tue, 22 Jul 2025 13:38:22 -0500
+Subject: [PATCH 3/6] OvmfPkg/ResetVector: Make ReceivedVc a flag in SEV-ES
+ workarea
+
+RH-Author: Luigi Leonardi <None>
+RH-MergeRequest: 120: OvmfPkg/MemEncryptSevLib: Evict cache lines during SNP memory validation
+RH-Jira: RHEL-125104
+RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+RH-Commit: [3/4] 1a275cdbdad997cacc2e201de3012b4326b046d0
+
+In preparation for adding another indicator flag, change the ReceivedVc
+field into a flags field. Since the code is used by both assembler and
+C files, use bitmasks for field definitions. The VC flag is bit 0.
+
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+---
+ OvmfPkg/Include/WorkArea.h            | 10 ++++++----
+ OvmfPkg/ResetVector/Ia32/AmdSev.asm   | 10 +++++-----
+ OvmfPkg/ResetVector/ResetVector.nasmb |  3 ++-
+ 3 files changed, 13 insertions(+), 10 deletions(-)
+
+diff --git a/OvmfPkg/Include/WorkArea.h b/OvmfPkg/Include/WorkArea.h
+index e3b415db2c..731ef4a7d0 100644
+--- a/OvmfPkg/Include/WorkArea.h
++++ b/OvmfPkg/Include/WorkArea.h
+@@ -49,11 +49,11 @@ typedef struct _SEC_SEV_ES_WORK_AREA {
+ 
+   UINT64    EncryptionMask;
+ 
++  // Flags:
++  // - BIT0 - VC: Indicator that the VC handler was called. It is used
++  //   during the SevFeature detection in OvmfPkg/ResetVector/Ia32/AmdSev.asm
+   //
+-  // Indicator that the VC handler is called. It is used during the SevFeature
+-  // detection in OvmfPkg/ResetVector/Ia32/AmdSev.c
+-  //
+-  UINT8     ReceivedVc;
++  UINT8     Flags;
+   UINT8     Reserved[7];
+ 
+   // Used by SEC to generate Page State Change requests. This should be
+@@ -63,6 +63,8 @@ typedef struct _SEC_SEV_ES_WORK_AREA {
+   UINT8     WorkBuffer[1024];
+ } SEC_SEV_ES_WORK_AREA;
+ 
++#define SEV_ES_WORK_AREA_VC  BIT0
++
+ //
+ // The SEV work area definition.
+ //
+diff --git a/OvmfPkg/ResetVector/Ia32/AmdSev.asm b/OvmfPkg/ResetVector/Ia32/AmdSev.asm
+index 827c874312..de09a59ef7 100644
+--- a/OvmfPkg/ResetVector/Ia32/AmdSev.asm
++++ b/OvmfPkg/ResetVector/Ia32/AmdSev.asm
+@@ -306,9 +306,9 @@ NoSev:
+     ; Perform an SEV-ES sanity check by seeing if a #VC exception occurred.
+     ;
+     ; If SEV-ES is enabled, the CPUID instruction will trigger a #VC exception
+-    ; where the RECEIVED_VC offset in the workarea will be set to one.
++    ; where the VC bit in the FLAGS field in the workarea will be set to one.
+     ;
+-    cmp       byte[SEV_ES_WORK_AREA_RECEIVED_VC], 0
++    test      byte[SEV_ES_WORK_AREA_FLAGS], SEV_ES_WORK_AREA_FLAG_VC
+     jz        NoSevPass
+ 
+     ;
+@@ -402,9 +402,9 @@ SevEsIdtVmmComm:
+     ; If we're here, then we are an SEV-ES guest and this
+     ; was triggered by a CPUID instruction
+     ;
+-    ; Set the recievedVc field in the workarea to communicate that
+-    ; a #VC was taken.
+-    mov     byte[SEV_ES_WORK_AREA_RECEIVED_VC], 1
++    ; Set the VC bit in the FLAGS field in the workarea to communicate
++    ; that a #VC was taken.
++    or      byte[SEV_ES_WORK_AREA_FLAGS], SEV_ES_WORK_AREA_FLAG_VC
+ 
+     pop     ecx                     ; Error code
+     cmp     ecx, 0x72               ; Be sure it was CPUID
+diff --git a/OvmfPkg/ResetVector/ResetVector.nasmb b/OvmfPkg/ResetVector/ResetVector.nasmb
+index 7279ac64b1..a63b859f39 100644
+--- a/OvmfPkg/ResetVector/ResetVector.nasmb
++++ b/OvmfPkg/ResetVector/ResetVector.nasmb
+@@ -63,7 +63,8 @@
+ %define SEV_ES_WORK_AREA_STATUS_MSR   (FixedPcdGet32 (PcdSevEsWorkAreaBase))
+ %define SEV_ES_WORK_AREA_RDRAND       (FixedPcdGet32 (PcdSevEsWorkAreaBase) + 8)
+ %define SEV_ES_WORK_AREA_ENC_MASK     (FixedPcdGet32 (PcdSevEsWorkAreaBase) + 16)
+-%define SEV_ES_WORK_AREA_RECEIVED_VC  (FixedPcdGet32 (PcdSevEsWorkAreaBase) + 24)
++%define SEV_ES_WORK_AREA_FLAGS        (FixedPcdGet32 (PcdSevEsWorkAreaBase) + 24)
++%define SEV_ES_WORK_AREA_FLAG_VC      0x01
+ %define SEV_ES_VC_TOP_OF_STACK        (FixedPcdGet32 (PcdOvmfSecPeiTempRamBase) + FixedPcdGet32 (PcdOvmfSecPeiTempRamSize))
+ %define SEV_SNP_SECRETS_BASE          (FixedPcdGet32 (PcdOvmfSnpSecretsBase))
+ %define SEV_SNP_SECRETS_SIZE          (FixedPcdGet32 (PcdOvmfSnpSecretsSize))
+-- 
+2.50.1
+

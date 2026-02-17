@@ -1,0 +1,276 @@
+From 7f0caaab35570e5adfe29e02e30d65412d55dffc Mon Sep 17 00:00:00 2001
+From: Tom Lendacky <thomas.lendacky@amd.com>
+Date: Tue, 22 Jul 2025 15:06:18 -0500
+Subject: [PATCH 4/6] OvmfPkg/MemEncryptSevLib: Check if SEV-SNP coherency
+ mitigitation is needed
+
+RH-Author: Luigi Leonardi <None>
+RH-MergeRequest: 120: OvmfPkg/MemEncryptSevLib: Evict cache lines during SNP memory validation
+RH-Jira: RHEL-125104
+RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+RH-Commit: [4/4] 81056c6ab2adb53ca17bc26fbd29d228ed1c40bb
+
+CPUID bit Fn8000001F_EBX[31] defines the COHERNECY_SFW_NO CPUID bit that,
+when set, indicates that the software mitigation for this vulnerability is
+not needed.
+
+Add support to check for this CPUID bit and avoid the mitigation if set.
+
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+---
+ OvmfPkg/Include/Library/MemEncryptSevLib.h    | 14 +++++
+ OvmfPkg/Include/WorkArea.h                    |  5 +-
+ .../DxeMemEncryptSevLibInternal.c             | 54 +++++++++++++++++--
+ .../PeiMemEncryptSevLibInternal.c             | 25 +++++++++
+ .../SecMemEncryptSevLibInternal.c             | 25 +++++++++
+ .../X64/SnpPageStateChangeInternal.c          | 10 ++--
+ OvmfPkg/ResetVector/Ia32/AmdSev.asm           | 10 ++++
+ OvmfPkg/ResetVector/ResetVector.nasmb         |  1 +
+ 8 files changed, 135 insertions(+), 9 deletions(-)
+
+diff --git a/OvmfPkg/Include/Library/MemEncryptSevLib.h b/OvmfPkg/Include/Library/MemEncryptSevLib.h
+index c5653539d8..d3d4f6fa9a 100644
+--- a/OvmfPkg/Include/Library/MemEncryptSevLib.h
++++ b/OvmfPkg/Include/Library/MemEncryptSevLib.h
+@@ -178,6 +178,20 @@ MemEncryptSevEsDebugVirtualizationIsEnabled (
+   VOID
+   );
+ 
++/**
++  Returns a boolean to indicate whether the SEV-SNP cache line eviction
++  mitigation is needed.
++
++  @retval TRUE           Cache line eviction mitigation required
++  @retval FALSE          Cache line eviction migigation not required
++
++**/
++BOOLEAN
++EFIAPI
++MemEncryptSevSnpDoCoherencyMitigation (
++  VOID
++  );
++
+ /**
+   Returns the encryption state of the specified virtual address range.
+ 
+diff --git a/OvmfPkg/Include/WorkArea.h b/OvmfPkg/Include/WorkArea.h
+index 731ef4a7d0..7de0fe3499 100644
+--- a/OvmfPkg/Include/WorkArea.h
++++ b/OvmfPkg/Include/WorkArea.h
+@@ -52,6 +52,8 @@ typedef struct _SEC_SEV_ES_WORK_AREA {
+   // Flags:
+   // - BIT0 - VC: Indicator that the VC handler was called. It is used
+   //   during the SevFeature detection in OvmfPkg/ResetVector/Ia32/AmdSev.asm
++  // - BIT1 - CSFW_NO: Indicator that the SEV-SNP cache line evication
++  //   mitigation is not needed.
+   //
+   UINT8     Flags;
+   UINT8     Reserved[7];
+@@ -63,7 +65,8 @@ typedef struct _SEC_SEV_ES_WORK_AREA {
+   UINT8     WorkBuffer[1024];
+ } SEC_SEV_ES_WORK_AREA;
+ 
+-#define SEV_ES_WORK_AREA_VC  BIT0
++#define SEV_ES_WORK_AREA_FLAG_VC       BIT0
++#define SEV_ES_WORK_AREA_FLAG_CSFW_NO  BIT1
+ 
+ //
+ // The SEV work area definition.
+diff --git a/OvmfPkg/Library/BaseMemEncryptSevLib/DxeMemEncryptSevLibInternal.c b/OvmfPkg/Library/BaseMemEncryptSevLib/DxeMemEncryptSevLibInternal.c
+index 9947d663de..aace322e5a 100644
+--- a/OvmfPkg/Library/BaseMemEncryptSevLib/DxeMemEncryptSevLibInternal.c
++++ b/OvmfPkg/Library/BaseMemEncryptSevLib/DxeMemEncryptSevLibInternal.c
+@@ -18,10 +18,12 @@
+ #include <Uefi/UefiBaseType.h>
+ #include <ConfidentialComputingGuestAttr.h>
+ 
+-STATIC UINT64   mCurrentAttr            = 0;
+-STATIC BOOLEAN  mCurrentAttrRead        = FALSE;
+-STATIC UINT64   mSevEncryptionMask      = 0;
+-STATIC BOOLEAN  mSevEncryptionMaskSaved = FALSE;
++STATIC UINT64   mCurrentAttr              = 0;
++STATIC BOOLEAN  mCurrentAttrRead          = FALSE;
++STATIC UINT64   mSevEncryptionMask        = 0;
++STATIC BOOLEAN  mSevEncryptionMaskSaved   = FALSE;
++STATIC BOOLEAN  mSevSnpCoherencySfwNo     = FALSE;
++STATIC BOOLEAN  mSevSnpCoherencySfwNoRead = FALSE;
+ 
+ /**
+   The function check if the specified Attr is set.
+@@ -180,3 +182,47 @@ MemEncryptSevEsDebugVirtualizationIsEnabled (
+ {
+   return ConfidentialComputingGuestHas (CCAttrFeatureAmdSevEsDebugVirtualization);
+ }
++
++/**
++  Returns a boolean to indicate if the CPUID COHERENCY_SFW_NO bit is set.
++
++  @retval  TRUE      The COHERENCY_SFW_NO bit is set.
++  @retval  FALSE     The COHERENCY_SFW_NO bit is not set.
++
++**/
++STATIC
++BOOLEAN
++MemEncryptCoherencSfwNo (
++  VOID
++  )
++{
++  CPUID_MEMORY_ENCRYPTION_INFO_EBX  RegEbx;
++
++  if (!mSevSnpCoherencySfwNoRead) {
++    AsmCpuid (0x8000001F, NULL, &RegEbx.Uint32, NULL, NULL);
++    if (RegEbx.Bits.CoherencySfwNo == 1) {
++      mSevSnpCoherencySfwNo = TRUE;
++    }
++
++    mSevSnpCoherencySfwNoRead = TRUE;
++  }
++
++  return mSevSnpCoherencySfwNo;
++}
++
++/**
++  Returns a boolean to indicate whether the SEV-SNP cache line eviction
++  mitigation is needed.
++
++  @retval TRUE           Cache line eviction mitigation required
++  @retval FALSE          Cache line eviction migigation not required
++
++**/
++BOOLEAN
++EFIAPI
++MemEncryptSevSnpDoCoherencyMitigation (
++  VOID
++  )
++{
++  return MemEncryptSevSnpIsEnabled () && !MemEncryptCoherencSfwNo ();
++}
+diff --git a/OvmfPkg/Library/BaseMemEncryptSevLib/PeiMemEncryptSevLibInternal.c b/OvmfPkg/Library/BaseMemEncryptSevLib/PeiMemEncryptSevLibInternal.c
+index f381b9255b..3eeb4831ab 100644
+--- a/OvmfPkg/Library/BaseMemEncryptSevLib/PeiMemEncryptSevLibInternal.c
++++ b/OvmfPkg/Library/BaseMemEncryptSevLib/PeiMemEncryptSevLibInternal.c
+@@ -160,3 +160,28 @@ MemEncryptSevEsDebugVirtualizationIsEnabled (
+ 
+   return Msr.Bits.DebugVirtualization ? TRUE : FALSE;
+ }
++
++/**
++  Returns a boolean to indicate whether the SEV-SNP cache line eviction
++  mitigation is needed.
++
++  @retval TRUE           Cache line eviction mitigation required
++  @retval FALSE          Cache line eviction migigation not required
++
++**/
++BOOLEAN
++EFIAPI
++MemEncryptSevSnpDoCoherencyMitigation (
++  VOID
++  )
++{
++  SEC_SEV_ES_WORK_AREA  *SevEsWorkArea;
++
++  SevEsWorkArea = GetSevEsWorkArea ();
++  if (SevEsWorkArea == NULL) {
++    return FALSE;
++  }
++
++  return MemEncryptSevSnpIsEnabled () &&
++         ((SevEsWorkArea->Flags & SEV_ES_WORK_AREA_FLAG_CSFW_NO) == 0);
++}
+diff --git a/OvmfPkg/Library/BaseMemEncryptSevLib/SecMemEncryptSevLibInternal.c b/OvmfPkg/Library/BaseMemEncryptSevLib/SecMemEncryptSevLibInternal.c
+index 946bed2ada..05c93de3e5 100644
+--- a/OvmfPkg/Library/BaseMemEncryptSevLib/SecMemEncryptSevLibInternal.c
++++ b/OvmfPkg/Library/BaseMemEncryptSevLib/SecMemEncryptSevLibInternal.c
+@@ -161,6 +161,31 @@ MemEncryptSevEsDebugVirtualizationIsEnabled (
+   return Msr.Bits.DebugVirtualization ? TRUE : FALSE;
+ }
+ 
++/**
++  Returns a boolean to indicate whether the SEV-SNP cache line eviction
++  mitigation is needed.
++
++  @retval TRUE           Cache line eviction mitigation required
++  @retval FALSE          Cache line eviction migigation not required
++
++**/
++BOOLEAN
++EFIAPI
++MemEncryptSevSnpDoCoherencyMitigation (
++  VOID
++  )
++{
++  SEC_SEV_ES_WORK_AREA  *SevEsWorkArea;
++
++  SevEsWorkArea = GetSevEsWorkArea ();
++  if (SevEsWorkArea == NULL) {
++    return FALSE;
++  }
++
++  return MemEncryptSevSnpIsEnabled () &&
++         ((SevEsWorkArea->Flags & SEV_ES_WORK_AREA_FLAG_CSFW_NO) == 0);
++}
++
+ /**
+   Locate the page range that covers the initial (pre-SMBASE-relocation) SMRAM
+   Save State Map.
+diff --git a/OvmfPkg/Library/BaseMemEncryptSevLib/X64/SnpPageStateChangeInternal.c b/OvmfPkg/Library/BaseMemEncryptSevLib/X64/SnpPageStateChangeInternal.c
+index 7b6ba063df..ef3aec4b30 100644
+--- a/OvmfPkg/Library/BaseMemEncryptSevLib/X64/SnpPageStateChangeInternal.c
++++ b/OvmfPkg/Library/BaseMemEncryptSevLib/X64/SnpPageStateChangeInternal.c
+@@ -315,10 +315,12 @@ InternalSetPageState (
+     if (State == SevSnpPagePrivate) {
+       AmdSvsmSnpPvalidate (Info);
+ 
+-      for (Index = 0; Index <= Info->Header.EndEntry; Index++) {
+-        Address     = LShiftU64 ((UINT64)Info->Entry[Index].GuestFrameNumber, EFI_PAGE_SHIFT);
+-        RmpPageSize = Info->Entry[Index].PageSize;
+-        SevEvictCache (Address, RmpPageSize == PvalidatePageSize2MB ? PAGES_PER_2MB_ENTRY : 1);
++      if (MemEncryptSevSnpDoCoherencyMitigation ()) {
++        for (Index = 0; Index <= Info->Header.EndEntry; Index++) {
++          Address     = LShiftU64 ((UINT64)Info->Entry[Index].GuestFrameNumber, EFI_PAGE_SHIFT);
++          RmpPageSize = Info->Entry[Index].PageSize;
++          SevEvictCache (Address, RmpPageSize == PvalidatePageSize2MB ? PAGES_PER_2MB_ENTRY : 1);
++        }
+       }
+     }
+   }
+diff --git a/OvmfPkg/ResetVector/Ia32/AmdSev.asm b/OvmfPkg/ResetVector/Ia32/AmdSev.asm
+index de09a59ef7..22b696419a 100644
+--- a/OvmfPkg/ResetVector/Ia32/AmdSev.asm
++++ b/OvmfPkg/ResetVector/Ia32/AmdSev.asm
+@@ -249,9 +249,19 @@ ClearSevEsWorkArea:
+ 
+     ; Check for SEV memory encryption feature:
+     ; CPUID  Fn8000_001F[EAX] - Bit 1
++    ; Check for the COHERENCY_SFW_NO feature:
++    ; CPUID  Fn8000_001F[EBX] - Bit 31
+     ;   CPUID raises a #VC exception if running as an SEV-ES guest
+     mov       eax, 0x8000001f
+     cpuid
++
++    ; If COHERENCY_SFW_NO is set, set the CSFW_NO bit in the FLAGS field
++    ; of the workarea (this can be set regardless of whether SEV is enabled).
++    bt        ebx, 31
++    jnc       CheckSev
++    or        byte[SEV_ES_WORK_AREA_FLAGS], SEV_ES_WORK_AREA_FLAG_CSFW_NO
++
++CheckSev:
+     bt        eax, 1
+     jnc       NoSev
+ 
+diff --git a/OvmfPkg/ResetVector/ResetVector.nasmb b/OvmfPkg/ResetVector/ResetVector.nasmb
+index a63b859f39..956116fbda 100644
+--- a/OvmfPkg/ResetVector/ResetVector.nasmb
++++ b/OvmfPkg/ResetVector/ResetVector.nasmb
+@@ -65,6 +65,7 @@
+ %define SEV_ES_WORK_AREA_ENC_MASK     (FixedPcdGet32 (PcdSevEsWorkAreaBase) + 16)
+ %define SEV_ES_WORK_AREA_FLAGS        (FixedPcdGet32 (PcdSevEsWorkAreaBase) + 24)
+ %define SEV_ES_WORK_AREA_FLAG_VC      0x01
++%define SEV_ES_WORK_AREA_FLAG_CSFW_NO 0x02
+ %define SEV_ES_VC_TOP_OF_STACK        (FixedPcdGet32 (PcdOvmfSecPeiTempRamBase) + FixedPcdGet32 (PcdOvmfSecPeiTempRamSize))
+ %define SEV_SNP_SECRETS_BASE          (FixedPcdGet32 (PcdOvmfSnpSecretsBase))
+ %define SEV_SNP_SECRETS_SIZE          (FixedPcdGet32 (PcdOvmfSnpSecretsSize))
+-- 
+2.50.1
+

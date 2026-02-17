@@ -1,0 +1,102 @@
+From b0742923771293c2366a0bee9ff199c3cae99a56 Mon Sep 17 00:00:00 2001
+From: Tom Lendacky <thomas.lendacky@amd.com>
+Date: Tue, 12 Aug 2025 14:43:32 -0500
+Subject: [PATCH 1/6] OvmfPkg/MemEncryptSevLib: Evict cache lines during SNP
+ memory validation
+
+RH-Author: Luigi Leonardi <None>
+RH-MergeRequest: 120: OvmfPkg/MemEncryptSevLib: Evict cache lines during SNP memory validation
+RH-Jira: RHEL-125104
+RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+RH-Commit: [1/4] ad17f1ab0d291246a50e2907052ae90f8b63b765
+
+An SNP cache coherency vulnerability may require a mitigation to evict
+cache lines after memory has been validated. Perform this mitigation
+after having validated memory.
+
+CVE-2024-36331
+
+Signed-off-by: Michael Roth <michael.roth@amd.com>
+Co-developed-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+---
+ .../X64/SnpPageStateChangeInternal.c          | 41 ++++++++++++++++++-
+ 1 file changed, 40 insertions(+), 1 deletion(-)
+
+diff --git a/OvmfPkg/Library/BaseMemEncryptSevLib/X64/SnpPageStateChangeInternal.c b/OvmfPkg/Library/BaseMemEncryptSevLib/X64/SnpPageStateChangeInternal.c
+index e073f3937c..7b6ba063df 100644
+--- a/OvmfPkg/Library/BaseMemEncryptSevLib/X64/SnpPageStateChangeInternal.c
++++ b/OvmfPkg/Library/BaseMemEncryptSevLib/X64/SnpPageStateChangeInternal.c
+@@ -22,6 +22,8 @@
+ 
+ #include "SnpPageStateChange.h"
+ 
++#define PAGES_PER_2MB_ENTRY  512
++
+ STATIC
+ UINTN
+ MemoryStateToGhcbOp (
+@@ -213,6 +215,33 @@ PageStateChange (
+   }
+ }
+ 
++STATIC
++VOID
++SevEvictCache (
++  IN EFI_PHYSICAL_ADDRESS  Address,
++  IN UINTN                 NumPages
++  )
++{
++ #if defined (__GNUC__) || defined (__clang__)
++  volatile UINT8  Val __attribute__ ((__unused__));
++ #else
++  volatile UINT8  Val;
++ #endif
++  UINT8  *Bytes = (UINT8 *)Address;
++  UINTN  PageIdx;
++
++  /*
++   * For SEV guests, a read from the first/last cache-lines of a 4K page
++   * using the guest key is sufficient to cause a flush of all cache-lines
++   * associated with that 4K page without incurring all the overhead of a
++   * full CLFLUSH sequence.
++   */
++  for (PageIdx = 0; PageIdx < NumPages; PageIdx++) {
++    Val = Bytes[PageIdx * SIZE_4KB];
++    Val = Bytes[PageIdx * SIZE_4KB + SIZE_4KB - 1];
++  }
++}
++
+ /**
+  The function is used to set the page state when SEV-SNP is active. The page state
+  transition consist of changing the page ownership in the RMP table, and using the
+@@ -231,8 +260,12 @@ InternalSetPageState (
+   IN UINTN                 PscBufferSize
+   )
+ {
+-  EFI_PHYSICAL_ADDRESS        NextAddress, EndAddress;
++  EFI_PHYSICAL_ADDRESS        NextAddress;
++  EFI_PHYSICAL_ADDRESS        EndAddress;
++  EFI_PHYSICAL_ADDRESS        Address;
+   SNP_PAGE_STATE_CHANGE_INFO  *Info;
++  UINTN                       RmpPageSize;
++  UINTN                       Index;
+ 
+   EndAddress = BaseAddress + EFI_PAGES_TO_SIZE (NumPages);
+ 
+@@ -281,6 +314,12 @@ InternalSetPageState (
+     //
+     if (State == SevSnpPagePrivate) {
+       AmdSvsmSnpPvalidate (Info);
++
++      for (Index = 0; Index <= Info->Header.EndEntry; Index++) {
++        Address     = LShiftU64 ((UINT64)Info->Entry[Index].GuestFrameNumber, EFI_PAGE_SHIFT);
++        RmpPageSize = Info->Entry[Index].PageSize;
++        SevEvictCache (Address, RmpPageSize == PvalidatePageSize2MB ? PAGES_PER_2MB_ENTRY : 1);
++      }
+     }
+   }
+ }
+-- 
+2.50.1
+
