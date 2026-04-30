@@ -5,8 +5,8 @@ ExclusiveArch: x86_64 aarch64 riscv64
 %define GITCOMMIT      6951dfe7d59d
 %define TOOLCHAIN      GCC
 
-%define OPENSSL_VER    3.5.0
-%define OPENSSL_HASH   63b528e6476ff36efcf2cda5c083f3f3d7cf9210
+%define OPENSSL_VER    3.5.1
+%define OPENSSL_HASH   4cf5738ac1c163d5ce2517250321da906492c40d
 
 %define DBXDATE        20250610
 
@@ -25,7 +25,7 @@ ExclusiveArch: x86_64 aarch64 riscv64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    2%{?dist}
+Release:    2%{?dist}.2
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -92,6 +92,8 @@ Patch31: 0033-CryptoPkg-CrtLib-add-strpbrk-implementation.patch
 Patch32: 0034-CryptoPkg-CrtLib-explicitly-define-INT32-constants.patch
 Patch33: 0035-CryptoPkg-openssl-turn-off-warning-4130-for-microsof.patch
 Patch34: 0036-Add-Wno-unused-variable-to-OpensslLibFull-RH-only.patch
+# For RHEL-121876 - Fail to create AMD SEV SLES 15 SP4 guest via virt-install --cdrom [rhel-10.1.z]
+Patch35: edk2-OvmfPkg-IoMmuDxe-Fix-1M-and-2M-buffer-handling.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -467,6 +469,16 @@ install -m 0644 \
 
 
 %changelog
+* Tue Nov 04 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250523-2.el10_1.2
+- edk2-Bumped-to-OpenSSL-3.5.1-6.patch [RHEL-115882]
+- Resolves: RHEL-115882
+  (CVE-2025-9230 edk2: Out-of-bounds read & write in RFC 3211 KEK Unwrap [rhel-10.1.z])
+
+* Wed Oct 29 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250523-2.el10_1.1
+- edk2-OvmfPkg-IoMmuDxe-Fix-1M-and-2M-buffer-handling.patch [RHEL-121876]
+- Resolves: RHEL-121876
+  (Fail to create AMD SEV SLES 15 SP4 guest via virt-install --cdrom [rhel-10.1.z])
+
 * Mon Jun 30 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250523-2
 - edk2-add-qemu-vars-builds-to-build-config-and-file-lists.patch [RHEL-2908]
 - edk2-add-dbx-update-script.patch [RHEL-96866]

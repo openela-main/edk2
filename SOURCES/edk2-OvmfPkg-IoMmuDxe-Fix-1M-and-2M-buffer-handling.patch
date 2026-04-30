@@ -1,0 +1,48 @@
+From e761d38f09921c8077e40c611ce61b6d838bb98c Mon Sep 17 00:00:00 2001
+From: Oliver Steffen <osteffen@redhat.com>
+Date: Wed, 15 Oct 2025 13:17:36 -0400
+Subject: [PATCH] OvmfPkg/IoMmuDxe: Fix 1M and 2M buffer handling
+
+RH-Author: Oliver Steffen <osteffen@redhat.com>
+RH-MergeRequest: 119: OvmfPkg/IoMmuDxe: Fix 1M and 2M buffer handling
+RH-Jira: RHEL-121876
+RH-Acked-by: Luigi Leonardi <None>
+RH-Commit: [1/1] 6d415f61dc5328f0a2f9de9e71b22b2dc276a325
+
+The IoMmu keeps a pool of pre-allocated shared buffers in various sizes
+to serve requests. Usage is tracked in a bitmap.
+
+The bitmap masks for the 1M and 2M buffer pools are incorrect, causing
+the same buffers getting handed out repeatedly, causing corrupted device
+accesses.
+
+The masks needs to be kept in sync with mReservedMemRanges below.
+This sets the correct values for:
+
+ - RESERVED_MEM_BITMAP_1M_MASK = (1 << 14) = 0x4000
+ - RESERVED_MEM_BITMAP_2M_MASK = (1 << 15) | (1 << 16) = 0x18000
+
+Signed-off-by: Oliver Steffen <osteffen@redhat.com>
+(cherry picked from commit e27cfda33b429762975215cccba5837ee850d18e)
+---
+ OvmfPkg/IoMmuDxe/IoMmuBuffer.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/OvmfPkg/IoMmuDxe/IoMmuBuffer.c b/OvmfPkg/IoMmuDxe/IoMmuBuffer.c
+index f8dcd5b7ec..6b9c38cf0d 100644
+--- a/OvmfPkg/IoMmuDxe/IoMmuBuffer.c
++++ b/OvmfPkg/IoMmuDxe/IoMmuBuffer.c
+@@ -23,8 +23,8 @@ extern BOOLEAN  mReservedSharedMemSupported;
+ #define RESERVED_MEM_BITMAP_4K_MASK    0xf
+ #define RESERVED_MEM_BITMAP_32K_MASK   0xff0
+ #define RESERVED_MEM_BITMAP_128K_MASK  0x3000
+-#define RESERVED_MEM_BITMAP_1M_MASK    0x40000
+-#define RESERVED_MEM_BITMAP_2M_MASK    0x180000
++#define RESERVED_MEM_BITMAP_1M_MASK    0x4000
++#define RESERVED_MEM_BITMAP_2M_MASK    0x18000
+ #define RESERVED_MEM_BITMAP_MASK       0x1fffff
+ 
+ /**
+-- 
+2.47.3
+
