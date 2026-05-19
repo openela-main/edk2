@@ -1,14 +1,14 @@
-From 7f0caaab35570e5adfe29e02e30d65412d55dffc Mon Sep 17 00:00:00 2001
+From f6ce42e2cdc81b84a2ad5f9cf7a64ce7fd1adcd5 Mon Sep 17 00:00:00 2001
 From: Tom Lendacky <thomas.lendacky@amd.com>
 Date: Tue, 22 Jul 2025 15:06:18 -0500
-Subject: [PATCH 4/6] OvmfPkg/MemEncryptSevLib: Check if SEV-SNP coherency
+Subject: [PATCH 4/4] OvmfPkg/MemEncryptSevLib: Check if SEV-SNP coherency
  mitigitation is needed
 
 RH-Author: Luigi Leonardi <None>
-RH-MergeRequest: 120: OvmfPkg/MemEncryptSevLib: Evict cache lines during SNP memory validation
-RH-Jira: RHEL-125104
+RH-MergeRequest: 98: OvmfPkg/MemEncryptSevLib: Evict cache lines during SNP memory validation
+RH-Jira: RHEL-121983
 RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-RH-Commit: [4/4] 81056c6ab2adb53ca17bc26fbd29d228ed1c40bb
+RH-Commit: [4/4] c35864a80d723cd0ed9c696707d2b760d1a54ac7 (luigileonardi/edk2)
 
 CPUID bit Fn8000001F_EBX[31] defines the COHERNECY_SFW_NO CPUID bit that,
 when set, indicates that the software mitigation for this vulnerability is
@@ -54,10 +54,10 @@ index c5653539d8..d3d4f6fa9a 100644
    Returns the encryption state of the specified virtual address range.
  
 diff --git a/OvmfPkg/Include/WorkArea.h b/OvmfPkg/Include/WorkArea.h
-index 731ef4a7d0..7de0fe3499 100644
+index 9f3a4517bd..297e54f36e 100644
 --- a/OvmfPkg/Include/WorkArea.h
 +++ b/OvmfPkg/Include/WorkArea.h
-@@ -52,6 +52,8 @@ typedef struct _SEC_SEV_ES_WORK_AREA {
+@@ -53,6 +53,8 @@ typedef struct _SEC_SEV_ES_WORK_AREA {
    // Flags:
    // - BIT0 - VC: Indicator that the VC handler was called. It is used
    //   during the SevFeature detection in OvmfPkg/ResetVector/Ia32/AmdSev.asm
@@ -66,7 +66,7 @@ index 731ef4a7d0..7de0fe3499 100644
    //
    UINT8     Flags;
    UINT8     Reserved[7];
-@@ -63,7 +65,8 @@ typedef struct _SEC_SEV_ES_WORK_AREA {
+@@ -64,7 +66,8 @@ typedef struct _SEC_SEV_ES_WORK_AREA {
    UINT8     WorkBuffer[1024];
  } SEC_SEV_ES_WORK_AREA;
  

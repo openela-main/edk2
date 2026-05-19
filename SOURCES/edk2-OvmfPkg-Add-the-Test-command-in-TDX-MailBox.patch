@@ -1,0 +1,123 @@
+From e2c3ffb6540e74a928ec80ebbd8912953459fc4f Mon Sep 17 00:00:00 2001
+From: Ceping Sun <cepingx.sun@intel.com>
+Date: Thu, 12 Jun 2025 23:48:16 -0400
+Subject: [PATCH 3/6] OvmfPkg: Add the Test command in TDX MailBox
+
+RH-Author: Luigi Leonardi <None>
+RH-MergeRequest: 95: Fix ACPI warning due to incorrect checksum
+RH-Jira: RHEL-109010
+RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+RH-Commit: [3/5] 15ebd77c681d1e720a299ed42d370e81b20c7374 (luigileonardi/edk2)
+
+Base on  ACPI 6.6 MultiProcessor Wakeup Mailbox Structure,
+the new "Test" command is added.
+
+Also the "Sleep" command is not used in TDX Mailbox, it should be removed.
+
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Min Xu <min.m.xu@intel.com>
+Cc: Jiewen Yao <jiewen.yao@intel.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Ceping Sun <cepingx.sun@intel.com>
+---
+ OvmfPkg/Include/IndustryStandard/IntelTdx.h |  7 +++++--
+ OvmfPkg/Include/TdxCommondefs.inc           |  3 +--
+ OvmfPkg/TdxDxe/X64/ApRunLoop.nasm           | 20 +++++++++++++-------
+ 3 files changed, 19 insertions(+), 11 deletions(-)
+
+diff --git a/OvmfPkg/Include/IndustryStandard/IntelTdx.h b/OvmfPkg/Include/IndustryStandard/IntelTdx.h
+index cc849be2fb..1151f9edd5 100644
+--- a/OvmfPkg/Include/IndustryStandard/IntelTdx.h
++++ b/OvmfPkg/Include/IndustryStandard/IntelTdx.h
+@@ -17,11 +17,14 @@
+ #define MP_CPU_PROTECTED_MODE_MAILBOX_APICID_INVALID    0xFFFFFFFF
+ #define MP_CPU_PROTECTED_MODE_MAILBOX_APICID_BROADCAST  0xFFFFFFFE
+ 
++//
++// This enum is defined for the use of Intel TDX Guest.
++// TDX Guest CPUs wait for below commands and do corresponding tasks.
++//
+ typedef enum {
+   MpProtectedModeWakeupCommandNoop        = 0,
+   MpProtectedModeWakeupCommandWakeup      = 1,
+-  MpProtectedModeWakeupCommandSleep       = 2,
+-  MpProtectedModeWakeupCommandAcceptPages = 3,
++  MpProtectedModeWakeupCommandAcceptPages = 2,
+ } MP_CPU_PROTECTED_MODE_WAKEUP_CMD;
+ 
+ #pragma pack(1)
+diff --git a/OvmfPkg/Include/TdxCommondefs.inc b/OvmfPkg/Include/TdxCommondefs.inc
+index a29d2fad42..b49a830178 100644
+--- a/OvmfPkg/Include/TdxCommondefs.inc
++++ b/OvmfPkg/Include/TdxCommondefs.inc
+@@ -41,8 +41,7 @@ ERROR_INVALID_FALLBACK_PAGE_LEVEL         equ       3
+ 
+ MpProtectedModeWakeupCommandNoop          equ       0
+ MpProtectedModeWakeupCommandWakeup        equ       1
+-MpProtectedModeWakeupCommandSleep         equ       2
+-MpProtectedModeWakeupCommandAcceptPages   equ       3
++MpProtectedModeWakeupCommandAcceptPages   equ       2
+ 
+ MailboxApicIdInvalid                      equ       0xffffffff
+ MailboxApicidBroadcast                    equ       0xfffffffe
+diff --git a/OvmfPkg/TdxDxe/X64/ApRunLoop.nasm b/OvmfPkg/TdxDxe/X64/ApRunLoop.nasm
+index 57560015f4..2f42510605 100644
+--- a/OvmfPkg/TdxDxe/X64/ApRunLoop.nasm
++++ b/OvmfPkg/TdxDxe/X64/ApRunLoop.nasm
+@@ -1,5 +1,5 @@
+ ;------------------------------------------------------------------------------ ;
+-; Copyright (c) 2021, Intel Corporation. All rights reserved.<BR>
++; Copyright (c) 2025, Intel Corporation. All rights reserved.<BR>
+ ; SPDX-License-Identifier: BSD-2-Clause-Patent
+ ;
+ ; Module Name:
+@@ -24,6 +24,11 @@ BITS 64
+ %define TDVMCALL                        0x0
+ %define EXIT_REASON_CPUID               0xa
+ 
++; Defined in ACPI 6.6 section 5.2.12.19 MultiProcessor Wakeup Mailbox Command.
++%define MULTIPROCESSOR_WAKEUP_MAILBOX_COMMAND_NOOP    0
++%define MULTIPROCESSOR_WAKEUP_MAILBOX_COMMAND_WAKEUP  1
++%define MULTIPROCESSOR_WAKEUP_MAILBOX_COMMAND_TEST    2
++
+ %macro  tdcall  0
+   db  0x66, 0x0f, 0x01, 0xcc
+ %endmacro
+@@ -74,7 +79,7 @@ AsmRelocateApMailBoxLoopStart:
+ 
+ MailBoxLoop:
+     ; Spin until command set
+-    cmp        dword [rbx + CommandOffset], MpProtectedModeWakeupCommandNoop
++    cmp        dword [rbx + CommandOffset], MULTIPROCESSOR_WAKEUP_MAILBOX_COMMAND_NOOP
+     je         MailBoxLoop
+     ; Determine if this is a broadcast or directly for my apic-id, if not, ignore
+     cmp        dword [rbx + ApicidOffset], MailboxApicidBroadcast
+@@ -82,10 +87,10 @@ MailBoxLoop:
+     cmp        dword [rbx + ApicidOffset], r8d
+     jne        MailBoxLoop
+ MailBoxProcessCommand:
+-    cmp        dword [rbx + CommandOffset], MpProtectedModeWakeupCommandWakeup
++    cmp        dword [rbx + CommandOffset], MULTIPROCESSOR_WAKEUP_MAILBOX_COMMAND_WAKEUP
+     je         MailBoxWakeUp
+-    cmp        dword [rbx + CommandOffset], MpProtectedModeWakeupCommandSleep
+-    je         MailBoxSleep
++    cmp        dword [rbx + CommandOffset], MULTIPROCESSOR_WAKEUP_MAILBOX_COMMAND_TEST
++    je         MailBoxTest
+     ; Don't support this command, so ignore
+     jmp        MailBoxLoop
+ MailBoxWakeUp:
+@@ -94,8 +99,9 @@ MailBoxWakeUp:
+     ; the command field back to zero as acknowledgement.
+     mov        qword [rbx + CommandOffset], 0
+     jmp        rax
+-MailBoxSleep:
+-    jmp       $
++MailBoxTest:
++    mov        qword [rbx + CommandOffset], 0
++    jmp        MailBoxLoop
+ Panic:
+     ud2
+ BITS 64
+-- 
+2.50.1
+

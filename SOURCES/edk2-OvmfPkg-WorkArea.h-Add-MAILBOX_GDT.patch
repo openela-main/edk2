@@ -1,0 +1,56 @@
+From 34e1330887d2ef777c25a954a1293a104f1f7865 Mon Sep 17 00:00:00 2001
+From: Ceping Sun <cepingx.sun@intel.com>
+Date: Thu, 30 Nov 2023 00:54:17 -0500
+Subject: [PATCH 2/6] OvmfPkg/WorkArea.h: Add MAILBOX_GDT
+
+RH-Author: Luigi Leonardi <None>
+RH-MergeRequest: 95: Fix ACPI warning due to incorrect checksum
+RH-Jira: RHEL-109010
+RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+RH-Commit: [2/5] 71a1340ba873d04eaf72e0d27d7fc0c8933f9f92 (luigileonardi/edk2)
+
+Add the GDT table to swicth paging mode when the OS jumps
+to the ResetVector in Mailbox.
+
+Signed-off-by: Ceping Sun <cepingx.sun@intel.com>
+Reviewed-by: Min Xu <min.m.xu@intel.com>
+Tested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+---
+ OvmfPkg/Include/WorkArea.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/OvmfPkg/Include/WorkArea.h b/OvmfPkg/Include/WorkArea.h
+index e3b415db2c..3b9ea04630 100644
+--- a/OvmfPkg/Include/WorkArea.h
++++ b/OvmfPkg/Include/WorkArea.h
+@@ -12,6 +12,7 @@
+ 
+ #include <ConfidentialComputingGuestAttr.h>
+ #include <IndustryStandard/Tpm20.h>
++#include <Library/BaseLib.h>
+ 
+ //
+ // Confidential computing work area header definition. Any change
+@@ -85,6 +86,11 @@ typedef struct _TDX_MEASUREMENTS_DATA {
+   UINT8     CfvImgHashValue[SHA384_DIGEST_SIZE];
+ } TDX_MEASUREMENTS_DATA;
+ 
++#define MAILBOX_GDT_SIZE  (sizeof(IA32_SEGMENT_DESCRIPTOR) * 5)
++typedef struct _MAILBOX_GDT {
++  IA32_DESCRIPTOR    Gdtr;
++  UINT8              Data[MAILBOX_GDT_SIZE];
++} MAILBOX_GDT;
+ //
+ // The TDX work area definition
+ //
+@@ -98,6 +104,7 @@ typedef struct _SEC_TDX_WORK_AREA {
+ typedef struct _TDX_WORK_AREA {
+   CONFIDENTIAL_COMPUTING_WORK_AREA_HEADER    Header;
+   SEC_TDX_WORK_AREA                          SecTdxWorkArea;
++  MAILBOX_GDT                                MailboxGdt;
+ } TDX_WORK_AREA;
+ 
+ //
+-- 
+2.50.1
+

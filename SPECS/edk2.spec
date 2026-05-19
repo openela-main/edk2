@@ -8,7 +8,7 @@ ExclusiveArch: x86_64 aarch64
 %define OPENSSL_VER    3.0.7
 %define OPENSSL_HASH   4000c8f49c400db3c5b4e8ccdd9af6cc3d04da19
 
-%define DBXDATE        20250610
+%define DBXDATE        20251016
 
 %define build_ovmf 0
 %define build_aarch64 0
@@ -21,7 +21,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    4%{?dist}.3
+Release:    8%{?dist}
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -89,16 +89,26 @@ Patch34: 0036-OvmfPkg-PlatformInitLib-enable-x2apic-mode-if-needed.patch
 Patch35: 0037-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch
 # For RHEL-70865 - SNP guest failed to boot with SVSM using OVMF.amdsev.fd [rhel-9.7]
 Patch36: edk2-OvmfPkg-Use-the-OvmfPkg-version-of-CcProbeLib.patch
-# For RHEL-121875 - Fail to create AMD SEV SLES 15 SP4 guest via virt-install --cdrom [rhel-9.7.z]
-Patch37: edk2-OvmfPkg-IoMmuDxe-Fix-1M-and-2M-buffer-handling.patch
-# For RHEL-125104 - [edk2] VM panic on booting SNP guest with large memory on Genoa [rhel-9.7.z]
-Patch38: edk2-OvmfPkg-MemEncryptSevLib-Evict-cache-lines-during-SN.patch
-# For RHEL-125104 - [edk2] VM panic on booting SNP guest with large memory on Genoa [rhel-9.7.z]
-Patch39: edk2-MdePkg-Add-the-COHERENCY_SFW_NO-CPUID-bit-field.patch
-# For RHEL-125104 - [edk2] VM panic on booting SNP guest with large memory on Genoa [rhel-9.7.z]
-Patch40: edk2-OvmfPkg-ResetVector-Make-ReceivedVc-a-flag-in-SEV-ES.patch
-# For RHEL-125104 - [edk2] VM panic on booting SNP guest with large memory on Genoa [rhel-9.7.z]
-Patch41: edk2-OvmfPkg-MemEncryptSevLib-Check-if-SEV-SNP-coherency-.patch
+# For RHEL-109010 - TD guest dmesg reports ACPI BIOS Warning (bug): Incorrect checksum in table [APIC] - 0x29
+Patch37: edk2-MdePkg-Acpi66.h-Add-ACPI-6.6-header.patch
+# For RHEL-109010 - TD guest dmesg reports ACPI BIOS Warning (bug): Incorrect checksum in table [APIC] - 0x29
+Patch38: edk2-OvmfPkg-WorkArea.h-Add-MAILBOX_GDT.patch
+# For RHEL-109010 - TD guest dmesg reports ACPI BIOS Warning (bug): Incorrect checksum in table [APIC] - 0x29
+Patch39: edk2-OvmfPkg-Add-the-Test-command-in-TDX-MailBox.patch
+# For RHEL-109010 - TD guest dmesg reports ACPI BIOS Warning (bug): Incorrect checksum in table [APIC] - 0x29
+Patch40: edk2-OvmfPkg-Add-the-ResetVector-in-TDX-MailBox.patch
+# For RHEL-109010 - TD guest dmesg reports ACPI BIOS Warning (bug): Incorrect checksum in table [APIC] - 0x29
+Patch41: edk2-OvmfPkg-TdxDxe-Support-5-level-paging-for-ResetVecto.patch
+# For RHEL-69780 - Fail to create AMD SEV SLES 15 SP4 guest via virt-install --cdrom [rhel-9.8]
+Patch42: edk2-OvmfPkg-IoMmuDxe-Fix-1M-and-2M-buffer-handling.patch
+# For RHEL-121983 - [edk2] VM panic on booting SNP guest with large memory on Genoa
+Patch43: edk2-OvmfPkg-MemEncryptSevLib-Evict-cache-lines-during-SN.patch
+# For RHEL-121983 - [edk2] VM panic on booting SNP guest with large memory on Genoa
+Patch44: edk2-MdePkg-Add-the-COHERENCY_SFW_NO-CPUID-bit-field.patch
+# For RHEL-121983 - [edk2] VM panic on booting SNP guest with large memory on Genoa
+Patch45: edk2-OvmfPkg-ResetVector-Make-ReceivedVc-a-flag-in-SEV-ES.patch
+# For RHEL-121983 - [edk2] VM panic on booting SNP guest with large memory on Genoa
+Patch46: edk2-OvmfPkg-MemEncryptSevLib-Check-if-SEV-SNP-coherency-.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -434,27 +444,37 @@ install -m 0644 \
 
 
 %changelog
-* Mon Nov 17 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-4.el9_7.3
-- edk2-OvmfPkg-MemEncryptSevLib-Evict-cache-lines-during-SN.patch [RHEL-125104]
-- edk2-MdePkg-Add-the-COHERENCY_SFW_NO-CPUID-bit-field.patch [RHEL-125104]
-- edk2-OvmfPkg-ResetVector-Make-ReceivedVc-a-flag-in-SEV-ES.patch [RHEL-125104]
-- edk2-OvmfPkg-MemEncryptSevLib-Check-if-SEV-SNP-coherency-.patch [RHEL-125104]
-- edk2-openssl-flatten-contents-of-openssl-tarball.patch [RHEL-115923]
-- edk2-Bumped-openssl-submodule-to-version-3.0.7-29.1.patch [RHEL-115923]
-- Resolves: RHEL-125104
-  ([edk2] VM panic on booting SNP guest with large memory on Genoa [rhel-9.7.z])
-- Resolves: RHEL-115923
-  (CVE-2025-9230 edk2: Out-of-bounds read & write in RFC 3211 KEK Unwrap [rhel-9.7.z])
+* Mon Nov 17 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-8
+- edk2-openssl-flatten-contents-of-openssl-tarball.patch [RHEL-115922]
+- edk2-Bumped-openssl-submodule-to-version-3.0.7-29.1.patch [RHEL-115922]
+- Resolves: RHEL-115922
+  (CVE-2025-9230 edk2: Out-of-bounds read & write in RFC 3211 KEK Unwrap [rhel-9.8])
 
-* Thu Oct 30 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-4.el9_7.2
-- edk2-OvmfPkg-IoMmuDxe-Fix-1M-and-2M-buffer-handling.patch [RHEL-121875]
-- Resolves: RHEL-121875
-  (Fail to create AMD SEV SLES 15 SP4 guest via virt-install --cdrom [rhel-9.7.z])
+* Mon Nov 17 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-7
+- edk2-make-dbxupdate.sh-get-version-tag-add-to-commit-mess.patch [RHEL-126100]
+- edk2-update-dbx-to-20251016-v1.6.1.patch [RHEL-126100]
+- Resolves: RHEL-126100
+  ([edk2,rhel-9] dbx update to 20251016 / v1.6.1)
 
-* Tue Oct 28 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-4.el9_7.1
-- edk2-OvmfPkg-IoMmuDxe-Fix-1M-and-2M-buffer-handling.patch [RHEL-121875]
-- Resolves: RHEL-121875
-  (Fail to create AMD SEV SLES 15 SP4 guest via virt-install --cdrom [rhel-9.7.z])
+* Mon Oct 27 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-6
+- edk2-OvmfPkg-MemEncryptSevLib-Evict-cache-lines-during-SN.patch [RHEL-121983]
+- edk2-MdePkg-Add-the-COHERENCY_SFW_NO-CPUID-bit-field.patch [RHEL-121983]
+- edk2-OvmfPkg-ResetVector-Make-ReceivedVc-a-flag-in-SEV-ES.patch [RHEL-121983]
+- edk2-OvmfPkg-MemEncryptSevLib-Check-if-SEV-SNP-coherency-.patch [RHEL-121983]
+- Resolves: RHEL-121983
+  ([edk2] VM panic on booting SNP guest with large memory on Genoa)
+
+* Mon Oct 20 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-5
+- edk2-MdePkg-Acpi66.h-Add-ACPI-6.6-header.patch [RHEL-109010]
+- edk2-OvmfPkg-WorkArea.h-Add-MAILBOX_GDT.patch [RHEL-109010]
+- edk2-OvmfPkg-Add-the-Test-command-in-TDX-MailBox.patch [RHEL-109010]
+- edk2-OvmfPkg-Add-the-ResetVector-in-TDX-MailBox.patch [RHEL-109010]
+- edk2-OvmfPkg-TdxDxe-Support-5-level-paging-for-ResetVecto.patch [RHEL-109010]
+- edk2-OvmfPkg-IoMmuDxe-Fix-1M-and-2M-buffer-handling.patch [RHEL-69780]
+- Resolves: RHEL-109010
+  (TD guest dmesg reports ACPI BIOS Warning (bug): Incorrect checksum in table [APIC] - 0x29)
+- Resolves: RHEL-69780
+  (Fail to create AMD SEV SLES 15 SP4 guest via virt-install --cdrom [rhel-9.8])
 
 * Fri Jul 04 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20241117-4
 - edk2-update-dbx-to-20250610.patch [RHEL-96869]

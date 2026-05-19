@@ -1,14 +1,14 @@
-From b0742923771293c2366a0bee9ff199c3cae99a56 Mon Sep 17 00:00:00 2001
+From b6fd77f13cf1d2e7148609a5263eb0ce39379ba4 Mon Sep 17 00:00:00 2001
 From: Tom Lendacky <thomas.lendacky@amd.com>
 Date: Tue, 12 Aug 2025 14:43:32 -0500
-Subject: [PATCH 1/6] OvmfPkg/MemEncryptSevLib: Evict cache lines during SNP
+Subject: [PATCH 1/4] OvmfPkg/MemEncryptSevLib: Evict cache lines during SNP
  memory validation
 
 RH-Author: Luigi Leonardi <None>
-RH-MergeRequest: 120: OvmfPkg/MemEncryptSevLib: Evict cache lines during SNP memory validation
-RH-Jira: RHEL-125104
+RH-MergeRequest: 98: OvmfPkg/MemEncryptSevLib: Evict cache lines during SNP memory validation
+RH-Jira: RHEL-121983
 RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-RH-Commit: [1/4] ad17f1ab0d291246a50e2907052ae90f8b63b765
+RH-Commit: [1/4] 40511ff2dde07f38d398083d3b29c301bff45807 (luigileonardi/edk2)
 
 An SNP cache coherency vulnerability may require a mitigation to evict
 cache lines after memory has been validated. Perform this mitigation

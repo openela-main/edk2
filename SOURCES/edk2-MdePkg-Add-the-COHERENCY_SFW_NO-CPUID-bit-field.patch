@@ -1,13 +1,13 @@
-From 5061a5a47f460614fdfc52f451bb5d3c59710281 Mon Sep 17 00:00:00 2001
+From 0e83abc612409e4c12e3fb59611b7b6517746e3d Mon Sep 17 00:00:00 2001
 From: Tom Lendacky <thomas.lendacky@amd.com>
 Date: Tue, 22 Jul 2025 16:59:44 -0500
-Subject: [PATCH 2/6] MdePkg: Add the COHERENCY_SFW_NO CPUID bit field
+Subject: [PATCH 2/4] MdePkg: Add the COHERENCY_SFW_NO CPUID bit field
 
 RH-Author: Luigi Leonardi <None>
-RH-MergeRequest: 120: OvmfPkg/MemEncryptSevLib: Evict cache lines during SNP memory validation
-RH-Jira: RHEL-125104
+RH-MergeRequest: 98: OvmfPkg/MemEncryptSevLib: Evict cache lines during SNP memory validation
+RH-Jira: RHEL-121983
 RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-RH-Commit: [2/4] a18029a9c5d77d95fc4321099d693ee6c48d20e2
+RH-Commit: [2/4] c4fe91e0c104cafef0dc5363c746075b44b744ba (luigileonardi/edk2)
 
 Update the CPUID 0x8000001F EBX definition to add the COHERENCY_SFW_NO
 bit field. The COHERENCY_SFW_NO bit is used to indicate that the SEV-SNP

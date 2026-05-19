@@ -1,0 +1,75 @@
+From c9102313a0de257397bf508b929db26fb42c0f77 Mon Sep 17 00:00:00 2001
+From: Ceping Sun <cepingx.sun@intel.com>
+Date: Tue, 2 Apr 2024 07:13:40 +0800
+Subject: [PATCH 5/6] OvmfPkg/TdxDxe: Support 5-level paging for ResetVector
+
+RH-Author: Luigi Leonardi <None>
+RH-MergeRequest: 95: Fix ACPI warning due to incorrect checksum
+RH-Jira: RHEL-109010
+RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+RH-Commit: [5/5] 84d72db1644e3b62dc7f11595800f84ed14c5802 (luigileonardi/edk2)
+
+Since OVMF already supports 5-level paging, the ResetVector
+needs to handle the case.
+
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Min Xu <min.m.xu@intel.com>
+Cc: Jiewen Yao <jiewen.yao@intel.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Ceping Sun <cepingx.sun@intel.com>
+---
+ OvmfPkg/TdxDxe/TdxDxe.inf         |  1 +
+ OvmfPkg/TdxDxe/X64/ApRunLoop.nasm | 20 +++++++++++++++++++-
+ 2 files changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/OvmfPkg/TdxDxe/TdxDxe.inf b/OvmfPkg/TdxDxe/TdxDxe.inf
+index 69e4c0bfa5..9af67952c0 100644
+--- a/OvmfPkg/TdxDxe/TdxDxe.inf
++++ b/OvmfPkg/TdxDxe/TdxDxe.inf
+@@ -75,3 +75,4 @@
+   gUefiOvmfPkgTokenSpaceGuid.PcdOvmfWorkAreaSize
+   gUefiOvmfPkgTokenSpaceGuid.PcdOvmfSecPageTablesBase
+   gUefiOvmfPkgTokenSpaceGuid.PcdOvmfSecPageTablesSize
++  gEfiMdeModulePkgTokenSpaceGuid.PcdUse5LevelPageTable
+diff --git a/OvmfPkg/TdxDxe/X64/ApRunLoop.nasm b/OvmfPkg/TdxDxe/X64/ApRunLoop.nasm
+index d1a4dce2ff..7c860b1195 100644
+--- a/OvmfPkg/TdxDxe/X64/ApRunLoop.nasm
++++ b/OvmfPkg/TdxDxe/X64/ApRunLoop.nasm
+@@ -25,8 +25,13 @@ STACK_TOP:
+ SECTION .text
+ 
+ %define TDX_WORK_AREA_MAILBOX_GDTR   (FixedPcdGet32 (PcdOvmfWorkAreaBase) + 128)
++%define PT_ADDR(Offset)              (FixedPcdGet32 (PcdOvmfSecPageTablesBase) + (Offset))
++%define TDX_WORK_AREA_PGTBL_READY    (FixedPcdGet32 (PcdOvmfWorkAreaBase) + 4)
++%define PG_5_LEVEL                   (FixedPcdGetBool (PcdUse5LevelPageTable))
+ 
+-%define PT_ADDR(Offset)                 (FixedPcdGet32 (PcdOvmfSecPageTablesBase) + (Offset))
++%define TDX_BSP         1
++%define TDX_AP          2
++%define TDX_AP_5_LEVEL  3
+ 
+ BITS 64
+ 
+@@ -174,6 +179,19 @@ RestoreCr0:
+ RestoreCr4:
+     mov     eax, 0x40
+     mov     cr4, eax
++
++%if PG_5_LEVEL
++    mov     al, byte[TDX_WORK_AREA_PGTBL_READY]
++    inc     eax
++    cmp     eax, TDX_AP_5_LEVEL
++    jne     SetCr3
++SetCr4La57:
++    ; set la57 bit in cr4
++    mov     eax, cr4
++    bts     eax, 12
++    mov     cr4, eax
++%endif
++
+ SetCr3:
+     ;
+     ; Can use the boot page tables since it's reserved
+-- 
+2.50.1
+
