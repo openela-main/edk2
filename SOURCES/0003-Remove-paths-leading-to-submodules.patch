@@ -1,4 +1,4 @@
-From 7e0fc3ba07d881b3cb91cdff2108182889161795 Mon Sep 17 00:00:00 2001
+From 3ba51256bdef2ee84943c2e2da85422107fdd8dc Mon Sep 17 00:00:00 2001
 From: Miroslav Rezanina <mrezanin@redhat.com>
 Date: Thu, 24 Mar 2022 03:23:02 -0400
 Subject: [PATCH] Remove paths leading to submodules
@@ -15,10 +15,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  3 files changed, 9 deletions(-)
 
 diff --git a/BaseTools/Source/C/GNUmakefile b/BaseTools/Source/C/GNUmakefile
-index 5275f657ef..39d7199753 100644
+index 0ea314ef96..92d3dedf47 100644
 --- a/BaseTools/Source/C/GNUmakefile
 +++ b/BaseTools/Source/C/GNUmakefile
-@@ -51,7 +51,6 @@ all: makerootdir subdirs
+@@ -24,7 +24,6 @@ all: makerootdir subdirs
  LIBRARIES = Common
  VFRAUTOGEN = VfrCompile/VfrLexer.h
  APPLICATIONS = \
@@ -27,10 +27,10 @@ index 5275f657ef..39d7199753 100644
    EfiRom \
    GenFfs \
 diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
-index 3698caf902..5250d77ecc 100644
+index 0775aa954a..0d981111ed 100644
 --- a/MdeModulePkg/MdeModulePkg.dec
 +++ b/MdeModulePkg/MdeModulePkg.dec
-@@ -26,9 +26,6 @@
+@@ -27,9 +27,6 @@
    Include
    Test/Mock/Include
  
@@ -41,7 +41,7 @@ index 3698caf902..5250d77ecc 100644
    ##  @libraryclass  Defines a set of methods to reset whole system.
    ResetSystemLib|Include/Library/ResetSystemLib.h
 diff --git a/MdePkg/MdePkg.dec b/MdePkg/MdePkg.dec
-index 6a6ef01311..523c784ede 100644
+index 8f02cf1767..3e4d25d2e1 100644
 --- a/MdePkg/MdePkg.dec
 +++ b/MdePkg/MdePkg.dec
 @@ -30,7 +30,6 @@
@@ -52,7 +52,7 @@ index 6a6ef01311..523c784ede 100644
  
  [Includes.IA32]
    Include/Ia32
-@@ -296,10 +295,6 @@
+@@ -293,10 +292,6 @@
    #
    FdtLib|Include/Library/FdtLib.h
  

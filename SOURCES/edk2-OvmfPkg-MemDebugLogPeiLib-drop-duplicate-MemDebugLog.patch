@@ -1,0 +1,89 @@
+From 7e80f0fe3c74a518c1d43706391e42afb1d3ba40 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 20 Jan 2026 17:18:07 +0100
+Subject: [PATCH 2/5] OvmfPkg/MemDebugLogPeiLib: drop duplicate
+ MemDebugLogWrite function
+
+RH-Author: Luigi Leonardi <None>
+RH-MergeRequest: 104: ArmVirtPkg, AmdSev: fix memory debug logging
+RH-Jira: RHEL-139470
+RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+RH-Commit: [2/5] 59f8cad8121f3b659928a0342b46b39ab2da1dd5 (luigileonardi/edk2)
+
+The MemDebugLogWrite() function is identical in MemDebugLogPei.c and
+MemDebugLogPeiCore.c  So drop it from MemDebugLogPei.c and simply add
+MemDebugLogPeiCore.c to MemDebugLogPeiLib.inf instead.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ .../Library/MemDebugLogLib/MemDebugLogPei.c   | 41 -------------------
+ .../MemDebugLogLib/MemDebugLogPeiLib.inf      |  1 +
+ 2 files changed, 1 insertion(+), 41 deletions(-)
+
+diff --git a/OvmfPkg/Library/MemDebugLogLib/MemDebugLogPei.c b/OvmfPkg/Library/MemDebugLogLib/MemDebugLogPei.c
+index 05e32daf1ca..d1beb74487d 100644
+--- a/OvmfPkg/Library/MemDebugLogLib/MemDebugLogPei.c
++++ b/OvmfPkg/Library/MemDebugLogLib/MemDebugLogPei.c
+@@ -12,47 +12,6 @@
+ #include <Library/QemuFwCfgSimpleParserLib.h>
+ #include <Library/MemDebugLogLib.h>
+ 
+-EFI_STATUS
+-EFIAPI
+-MemDebugLogWrite (
+-  IN  CHAR8  *Buffer,
+-  IN  UINTN  Length
+-  )
+-{
+-  EFI_PHYSICAL_ADDRESS  MemDebugLogBufAddr;
+-  EFI_STATUS            Status;
+-
+-  //
+-  // Obtain the Memory Debug Log buffer addr from HOB
+-  // NOTE: This is expected to fail until the HOB is created.
+-  //
+-  Status = MemDebugLogAddrFromHOB (&MemDebugLogBufAddr);
+-
+-  if (EFI_ERROR (Status)) {
+-    MemDebugLogBufAddr = 0;
+-  }
+-
+-  if (MemDebugLogBufAddr != 0) {
+-    Status = MemDebugLogWriteBuffer (MemDebugLogBufAddr, Buffer, Length);
+-  } else {
+-    //
+-    // HOB has not yet been created, so
+-    // write to the early debug log buffer.
+-    //
+-    if (FixedPcdGet32 (PcdOvmfEarlyMemDebugLogBase) != 0x0) {
+-      Status = MemDebugLogWriteBuffer (
+-                 (EFI_PHYSICAL_ADDRESS)(UINTN)FixedPcdGet32 (PcdOvmfEarlyMemDebugLogBase),
+-                 Buffer,
+-                 Length
+-                 );
+-    } else {
+-      Status = EFI_NOT_FOUND;
+-    }
+-  }
+-
+-  return Status;
+-}
+-
+ UINT32
+ EFIAPI
+ MemDebugLogPages (
+diff --git a/OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiLib.inf b/OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiLib.inf
+index b6b407c8919..6a954d1d8c0 100644
+--- a/OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiLib.inf
++++ b/OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiLib.inf
+@@ -19,6 +19,7 @@
+ 
+ [Sources]
+   MemDebugLogPei.c
++  MemDebugLogPeiCore.c
+   MemDebugLogCommon.c
+ 
+ [Packages]
+-- 
+2.47.3
+

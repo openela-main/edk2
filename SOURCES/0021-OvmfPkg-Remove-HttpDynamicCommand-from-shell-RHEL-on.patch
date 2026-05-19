@@ -1,4 +1,4 @@
-From 3b489c30495c4dd2da0b98925b2135d8bbfff382 Mon Sep 17 00:00:00 2001
+From ecc0fc23de0ae74e90d50ae99cdde34a0eec9efe Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:31 +0200
 Subject: [PATCH] OvmfPkg: Remove HttpDynamicCommand from shell (RHEL only)

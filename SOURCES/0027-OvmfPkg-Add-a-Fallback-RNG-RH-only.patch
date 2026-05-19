@@ -1,4 +1,4 @@
-From 629f1f37f2a56fb185ccab39df1bed6c7743f315 Mon Sep 17 00:00:00 2001
+From a6f05c646722bb85de8b2f21af47e0f88e103010 Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Mon, 4 Nov 2024 12:40:12 +0100
 Subject: [PATCH] OvmfPkg: Add a Fallback RNG (RH only)
@@ -315,7 +315,7 @@ index 0000000000..77332bc51c
 +
 +#endif
 diff --git a/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf b/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
-index 8257862662..50a9ee94ad 100644
+index 9675eb081f..0d4a7c83d6 100644
 --- a/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
 +++ b/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
 @@ -25,6 +25,8 @@

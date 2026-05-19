@@ -12,6 +12,7 @@ CAVIUM_ERRATUM_27456     = TRUE
 
 [opts.ovmf.4m]
 FD_SIZE_4MB              = TRUE
+DEBUG_TO_MEM             = TRUE
 
 [opts.ovmf.sb.smm]
 SECURE_BOOT_ENABLE       = TRUE
@@ -30,6 +31,7 @@ BUILD_SHELL              = FALSE
 
 [opts.armvirt.verbose]
 DEBUG_PRINT_ERROR_LEVEL  = 0x8040004F
+DEBUG_TO_MEM             = TRUE
 
 [opts.armvirt.silent]
 DEBUG_PRINT_ERROR_LEVEL  = 0x80000000
@@ -139,7 +141,7 @@ arch = AARCH64
 opts = ovmf.common
        armvirt.verbose
 pcds = nx.compat.aa64
-plat = ArmVirtQemu-AARCH64
+plat = ArmVirtQemu-AArch64
 dest = RHEL-10/aarch64
 cpy1 = FV/QEMU_EFI.fd
 cpy2 = FV/QEMU_VARS.fd
@@ -155,7 +157,7 @@ arch = AARCH64
 opts = ovmf.common
        armvirt.silent
 pcds = nx.compat.aa64
-plat = ArmVirtQemu-AARCH64
+plat = ArmVirtQemu-AArch64
 dest = RHEL-10/aarch64
 cpy1 = FV/QEMU_EFI.fd  QEMU_EFI.silent.fd
 cpy2 = FV/QEMU_EFI.fd  QEMU_EFI-silent-pflash.raw
@@ -169,7 +171,7 @@ opts = ovmf.common
        ovmf.qemu.vars
        armvirt.silent
 pcds = nx.strict
-plat = ArmVirtQemu-AARCH64
+plat = ArmVirtQemu-AArch64
 dest = RHEL-10/aarch64
 cpy1 = FV/QEMU_EFI.fd  QEMU_EFI.qemuvars.fd
 cpy2 = FV/QEMU_EFI.fd  QEMU_EFI-qemuvars-pflash.raw

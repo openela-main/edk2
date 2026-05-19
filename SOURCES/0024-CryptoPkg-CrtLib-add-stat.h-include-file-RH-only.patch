@@ -1,4 +1,4 @@
-From 312ead5fd6e27166a642cd4ea85b29a8ea4c3dd0 Mon Sep 17 00:00:00 2001
+From c5d8df4e356938b081d0a42b5f127337b0d211cb Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Mon, 28 Aug 2023 13:11:02 +0200
 Subject: [PATCH] CryptoPkg/CrtLib: add stat.h include file (RH only)

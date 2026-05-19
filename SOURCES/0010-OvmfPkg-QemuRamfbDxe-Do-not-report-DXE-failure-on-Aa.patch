@@ -1,4 +1,4 @@
-From 039505f6002865c8a2cd5b7cf589c18264813140 Mon Sep 17 00:00:00 2001
+From 3b9d1965958e2b76a09500a16fd5e19f561479ae Mon Sep 17 00:00:00 2001
 From: Philippe Mathieu-Daude <philmd@redhat.com>
 Date: Thu, 1 Aug 2019 20:43:48 +0200
 Subject: [PATCH] OvmfPkg: QemuRamfbDxe: Do not report DXE failure on Aarch64

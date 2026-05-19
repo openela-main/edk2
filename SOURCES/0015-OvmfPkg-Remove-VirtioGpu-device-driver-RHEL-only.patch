@@ -1,4 +1,4 @@
-From b3dc6cb66bc6fd53f73c7a1259a29a5f051a2d3e Mon Sep 17 00:00:00 2001
+From 1abeb1fd3164d212d799d9a767eeeb15a5c911e3 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:28:59 +0200
 Subject: [PATCH] OvmfPkg: Remove VirtioGpu device driver (RHEL only)
@@ -20,19 +20,17 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
 ---
  OvmfPkg/AmdSev/AmdSevX64.dsc | 1 -
  OvmfPkg/AmdSev/AmdSevX64.fdf | 1 -
- OvmfPkg/OvmfPkgIa32.dsc      | 1 -
- OvmfPkg/OvmfPkgIa32.fdf      | 1 -
  OvmfPkg/OvmfPkgIa32X64.dsc   | 1 -
  OvmfPkg/OvmfPkgIa32X64.fdf   | 1 -
  OvmfPkg/OvmfPkgX64.dsc       | 1 -
  OvmfPkg/OvmfPkgX64.fdf       | 1 -
- 8 files changed, 8 deletions(-)
+ 6 files changed, 6 deletions(-)
 
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
-index 92a7b1b03d..d0b80948b4 100644
+index 06b8bf7275..6efc896439 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.dsc
 +++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
-@@ -704,7 +704,6 @@
+@@ -693,7 +693,6 @@
      <PcdsFixedAtBuild>
        gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
    }
@@ -41,10 +39,10 @@ index 92a7b1b03d..d0b80948b4 100644
    #
    # ISA Support
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.fdf b/OvmfPkg/AmdSev/AmdSevX64.fdf
-index 950705523a..f0c2ae52e5 100644
+index d49e51da69..6177fb65c3 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.fdf
 +++ b/OvmfPkg/AmdSev/AmdSevX64.fdf
-@@ -300,7 +300,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+@@ -228,7 +228,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
  INF  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
  
  INF  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf
@@ -52,35 +50,11 @@ index 950705523a..f0c2ae52e5 100644
  INF  OvmfPkg/PlatformDxe/Platform.inf
  INF  OvmfPkg/AmdSevDxe/AmdSevDxe.inf
  INF  OvmfPkg/IoMmuDxe/IoMmuDxe.inf
-diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
-index 9989e1144d..5130e411ca 100644
---- a/OvmfPkg/OvmfPkgIa32.dsc
-+++ b/OvmfPkg/OvmfPkgIa32.dsc
-@@ -829,7 +829,6 @@
-     <PcdsFixedAtBuild>
-       gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
-   }
--  OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
-   OvmfPkg/VirtHstiDxe/VirtHstiDxe.inf
- 
-   #
-diff --git a/OvmfPkg/OvmfPkgIa32.fdf b/OvmfPkg/OvmfPkgIa32.fdf
-index 58be8db2c8..0e3fd507b0 100644
---- a/OvmfPkg/OvmfPkgIa32.fdf
-+++ b/OvmfPkg/OvmfPkgIa32.fdf
-@@ -317,7 +317,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
- 
- INF  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
- INF  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf
--INF  OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
- INF  OvmfPkg/PlatformDxe/Platform.inf
- INF  OvmfPkg/IoMmuDxe/IoMmuDxe.inf
- INF  OvmfPkg/VirtHstiDxe/VirtHstiDxe.inf
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index 8e38b5d15d..e8fe3945a8 100644
+index 59c205ead5..24a27f34ea 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
-@@ -843,7 +843,6 @@
+@@ -858,7 +858,6 @@
      <PcdsFixedAtBuild>
        gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
    }
@@ -89,10 +63,10 @@ index 8e38b5d15d..e8fe3945a8 100644
  
    #
 diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
-index 6b4d826df9..4029025276 100644
+index a6054701a7..d8a1dcca04 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.fdf
 +++ b/OvmfPkg/OvmfPkgIa32X64.fdf
-@@ -324,7 +324,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+@@ -285,7 +285,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
  
  INF  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
  INF  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf
@@ -101,10 +75,10 @@ index 6b4d826df9..4029025276 100644
  INF  OvmfPkg/AmdSevDxe/AmdSevDxe.inf
  INF  OvmfPkg/IoMmuDxe/IoMmuDxe.inf
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index c8eb31fa31..f04cd47fdd 100644
+index 7342d5871e..5a8ffe8828 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
-@@ -924,7 +924,6 @@
+@@ -989,7 +989,6 @@
      <PcdsFixedAtBuild>
        gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
    }
@@ -113,10 +87,10 @@ index c8eb31fa31..f04cd47fdd 100644
  
    #
 diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
-index 3d28d7754d..f0c944b9be 100644
+index b9f88a32fc..84a77918ba 100644
 --- a/OvmfPkg/OvmfPkgX64.fdf
 +++ b/OvmfPkg/OvmfPkgX64.fdf
-@@ -360,7 +360,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+@@ -303,7 +303,6 @@ INF  MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
  
  INF  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
  INF  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf

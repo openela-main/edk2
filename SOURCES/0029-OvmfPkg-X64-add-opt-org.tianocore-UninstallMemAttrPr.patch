@@ -1,4 +1,4 @@
-From e3cffe314feb1f2e97c5f03e80a77c89582c3275 Mon Sep 17 00:00:00 2001
+From d66a5ff583903e27bd3851e41c3ee17f697f60af Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Thu, 16 Jan 2025 17:20:38 +0100
 Subject: [PATCH] OvmfPkg/X64: add opt/org.tianocore/UninstallMemAttrProtocol
@@ -102,7 +102,7 @@ index 2982b4f288..b1722a28dd 100644
    // Process QEMU's -kernel command line option
    //
 diff --git a/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf b/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
-index 50a9ee94ad..46989ff39d 100644
+index 0d4a7c83d6..e9a0062b5d 100644
 --- a/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
 +++ b/OvmfPkg/Library/PlatformBootManagerLib/PlatformBootManagerLib.inf
 @@ -67,6 +67,7 @@

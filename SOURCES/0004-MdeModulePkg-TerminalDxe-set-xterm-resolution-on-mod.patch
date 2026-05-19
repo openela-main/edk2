@@ -1,4 +1,4 @@
-From c530c3ada9b21af6ceecd381a5688a615d48b8a4 Mon Sep 17 00:00:00 2001
+From dbdf905bad52ad0126f99438f637bd464313c1b8 Mon Sep 17 00:00:00 2001
 From: Laszlo Ersek <lersek@redhat.com>
 Date: Tue, 25 Feb 2014 22:40:01 +0100
 Subject: [PATCH] MdeModulePkg: TerminalDxe: set xterm resolution on mode
@@ -104,10 +104,10 @@ Signed-off-by: Laszlo Ersek <lersek@redhat.com>
  3 files changed, 36 insertions(+)
 
 diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
-index 5250d77ecc..5a4808c267 100644
+index 0d981111ed..77d8aa49df 100644
 --- a/MdeModulePkg/MdeModulePkg.dec
 +++ b/MdeModulePkg/MdeModulePkg.dec
-@@ -2287,6 +2287,10 @@
+@@ -2300,6 +2300,10 @@
    # @Prompt Conduit to use in ArmFfaLib.
    gEfiMdeModulePkgTokenSpaceGuid.PcdFfaLibConduitSmc|TRUE|BOOLEAN|0x10000029
  
@@ -119,10 +119,10 @@ index 5250d77ecc..5a4808c267 100644
    ## Specify memory size with page number for PEI code when
    #  Loading Module at Fixed Address feature is enabled.
 diff --git a/MdeModulePkg/Universal/Console/TerminalDxe/TerminalConOut.c b/MdeModulePkg/Universal/Console/TerminalDxe/TerminalConOut.c
-index eb8658c892..6d62cbf500 100644
+index 10d6695397..1423e99830 100644
 --- a/MdeModulePkg/Universal/Console/TerminalDxe/TerminalConOut.c
 +++ b/MdeModulePkg/Universal/Console/TerminalDxe/TerminalConOut.c
-@@ -8,6 +8,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
+@@ -9,6 +9,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
  
  **/
  
@@ -131,9 +131,9 @@ index eb8658c892..6d62cbf500 100644
  #include "Terminal.h"
  
  //
-@@ -82,6 +84,16 @@ CHAR16  mSetCursorPositionString[] = { ESC, '[', '0', '0', ';', '0', '0', 'H', 0
- CHAR16  mCursorForwardString[]     = { ESC, '[', '0', '0', 'C', 0 };
- CHAR16  mCursorBackwardString[]    = { ESC, '[', '0', '0', 'D', 0 };
+@@ -83,6 +85,16 @@ CHAR16  mSetCursorPositionString[] = { ESC, '[', '0', '0', '0', ';', '0', '0', '
+ CHAR16  mCursorForwardString[]     = { ESC, '[', '0', '0', '0', 'C', 0 };
+ CHAR16  mCursorBackwardString[]    = { ESC, '[', '0', '0', '0', 'D', 0 };
  
 +//
 +// Note that this is an ASCII format string, taking two INT32 arguments:
@@ -148,7 +148,7 @@ index eb8658c892..6d62cbf500 100644
  //
  // Body of the ConOut functions
  //
-@@ -521,6 +533,24 @@ TerminalConOutSetMode (
+@@ -533,6 +545,24 @@ TerminalConOutSetMode (
      return EFI_DEVICE_ERROR;
    }
  

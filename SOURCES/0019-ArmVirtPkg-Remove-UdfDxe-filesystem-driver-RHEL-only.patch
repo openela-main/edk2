@@ -1,4 +1,4 @@
-From afe426e30067eb4c33f78d508662d0fe11fb81ed Mon Sep 17 00:00:00 2001
+From 9dbf4272b3c0a23974806cb7956d10adf176ac55 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:22 +0200
 Subject: [PATCH] ArmVirtPkg: Remove UdfDxe filesystem driver (RHEL only)
@@ -24,10 +24,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  3 files changed, 3 deletions(-)
 
 diff --git a/ArmVirtPkg/ArmVirtQemu.dsc b/ArmVirtPkg/ArmVirtQemu.dsc
-index 2618699c00..2c2480f369 100644
+index a0bf583b54..a0a36632c2 100644
 --- a/ArmVirtPkg/ArmVirtQemu.dsc
 +++ b/ArmVirtPkg/ArmVirtQemu.dsc
-@@ -485,7 +485,6 @@
+@@ -506,7 +506,6 @@
    MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
@@ -36,7 +36,7 @@ index 2618699c00..2c2480f369 100644
    #
    # Bds
 diff --git a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
-index 6b444be30c..e487e15eb1 100644
+index 9d67ee607f..e476343401 100644
 --- a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
 +++ b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
 @@ -89,7 +89,6 @@ READ_LOCK_STATUS   = TRUE
@@ -48,10 +48,10 @@ index 6b444be30c..e487e15eb1 100644
    #
    # Status Code Routing
 diff --git a/ArmVirtPkg/ArmVirtQemuKernel.dsc b/ArmVirtPkg/ArmVirtQemuKernel.dsc
-index abfe5ed9b6..f1199ddb19 100644
+index f1aa5a78a9..8212cd2a00 100644
 --- a/ArmVirtPkg/ArmVirtQemuKernel.dsc
 +++ b/ArmVirtPkg/ArmVirtQemuKernel.dsc
-@@ -394,7 +394,6 @@
+@@ -390,7 +390,6 @@
    MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf

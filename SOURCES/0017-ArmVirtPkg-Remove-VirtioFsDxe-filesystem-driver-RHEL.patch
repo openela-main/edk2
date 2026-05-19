@@ -1,4 +1,4 @@
-From 92095eb018e9f93593121b51eadacb40b1f94218 Mon Sep 17 00:00:00 2001
+From 78172198efd225c2b2d0d4de685e497e27ec7816 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:16 +0200
 Subject: [PATCH] ArmVirtPkg: Remove VirtioFsDxe filesystem driver (RHEL only)
@@ -24,10 +24,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  3 files changed, 3 deletions(-)
 
 diff --git a/ArmVirtPkg/ArmVirtQemu.dsc b/ArmVirtPkg/ArmVirtQemu.dsc
-index 5f0fc7cdd0..2618699c00 100644
+index 6432b03c27..a0bf583b54 100644
 --- a/ArmVirtPkg/ArmVirtQemu.dsc
 +++ b/ArmVirtPkg/ArmVirtQemu.dsc
-@@ -486,7 +486,6 @@
+@@ -507,7 +507,6 @@
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
    MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
@@ -36,7 +36,7 @@ index 5f0fc7cdd0..2618699c00 100644
    #
    # Bds
 diff --git a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
-index e25d6bbe07..6b444be30c 100644
+index df9fa67ddf..9d67ee607f 100644
 --- a/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
 +++ b/ArmVirtPkg/ArmVirtQemuFvMain.fdf.inc
 @@ -90,7 +90,6 @@ READ_LOCK_STATUS   = TRUE
@@ -48,10 +48,10 @@ index e25d6bbe07..6b444be30c 100644
    #
    # Status Code Routing
 diff --git a/ArmVirtPkg/ArmVirtQemuKernel.dsc b/ArmVirtPkg/ArmVirtQemuKernel.dsc
-index 68400ac66c..abfe5ed9b6 100644
+index 354d16ac28..f1aa5a78a9 100644
 --- a/ArmVirtPkg/ArmVirtQemuKernel.dsc
 +++ b/ArmVirtPkg/ArmVirtQemuKernel.dsc
-@@ -395,7 +395,6 @@
+@@ -391,7 +391,6 @@
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
    MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf

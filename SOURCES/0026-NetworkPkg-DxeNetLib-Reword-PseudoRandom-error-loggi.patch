@@ -1,4 +1,4 @@
-From 86ef70c484b6d0cb96699c41ca23e8c54c6d7b9e Mon Sep 17 00:00:00 2001
+From a7adaad69c0af3dde7184ccb2c725ca84986d1c7 Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Wed, 14 Aug 2024 09:53:49 +0200
 Subject: [PATCH] NetworkPkg/DxeNetLib: Reword PseudoRandom error logging
@@ -25,7 +25,7 @@ location_in_specfile: 41
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/NetworkPkg/Library/DxeNetLib/DxeNetLib.c b/NetworkPkg/Library/DxeNetLib/DxeNetLib.c
-index eef3386ebb..3e5d8d0eb7 100644
+index 3495b42db8..f8e59595da 100644
 --- a/NetworkPkg/Library/DxeNetLib/DxeNetLib.c
 +++ b/NetworkPkg/Library/DxeNetLib/DxeNetLib.c
 @@ -952,12 +952,13 @@ PseudoRandom (

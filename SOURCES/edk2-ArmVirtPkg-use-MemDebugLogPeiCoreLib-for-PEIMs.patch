@@ -1,0 +1,47 @@
+From 89ca998de1a2202f227986f7bbb878d18e1fed47 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 20 Jan 2026 17:16:03 +0100
+Subject: [PATCH 4/5] ArmVirtPkg: use MemDebugLogPeiCoreLib for PEIMs
+
+RH-Author: Luigi Leonardi <None>
+RH-MergeRequest: 104: ArmVirtPkg, AmdSev: fix memory debug logging
+RH-Jira: RHEL-139470
+RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+RH-Commit: [4/5] 4b152715d6ad2614c68bc6a77aaad793bf04b2c4 (luigileonardi/edk2)
+
+Switch PEIMs from MemDebugLogPeiLib to MemDebugLogPeiCoreLib, except for
+the MemDebugLog PEIM which needs the MemDebugLogPages() function.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ ArmVirtPkg/ArmVirtQemu.dsc | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/ArmVirtPkg/ArmVirtQemu.dsc b/ArmVirtPkg/ArmVirtQemu.dsc
+index a0a36632c21..a1c6ed48413 100644
+--- a/ArmVirtPkg/ArmVirtQemu.dsc
++++ b/ArmVirtPkg/ArmVirtQemu.dsc
+@@ -114,7 +114,7 @@
+   Tpm2DeviceLib|SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2DeviceLibDTpm.inf
+   QemuFwCfgLib|OvmfPkg/Library/QemuFwCfgLib/QemuFwCfgMmioPeiLib.inf
+ !if $(DEBUG_TO_MEM)
+-  MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiLib.inf
++  MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiCoreLib.inf
+ !else
+   MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogLibNull.inf
+ !endif
+@@ -369,7 +369,10 @@
+   ArmPkg/Drivers/CpuPei/CpuPei.inf
+ 
+ !if $(DEBUG_TO_MEM)
+-  OvmfPkg/MemDebugLogPei/MemDebugLogPei.inf
++  OvmfPkg/MemDebugLogPei/MemDebugLogPei.inf {
++    <LibraryClasses>
++      MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiLib.inf
++  }
+ !endif
+ 
+ !if $(TPM2_ENABLE) == TRUE
+-- 
+2.47.3
+

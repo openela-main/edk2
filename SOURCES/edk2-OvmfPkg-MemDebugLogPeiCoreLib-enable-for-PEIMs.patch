@@ -1,0 +1,41 @@
+From e752ef369036e2dc799c8eb58b1e6697d1442fe8 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 20 Jan 2026 17:17:16 +0100
+Subject: [PATCH 3/5] OvmfPkg/MemDebugLogPeiCoreLib: enable for PEIMs
+
+RH-Author: Luigi Leonardi <None>
+RH-MergeRequest: 104: ArmVirtPkg, AmdSev: fix memory debug logging
+RH-Jira: RHEL-139470
+RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+RH-Commit: [3/5] 97050d5ba36b91340970c2af9d4b75d4b08bd16a (luigileonardi/edk2)
+
+Allow PEIMs use the MemDebugLogPeiCoreLib lib.
+
+The difference between MemDebugLogPeiCoreLib and MemDebugLogPeiLib is
+that the latter does additionally provide the MemDebugLogPages()
+function, and pulls in QemuFwCfg* libraries as dependency.
+
+Most PEIMs do not need MemDebugLogPages() though, only the ones which
+handle the setup of the memory logging buffer do.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiCoreLib.inf | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiCoreLib.inf b/OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiCoreLib.inf
+index 56908caa5a7..12aa0441792 100644
+--- a/OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiCoreLib.inf
++++ b/OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiCoreLib.inf
+@@ -14,7 +14,7 @@
+   FILE_GUID                      = EEAF8A01-167A-4222-A647-80EB16AEEC69
+   MODULE_TYPE                    = BASE
+   VERSION_STRING                 = 1.0
+-  LIBRARY_CLASS                  = MemDebugLogLib|PEI_CORE
++  LIBRARY_CLASS                  = MemDebugLogLib|PEI_CORE PEIM
+ 
+ 
+ [Sources]
+-- 
+2.47.3
+

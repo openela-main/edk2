@@ -1,4 +1,4 @@
-From 79fd7ddc704daf97929cb7f8ee62a6f89e1805c2 Mon Sep 17 00:00:00 2001
+From f3548d62625d5ad2728078e4188e9f40965dbfe2 Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Thu, 7 Nov 2024 11:36:22 +0100
 Subject: [PATCH] OvmfPkg/ArmVirtPkg: Add a Fallback RNG (RH only)
@@ -67,7 +67,7 @@ index 2c24c65489..273e6f6a7e 100644
    // Show the splash screen.
    //
 diff --git a/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBootManagerLib.inf b/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBootManagerLib.inf
-index 6c5552da16..1de19eb507 100644
+index 9e89556b14..8ccd306780 100644
 --- a/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBootManagerLib.inf
 +++ b/OvmfPkg/Library/PlatformBootManagerLibLight/PlatformBootManagerLib.inf
 @@ -27,6 +27,8 @@

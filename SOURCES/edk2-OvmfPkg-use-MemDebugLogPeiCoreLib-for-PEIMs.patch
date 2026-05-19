@@ -1,0 +1,102 @@
+From ab6410ba7d54964884687e020fd015ed5ef3d18f Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Wed, 21 Jan 2026 12:35:59 +0100
+Subject: [PATCH 5/5] OvmfPkg: use MemDebugLogPeiCoreLib for PEIMs
+
+RH-Author: Luigi Leonardi <None>
+RH-MergeRequest: 104: ArmVirtPkg, AmdSev: fix memory debug logging
+RH-Jira: RHEL-139470
+RH-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+RH-Commit: [5/5] 66932a14dcf1a61fc92319e50fe9e87c03f89378 (luigileonardi/edk2)
+
+Switch PEIMs from MemDebugLogPeiLib to MemDebugLogPeiCoreLib, except for
+the MemDebugLog and PlatformPei PEIMs which need the MemDebugLogPages()
+function.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ OvmfPkg/OvmfPkgIa32X64.dsc | 14 +++++++++++---
+ OvmfPkg/OvmfPkgX64.dsc     | 14 +++++++++++---
+ 2 files changed, 22 insertions(+), 6 deletions(-)
+
+diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
+index 2be6a1321c8..e49132deb08 100644
+--- a/OvmfPkg/OvmfPkgIa32X64.dsc
++++ b/OvmfPkg/OvmfPkgIa32X64.dsc
+@@ -312,7 +312,7 @@
+   DebugLib|OvmfPkg/Library/PlatformDebugLibIoPort/PlatformRomDebugLibIoPort.inf
+ !endif
+ !if $(DEBUG_TO_MEM)
+-  MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiLib.inf
++  MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiCoreLib.inf
+ !endif
+   PeCoffLib|MdePkg/Library/BasePeCoffLib/BasePeCoffLib.inf
+   ResourcePublicationLib|MdePkg/Library/PeiResourcePublicationLib/PeiResourcePublicationLib.inf
+@@ -708,7 +708,10 @@
+   #
+   MdeModulePkg/Core/Pei/PeiMain.inf
+ !if $(DEBUG_TO_MEM)
+-  OvmfPkg/MemDebugLogPei/MemDebugLogPei.inf
++  OvmfPkg/MemDebugLogPei/MemDebugLogPei.inf {
++    <LibraryClasses>
++      MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiLib.inf
++  }
+ !endif
+   MdeModulePkg/Universal/PCD/Pei/Pcd.inf  {
+     <LibraryClasses>
+@@ -724,7 +727,12 @@
+   }
+   MdeModulePkg/Core/DxeIplPeim/DxeIpl.inf
+ 
+-  OvmfPkg/PlatformPei/PlatformPei.inf
++  OvmfPkg/PlatformPei/PlatformPei.inf {
++    <LibraryClasses>
++!if $(DEBUG_TO_MEM)
++      MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiLib.inf
++!endif
++  }
+ 
+   UefiCpuPkg/Universal/Acpi/S3Resume2Pei/S3Resume2Pei.inf {
+     <LibraryClasses>
+diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
+index 724a84554c8..5c016b336b5 100644
+--- a/OvmfPkg/OvmfPkgX64.dsc
++++ b/OvmfPkg/OvmfPkgX64.dsc
+@@ -344,7 +344,7 @@
+   DebugLib|OvmfPkg/Library/PlatformDebugLibIoPort/PlatformRomDebugLibIoPort.inf
+ !endif
+ !if $(DEBUG_TO_MEM)
+-  MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiLib.inf
++  MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiCoreLib.inf
+ !endif
+   PeCoffLib|MdePkg/Library/BasePeCoffLib/BasePeCoffLib.inf
+   ResourcePublicationLib|MdePkg/Library/PeiResourcePublicationLib/PeiResourcePublicationLib.inf
+@@ -788,7 +788,10 @@
+   #
+   MdeModulePkg/Core/Pei/PeiMain.inf
+ !if $(DEBUG_TO_MEM)
+-  OvmfPkg/MemDebugLogPei/MemDebugLogPei.inf
++  OvmfPkg/MemDebugLogPei/MemDebugLogPei.inf {
++    <LibraryClasses>
++      MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiLib.inf
++  }
+ !endif
+   MdeModulePkg/Universal/PCD/Pei/Pcd.inf  {
+     <LibraryClasses>
+@@ -804,7 +807,12 @@
+   }
+   MdeModulePkg/Core/DxeIplPeim/DxeIpl.inf
+ 
+-  OvmfPkg/PlatformPei/PlatformPei.inf
++  OvmfPkg/PlatformPei/PlatformPei.inf {
++    <LibraryClasses>
++!if $(DEBUG_TO_MEM)
++      MemDebugLogLib|OvmfPkg/Library/MemDebugLogLib/MemDebugLogPeiLib.inf
++!endif
++  }
+ 
+   UefiCpuPkg/Universal/Acpi/S3Resume2Pei/S3Resume2Pei.inf {
+     <LibraryClasses>
+-- 
+2.47.3
+

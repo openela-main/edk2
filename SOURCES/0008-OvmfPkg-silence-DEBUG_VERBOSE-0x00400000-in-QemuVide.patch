@@ -1,4 +1,4 @@
-From c087bac4d8596a1712b16713d07f240b1f2d1bf9 Mon Sep 17 00:00:00 2001
+From a3bb6ef0037323bf330d2f16cd4863ecc0a82b81 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Tue, 21 Nov 2017 00:57:46 +0100
 Subject: [PATCH] OvmfPkg: silence DEBUG_VERBOSE (0x00400000) in
@@ -80,16 +80,15 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 (cherry picked from commit 1355849ad97c1e4a5c430597a377165a5cc118f7)
 ---
  OvmfPkg/AmdSev/AmdSevX64.dsc | 10 ++++++++--
- OvmfPkg/OvmfPkgIa32.dsc      | 10 ++++++++--
  OvmfPkg/OvmfPkgIa32X64.dsc   | 10 ++++++++--
  OvmfPkg/OvmfPkgX64.dsc       | 10 ++++++++--
- 4 files changed, 32 insertions(+), 8 deletions(-)
+ 3 files changed, 24 insertions(+), 6 deletions(-)
 
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
-index abe155e245..242ee35b80 100644
+index c7342f4f34..b4fb1554e7 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.dsc
 +++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
-@@ -694,8 +694,14 @@
+@@ -683,8 +683,14 @@
    MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
    MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
  
@@ -106,32 +105,11 @@ index abe155e245..242ee35b80 100644
    OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
  
    #
-diff --git a/OvmfPkg/OvmfPkgIa32.dsc b/OvmfPkg/OvmfPkgIa32.dsc
-index 3300b55588..308fea90a6 100644
---- a/OvmfPkg/OvmfPkgIa32.dsc
-+++ b/OvmfPkg/OvmfPkgIa32.dsc
-@@ -819,8 +819,14 @@
-   MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
-   MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
- 
--  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
--  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf
-+  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf {
-+    <PcdsFixedAtBuild>
-+      gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
-+  }
-+  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf {
-+    <PcdsFixedAtBuild>
-+      gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
-+  }
-   OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
-   OvmfPkg/VirtHstiDxe/VirtHstiDxe.inf
- 
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index 38473ef3c2..fcdebb2c0a 100644
+index db2abc7cd3..935cbab30d 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
-@@ -833,8 +833,14 @@
+@@ -848,8 +848,14 @@
    MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
    MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
  
@@ -149,10 +127,10 @@ index 38473ef3c2..fcdebb2c0a 100644
    OvmfPkg/VirtHstiDxe/VirtHstiDxe.inf
  
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index 676f984631..c7cdd0b539 100644
+index 75768c37c6..c27cf21deb 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
-@@ -914,8 +914,14 @@
+@@ -979,8 +979,14 @@
    MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
    MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
  

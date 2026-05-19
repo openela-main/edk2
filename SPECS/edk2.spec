@@ -1,14 +1,14 @@
 ExclusiveArch: x86_64 aarch64 riscv64
 
-# edk2-stable202505
-%define GITDATE        20250523
-%define GITCOMMIT      6951dfe7d59d
+# edk2-stable202511
+%define GITDATE        20251114
+%define GITCOMMIT      46548b1adac8
 %define TOOLCHAIN      GCC
 
-%define OPENSSL_VER    3.5.1
-%define OPENSSL_HASH   4cf5738ac1c163d5ce2517250321da906492c40d
+%define OPENSSL_VER    3.5.5
+%define OPENSSL_HASH   c6600b817708cb4f3c6b044f28e10e9b1a1b3e2c
 
-%define DBXDATE        20250610
+%define DBXDATE        20251016
 
 %define build_ovmf 0
 %define build_aarch64 0
@@ -25,7 +25,7 @@ ExclusiveArch: x86_64 aarch64 riscv64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    2%{?dist}.2
+Release:    5%{?dist}
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -45,6 +45,11 @@ Source11: 51-edk2-aarch64-raw.json
 Source12: 52-edk2-aarch64-verbose-qcow2.json
 Source13: 53-edk2-aarch64-verbose-raw.json
 
+Source20: 90-edk2-ovmf-qemuvars-x64-sb-enrolled.json
+Source21: 91-edk2-ovmf-qemuvars-x64-sb.json
+Source22: 90-edk2-aarch64-qemuvars-sb-enrolled.json
+Source23: 91-edk2-aarch64-qemuvars-sb.json
+
 Source40: 30-edk2-ovmf-x64-sb-enrolled.json
 Source41: 40-edk2-ovmf-x64-sb.json
 Source43: 50-edk2-ovmf-x64-nosb.json
@@ -58,6 +63,7 @@ Source80: edk2-build.py
 Source82: edk2-build.rhel-10
 
 Source90: DBXUpdate-%{DBXDATE}.x64.bin
+Source91: DBXUpdate-%{DBXDATE}.aa64.bin
 Patch1: 0003-Remove-paths-leading-to-submodules.patch
 Patch2: 0004-MdeModulePkg-TerminalDxe-set-xterm-resolution-on-mod.patch
 Patch3: 0005-OvmfPkg-take-PcdResizeXterm-from-the-QEMU-command-li.patch
@@ -85,15 +91,22 @@ Patch24: 0026-NetworkPkg-DxeNetLib-Reword-PseudoRandom-error-loggi.patch
 Patch25: 0027-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch
 Patch26: 0028-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch
 Patch27: 0029-OvmfPkg-X64-add-opt-org.tianocore-UninstallMemAttrPr.patch
-Patch28: 0030-CryptoPkg-openssl-update-generated-files.patch
-Patch29: 0031-CryptoPkg-openssl-add-new-generated-files-to-uncrust.patch
-Patch30: 0032-CryptoPkg-openssl-add-ossl_bio_print_labeled_buf-stu.patch
-Patch31: 0033-CryptoPkg-CrtLib-add-strpbrk-implementation.patch
-Patch32: 0034-CryptoPkg-CrtLib-explicitly-define-INT32-constants.patch
-Patch33: 0035-CryptoPkg-openssl-turn-off-warning-4130-for-microsof.patch
-Patch34: 0036-Add-Wno-unused-variable-to-OpensslLibFull-RH-only.patch
-# For RHEL-121876 - Fail to create AMD SEV SLES 15 SP4 guest via virt-install --cdrom [rhel-10.1.z]
-Patch35: edk2-OvmfPkg-IoMmuDxe-Fix-1M-and-2M-buffer-handling.patch
+Patch28: 0030-OvmfPkg-MemDebugLogLib-use-AcquireSpinLockOrFail.patch
+Patch29: 0031-OvmfPkg-PlatformInitLib-reserve-igvm-parameter-area.patch
+# For RHEL-138335 - [AmpereoneX] ArmConfigureMmu: The MaxAddress 0xFFFFFFFFFFFFF is not supported by this MMU configuration
+Patch30: edk2-ArmPkg-UefiCpuPkg-Fix-boot-failure-on-FEAT_LPA-only-.patch
+# For RHEL-139470 - Enable memory debug logging support in firmware image configs
+Patch31: edk2-OvmfPkg-AmdSev-add-memory-debug-log-support.patch
+# For RHEL-139470 - Enable memory debug logging support in firmware image configs
+Patch32: edk2-OvmfPkg-MemDebugLogPeiLib-drop-duplicate-MemDebugLog.patch
+# For RHEL-139470 - Enable memory debug logging support in firmware image configs
+Patch33: edk2-OvmfPkg-MemDebugLogPeiCoreLib-enable-for-PEIMs.patch
+# For RHEL-139470 - Enable memory debug logging support in firmware image configs
+Patch34: edk2-ArmVirtPkg-use-MemDebugLogPeiCoreLib-for-PEIMs.patch
+# For RHEL-139470 - Enable memory debug logging support in firmware image configs
+Patch35: edk2-OvmfPkg-use-MemDebugLogPeiCoreLib-for-PEIMs.patch
+# For RHEL-134956 - CVE-2025-2296 edk2: EDK2: Improper Input Validation allows arbitrary command execution [rhel-10.2]
+Patch36: edk2-OvmfPkg-X86QemuLoadImageLib-flip-default-for-EnableL.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -105,6 +118,9 @@ BuildRequires:  binutils gcc git gcc-c++ make
 BuildRequires:  perl perl(JSON)
 BuildRequires:  qemu-img
 
+# secure boot enrollment
+BuildRequires:  python3dist(virt-firmware) >= 25.4
+
 %if %{build_ovmf}
 # Only OVMF includes 80x86 assembly files (*.nasm*).
 BuildRequires:  nasm
@@ -114,9 +130,6 @@ BuildRequires:  nasm
 BuildRequires:  dosfstools
 BuildRequires:  mtools
 BuildRequires:  xorriso
-
-# secure boot enrollment
-BuildRequires:  python3dist(virt-firmware) >= 25.4
 
 # endif build_ovmf
 %endif
@@ -212,10 +225,11 @@ git config am.keepcr true
 
 cp -a -- %{SOURCE1} .
 cp -a -- %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} .
+cp -a -- %{SOURCE20} %{SOURCE21} %{SOURCE22} %{SOURCE23} .
 cp -a -- %{SOURCE40} %{SOURCE41} %{SOURCE43} %{SOURCE44} %{SOURCE45} .
 cp -a -- %{SOURCE50} .
 cp -a -- %{SOURCE80} %{SOURCE82} .
-cp -a -- %{SOURCE90} .
+cp -a -- %{SOURCE90} %{SOURCE91} .
 tar -C CryptoPkg/Library/OpensslLib -a -f %{SOURCE2} -x
 tar -xf %{SOURCE3} --strip-components=1 --directory MdePkg/Library/BaseFdtLib/libfdt
 
@@ -284,14 +298,23 @@ virt-fw-vars --input   RHEL-10/ovmf/OVMF.inteltdx.fd \
              --set-dbx DBXUpdate-%{DBXDATE}.x64.bin \
              --enroll-redhat --secure-boot \
              --set-fallback-no-reboot
+virt-fw-vars --output-json RHEL-10/ovmf/vars.blank.json
+virt-fw-vars --output-json RHEL-10/ovmf/vars.secboot.json \
+             --set-dbx DBXUpdate-%{DBXDATE}.x64.bin \
+             --enroll-redhat --secure-boot
 %endif
 
 %if %{build_aarch64}
 ./edk2-build.py --config edk2-build.rhel-10 -m armvirt --release-date "$RELEASE_DATE"
+cp DBXUpdate-%{DBXDATE}.aa64.bin RHEL-10/aarch64
 for raw in */aarch64/*.raw; do
     qcow2="${raw%.raw}.qcow2"
     qemu-img convert -f raw -O qcow2 -o cluster_size=4096 -S 4096 "$raw" "$qcow2"
 done
+virt-fw-vars --output-json RHEL-10/aarch64/vars.blank.json
+virt-fw-vars --output-json RHEL-10/aarch64/vars.secboot.json \
+             --set-dbx DBXUpdate-%{DBXDATE}.aa64.bin \
+             --enroll-redhat --secure-boot
 %endif
 
 %if %{build_riscv64}
@@ -338,7 +361,9 @@ ln -s OVMF_CODE.fd %{buildroot}%{_datadir}/%{name}/ovmf/OVMF_CODE.cc.fd
 
 install -m 0644 \
         30-edk2-ovmf-x64-sb-enrolled.json \
+        90-edk2-ovmf-qemuvars-x64-sb-enrolled.json \
         40-edk2-ovmf-x64-sb.json \
+        91-edk2-ovmf-qemuvars-x64-sb.json \
         50-edk2-ovmf-x64-nosb.json \
         60-edk2-ovmf-x64-amdsev.json \
         60-edk2-ovmf-x64-inteltdx.json \
@@ -362,6 +387,8 @@ install -m 0644 \
         51-edk2-aarch64-raw.json \
         52-edk2-aarch64-verbose-qcow2.json \
         53-edk2-aarch64-verbose-raw.json \
+        90-edk2-aarch64-qemuvars-sb-enrolled.json \
+        91-edk2-aarch64-qemuvars-sb.json \
         %{buildroot}%{_datadir}/qemu/firmware
 
 # endif build_aarch64
@@ -405,8 +432,11 @@ install -m 0644 \
 %{_datadir}/OVMF/UefiShell.iso
 %{_datadir}/%{name}/ovmf/Shell.efi
 %{_datadir}/%{name}/ovmf/EnrollDefaultKeys.efi
+%{_datadir}/%{name}/ovmf/vars.*.json
 %{_datadir}/qemu/firmware/30-edk2-ovmf-x64-sb-enrolled.json
+%{_datadir}/qemu/firmware/90-edk2-ovmf-qemuvars-x64-sb-enrolled.json
 %{_datadir}/qemu/firmware/40-edk2-ovmf-x64-sb.json
+%{_datadir}/qemu/firmware/91-edk2-ovmf-qemuvars-x64-sb.json
 %{_datadir}/qemu/firmware/50-edk2-ovmf-x64-nosb.json
 %{_datadir}/qemu/firmware/60-edk2-ovmf-x64-amdsev.json
 %{_datadir}/qemu/firmware/60-edk2-ovmf-x64-inteltdx.json
@@ -422,6 +452,7 @@ install -m 0644 \
 %{_datadir}/%{name}/aarch64/QEMU_EFI-silent-pflash.*
 %{_datadir}/%{name}/aarch64/QEMU_EFI-qemuvars-pflash.*
 %{_datadir}/%{name}/aarch64/vars-template-pflash.*
+%{_datadir}/%{name}/aarch64/DBXUpdate*.bin
 %{_datadir}/AAVMF/AAVMF_CODE.verbose.fd
 %{_datadir}/AAVMF/AAVMF_CODE.fd
 %{_datadir}/AAVMF/AAVMF_VARS.fd
@@ -429,10 +460,13 @@ install -m 0644 \
 %{_datadir}/%{name}/aarch64/QEMU_EFI.silent.fd
 %{_datadir}/%{name}/aarch64/QEMU_EFI.qemuvars.fd
 %{_datadir}/%{name}/aarch64/QEMU_VARS.fd
+%{_datadir}/%{name}/aarch64/vars.*.json
 %{_datadir}/qemu/firmware/50-edk2-aarch64-qcow2.json
 %{_datadir}/qemu/firmware/51-edk2-aarch64-raw.json
 %{_datadir}/qemu/firmware/52-edk2-aarch64-verbose-qcow2.json
 %{_datadir}/qemu/firmware/53-edk2-aarch64-verbose-raw.json
+%{_datadir}/qemu/firmware/90-edk2-aarch64-qemuvars-sb-enrolled.json
+%{_datadir}/qemu/firmware/91-edk2-aarch64-qemuvars-sb.json
 # endif build_aarch64
 %endif
 
@@ -469,15 +503,59 @@ install -m 0644 \
 
 
 %changelog
-* Tue Nov 04 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250523-2.el10_1.2
-- edk2-Bumped-to-OpenSSL-3.5.1-6.patch [RHEL-115882]
-- Resolves: RHEL-115882
-  (CVE-2025-9230 edk2: Out-of-bounds read & write in RFC 3211 KEK Unwrap [rhel-10.1.z])
+* Mon Mar 09 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-5
+- edk2-add-uefi-vars-firmware-json-files.patch [RHEL-150696]
+- Resolves: RHEL-150696
+  (edk2: Add JSON descriptors for uefi-vars builds)
 
-* Wed Oct 29 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250523-2.el10_1.1
-- edk2-OvmfPkg-IoMmuDxe-Fix-1M-and-2M-buffer-handling.patch [RHEL-121876]
-- Resolves: RHEL-121876
-  (Fail to create AMD SEV SLES 15 SP4 guest via virt-install --cdrom [rhel-10.1.z])
+* Thu Feb 12 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-4
+- edk2-OvmfPkg-X86QemuLoadImageLib-flip-default-for-EnableL.patch [RHEL-134956]
+- edk2-update-openssl-rhel-submodule.patch [RHEL-147785]
+- edk2-update-openssl-rhel-tarball.patch [RHEL-147785]
+- Resolves: RHEL-134956
+  (CVE-2025-2296 edk2: EDK2: Improper Input Validation allows arbitrary command execution [rhel-10.2])
+- Resolves: RHEL-147785
+  ([edk2] pick up openssl updates)
+
+* Mon Feb 09 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-3
+- edk2-OvmfPkg-AmdSev-add-memory-debug-log-support.patch [RHEL-139470]
+- edk2-OvmfPkg-MemDebugLogPeiLib-drop-duplicate-MemDebugLog.patch [RHEL-139470]
+- edk2-OvmfPkg-MemDebugLogPeiCoreLib-enable-for-PEIMs.patch [RHEL-139470]
+- edk2-ArmVirtPkg-use-MemDebugLogPeiCoreLib-for-PEIMs.patch [RHEL-139470]
+- edk2-OvmfPkg-use-MemDebugLogPeiCoreLib-for-PEIMs.patch [RHEL-139470]
+- Resolves: RHEL-139470
+  (Enable memory debug logging support in firmware image configs)
+
+* Thu Jan 08 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-2
+- edk2-ArmPkg-UefiCpuPkg-Fix-boot-failure-on-FEAT_LPA-only-.patch [RHEL-138335]
+- Resolves: RHEL-138335
+  ([AmpereoneX] ArmConfigureMmu: The MaxAddress 0xFFFFFFFFFFFFF is not supported by this MMU configuration)
+
+* Wed Dec 10 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-1
+- Rebase to edk2-stable202511 [RHEL-118386]
+- Resolves: RHEL-118386
+  ([edk2,rhel-10] rebase to edk2-stable202511)
+
+* Wed Nov 12 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250822-4
+- edk2-make-dbxupdate.sh-get-version-tag-add-to-commit-mess.patch [RHEL-126085]
+- edk2-update-dbx-to-20251016-v1.6.1.patch [RHEL-126085]
+- Resolves: RHEL-126085
+  ([edk2,rhel-10] dbx update to 20251016 / v1.6.1)
+
+* Mon Nov 03 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250822-3
+- edk2-Bumped-OpenSSL-to-3.5.1-6.patch [RHEL-115880]
+- Resolves: RHEL-115880
+  (CVE-2025-9230 edk2: Out-of-bounds read & write in RFC 3211 KEK Unwrap [rhel-10.2])
+
+* Mon Oct 13 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250822-2
+- edk2-add-DBXUpdate-20250610.aa64.bin.patch [RHEL-109548]
+- Resolves: RHEL-109548
+  ([aarch64][edk2] missing DBXUpdate-${date}.aa64.bin)
+
+* Tue Oct 07 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250822-1
+- Rebase to edk2-stable202508 [RHEL-111718]
+- Resolves: RHEL-111718
+  ([edk2,rhel-10] rebase to edk2-stable202508)
 
 * Mon Jun 30 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250523-2
 - edk2-add-qemu-vars-builds-to-build-config-and-file-lists.patch [RHEL-2908]

@@ -1,0 +1,64 @@
+From cb6a558564347b71cca36111c377b126b314604e Mon Sep 17 00:00:00 2001
+From: Vishnu Pajjuri <vishnu@os.amperecomputing.com>
+Date: Tue, 30 Dec 2025 00:36:16 -0800
+Subject: [PATCH] ArmPkg, UefiCpuPkg: Fix boot failure on FEAT_LPA-only systems
+ without LPA2
+
+RH-Author: Gerd Hoffmann <kraxel@redhat.com>
+RH-MergeRequest: 103: ArmPkg, UefiCpuPkg: Fix boot failure on FEAT_LPA-only systems without LPA2
+RH-Jira: RHEL-138335
+RH-Acked-by: Luigi Leonardi <None>
+RH-Commit: [1/1] a7fcedd6490eedbc45f6a81fdaa95e80274e7034 (kraxel.rh/centos-src-edk2)
+
+Commit 9077163 added support for 52-bit PA/VA (LPA2) in EDK2. The previous
+change treated the presence of FEAT_LPA as sufficient to enable 52-bit
+VA for 4K page granularity. Some platforms advertise FEAT_LPA but do not
+implement full LPA2 support for 4K PAGE_SIZE; enabling 52-bit VA on
+those platforms produced an invalid MMU configuration and caused boot
+failures.
+
+This patch tightens the detection logic so 52-bit PA/VA (LPA2) is enabled
+only when the platform explicitly advertises LPA2 support. When LPA2 is
+not present we fall back to the previous 48-bit address limit for 4K
+pages, preserving correct behavior on non-LPA2 systems.
+
+Fixes: 9077163 ("UefiCpuPkg/ArmMmuLib: Add support for LPA2")
+
+Co-authored-by: Ganapatrao Kulkarni <gankulkarni@os.amperecomputing.com>
+Signed-off-by: Vishnu Pajjuri <vishnu@os.amperecomputing.com>
+(cherry picked from commit 1a4c4fb5a76fb15a5a50706685dc4ba36f1c2260)
+---
+ UefiCpuPkg/Library/ArmMmuLib/AArch64/ArmMmuLibCore.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/UefiCpuPkg/Library/ArmMmuLib/AArch64/ArmMmuLibCore.c b/UefiCpuPkg/Library/ArmMmuLib/AArch64/ArmMmuLibCore.c
+index d111e8c7cd3..2353adf5073 100644
+--- a/UefiCpuPkg/Library/ArmMmuLib/AArch64/ArmMmuLibCore.c
++++ b/UefiCpuPkg/Library/ArmMmuLib/AArch64/ArmMmuLibCore.c
+@@ -94,6 +94,7 @@ ArmMemoryAttributeToPageAttribute (
+ // T0SZ can be below MIN_T0SZ when LPA2 is in use, meaning the page table starts at level -1
+ #define MIN_T0SZ        16
+ #define BITS_PER_LEVEL  9
++#define MAX_VA_BITS_48  48
+ #define MAX_VA_BITS     52
+ 
+ STATIC
+@@ -658,8 +659,13 @@ ArmConfigureMmu (
+   // into account the architectural limitations that result from UEFI's
+   // use of 4 KB pages.
+   //
+-  MaxAddressBits = MIN (ArmGetPhysicalAddressBits (), MAX_VA_BITS);
+-  MaxAddress     = LShiftU64 (1ULL, MaxAddressBits) - 1;
++  if (ArmHas52BitTgran4 ()) {
++    MaxAddressBits = MIN (ArmGetPhysicalAddressBits (), MAX_VA_BITS);
++  } else {
++    MaxAddressBits = MIN (ArmGetPhysicalAddressBits (), MAX_VA_BITS_48);
++  }
++
++  MaxAddress = LShiftU64 (1ULL, MaxAddressBits) - 1;
+ 
+   T0SZ                = 64 - MaxAddressBits;
+   RootTableEntryCount = GetRootTableEntryCount (T0SZ);
+-- 
+2.47.3
+
