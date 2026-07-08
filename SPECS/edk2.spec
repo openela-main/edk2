@@ -7,7 +7,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}git%{GITCOMMIT}
-Release:    13%{?dist}.8
+Release:    13%{?dist}.10
 Summary:    UEFI firmware for 64-bit virtual machines
 Group:      Applications/Emulators
 License:    BSD-2-Clause-Patent and OpenSSL and MIT
@@ -19,7 +19,7 @@ URL:        http://www.tianocore.org
 # | xz -9ev >/tmp/edk2-$COMMIT.tar.xz
 Source0: http://batcave.lab.eng.brq.redhat.com/www/edk2-%{GITCOMMIT}.tar.xz
 Source1: ovmf-whitepaper-c770f8c.txt
-Source2: openssl-rhel-cf317b2bb227899cb2e761b9163210f62cab1b1e.tar.xz
+Source2: openssl-rhel-ad510221a6db362d7ed8725b2c92c91f643bc505.tar.xz
 Source3: ovmf-vars-generator
 Source4: LICENSE.qosb
 Source5: RedHatSecureBootPkKek1.pem
@@ -396,6 +396,8 @@ Patch119: edk2-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch
 Patch120: edk2-OvmfPkg-Rerun-dispatcher-after-initializing-virtio-r.patch
 # For RHEL-71687 - [Regression] HTTP boot not available [aarch64] [rhel-8.10.z]
 Patch121: edk2-ArmVirtPkg-Add-Hash2DxeCrypto-to-ArmVirtPkg.patch
+# For RHEL-151949 - [FJ8.10 Bug] How to Update Secure Boot Certificates with Microsoft 2023 in KVM Guests
+Patch122: edk2-OvmfPkg-Expand-EnrollDefaultKeys-with-Microsoft-2023.patch
 
 
 # python3-devel and libuuid-devel are required for building tools.
@@ -529,6 +531,13 @@ rm -f $PATCHLIST
 cp -a -- %{SOURCE1} %{SOURCE3} .
 cp -a -- %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} .
 tar -C CryptoPkg/Library/OpensslLib -a -f %{SOURCE2} -x
+
+# Fix missing include for CVE-2022-4304 implicit rejection patch (RHEL-115901)
+# Bug introduced in openssl by
+# commit 09a086d240f7d ("Backport implicit rejection mechanism for RSA PKCS#1 v1.5 to RHEL-8 series")
+# The response to https://issues.redhat.com/browse/RHEL-142313 indicates that
+# we should use this work-around. 
+sed -i '/#include <openssl\/x509.h>/a #include <openssl/rsa.h>' CryptoPkg/Library/OpensslLib/openssl/crypto/pkcs7/pk7_doit.c
 
 # Format the Red Hat-issued certificate that is to be enrolled as both Platform
 # Key and first Key Exchange Key, as an SMBIOS OEM String. This means stripping
@@ -842,6 +851,17 @@ true
 %endif
 
 %changelog
+* Thu Mar 26 2026 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8.10
+- edk2-OvmfPkg-Expand-EnrollDefaultKeys-with-Microsoft-2023.patch [RHEL-151949]
+- Resolves: RHEL-151949
+  ([FJ8.10 Bug] How to Update Secure Boot Certificates with Microsoft 2023 in KVM Guests)
+
+* Tue Jan 27 2026 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8.9
+- edk2-openssl-flatten-contents-of-openssl-tarball.patch [RHEL-115901]
+- edk2-Bumped-openssl-submodule-to-rhel-8-main.patch [RHEL-115901]
+- Resolves: RHEL-115901
+  (CVE-2025-9230 edk2: Out-of-bounds read & write in RFC 3211 KEK Unwrap [rhel-8.10.z])
+
 * Mon Jan 06 2025 Jon Maloy <jmaloy@redhat.com> - 20220126gitbb1bba3d77-13.el8.8
 - edk2-ArmVirtPkg-Add-Hash2DxeCrypto-to-ArmVirtPkg.patch [RHEL-71687]
 - Resolves: RHEL-71687
