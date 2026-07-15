@@ -6,7 +6,7 @@ ExclusiveArch: x86_64 aarch64 riscv64
 %define TOOLCHAIN      GCC
 
 %define OPENSSL_VER    3.5.5
-%define OPENSSL_HASH   c6600b817708cb4f3c6b044f28e10e9b1a1b3e2c
+%define OPENSSL_HASH   7ee5eab42c0c00feea3fed210379d54150b9c6cd
 
 %define DBXDATE        20251016
 
@@ -25,7 +25,7 @@ ExclusiveArch: x86_64 aarch64 riscv64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    5%{?dist}
+Release:    5%{?dist}.2
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -107,6 +107,8 @@ Patch34: edk2-ArmVirtPkg-use-MemDebugLogPeiCoreLib-for-PEIMs.patch
 Patch35: edk2-OvmfPkg-use-MemDebugLogPeiCoreLib-for-PEIMs.patch
 # For RHEL-134956 - CVE-2025-2296 edk2: EDK2: Improper Input Validation allows arbitrary command execution [rhel-10.2]
 Patch36: edk2-OvmfPkg-X86QemuLoadImageLib-flip-default-for-EnableL.patch
+# For RHEL-182421 - edk2/x64: re-enable legacy kernel loader [rhel-10.2.z]
+Patch37: edk2-Revert-OvmfPkg-X86QemuLoadImageLib-flip-default-for-.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -503,6 +505,19 @@ install -m 0644 \
 
 
 %changelog
+* Tue Jun 09 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-5.el10_2.2
+- edk2-Revert-OvmfPkg-X86QemuLoadImageLib-flip-default-for-.patch [RHEL-182421]
+- edk2-Bumped-to-OpenSSL-3.5.5-3.patch [RHEL-165699]
+- Resolves: RHEL-182421
+  (edk2/x64: re-enable legacy kernel loader [rhel-10.2.z])
+- Resolves: RHEL-165699
+  (CVE-2026-28390 edk2: OpenSSL: Denial of Service due to NULL pointer dereference in CMS EnvelopedData processing [rhel-10.2])
+
+* Thu Apr 23 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-5.el10_2.1
+- edk2-Bumped-to-OpenSSL-3.5.5-2.patch [RHEL-161573]
+- Resolves: RHEL-161573
+  (CVE-2026-31790 edk2: openssl: Information Disclosure from Uninitialized Memory via Invalid RSA Public Key [rhel-10.2])
+
 * Mon Mar 09 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-5
 - edk2-add-uefi-vars-firmware-json-files.patch [RHEL-150696]
 - Resolves: RHEL-150696
