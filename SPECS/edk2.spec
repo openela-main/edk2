@@ -25,7 +25,7 @@ ExclusiveArch: x86_64 aarch64 riscv64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    5%{?dist}.2
+Release:    5%{?dist}.3
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -109,6 +109,8 @@ Patch35: edk2-OvmfPkg-use-MemDebugLogPeiCoreLib-for-PEIMs.patch
 Patch36: edk2-OvmfPkg-X86QemuLoadImageLib-flip-default-for-EnableL.patch
 # For RHEL-182421 - edk2/x64: re-enable legacy kernel loader [rhel-10.2.z]
 Patch37: edk2-Revert-OvmfPkg-X86QemuLoadImageLib-flip-default-for-.patch
+# For RHEL-291254 - CVE-2026-97631 edk2: Pre-boot RCE in EDK II PXE driver [rhel-10.2.z]
+Patch38: edk2-NetworkPkg-UefiPxeBcDxe-Fix-ICMP-buffer-overflow-in-.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -505,6 +507,11 @@ install -m 0644 \
 
 
 %changelog
+* Tue Oct 27 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-5.el10_2.3
+- edk2-NetworkPkg-UefiPxeBcDxe-Fix-ICMP-buffer-overflow-in-.patch [RHEL-291254]
+- Resolves: RHEL-291254
+  (CVE-2026-97631 edk2: Pre-boot RCE in EDK II PXE driver [rhel-10.2.z])
+
 * Tue Jun 09 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-5.el10_2.2
 - edk2-Revert-OvmfPkg-X86QemuLoadImageLib-flip-default-for-.patch [RHEL-182421]
 - edk2-Bumped-to-OpenSSL-3.5.5-3.patch [RHEL-165699]
