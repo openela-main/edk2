@@ -1,4 +1,4 @@
-From a7adaad69c0af3dde7184ccb2c725ca84986d1c7 Mon Sep 17 00:00:00 2001
+From 857e1f76088e53c28f6b4777386a43ae48ef98a5 Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Wed, 14 Aug 2024 09:53:49 +0200
 Subject: [PATCH] NetworkPkg/DxeNetLib: Reword PseudoRandom error logging

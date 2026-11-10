@@ -1,4 +1,4 @@
-From 42fd784f17f7ce1c2d2fe1b29cd4ac9aff198f7b Mon Sep 17 00:00:00 2001
+From 12b9547622ea9214f3df140bf9a019cd43e2aff5 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:28:49 +0200
 Subject: [PATCH] OvmfPkg: Remove EbcDxe (RHEL only)
@@ -27,10 +27,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  6 files changed, 6 deletions(-)
 
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
-index 97f595b38a..06b8bf7275 100644
+index 1d4719a9ca..2ab88c4f60 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.dsc
 +++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
-@@ -612,7 +612,6 @@
+@@ -632,7 +632,6 @@
  !include OvmfPkg/Include/Dsc/OvmfTpmSecurityStub.dsc.inc
    }
  
@@ -39,10 +39,10 @@ index 97f595b38a..06b8bf7275 100644
    UefiCpuPkg/CpuDxe/CpuDxe.inf
    OvmfPkg/LocalApicTimerDxe/LocalApicTimerDxe.inf
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.fdf b/OvmfPkg/AmdSev/AmdSevX64.fdf
-index dbb733310e..d49e51da69 100644
+index f86005090d..928013e878 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.fdf
 +++ b/OvmfPkg/AmdSev/AmdSevX64.fdf
-@@ -149,7 +149,6 @@ INF  MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
+@@ -152,7 +152,6 @@ INF  MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
  
  INF  MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
  INF  MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
@@ -51,10 +51,10 @@ index dbb733310e..d49e51da69 100644
  INF  UefiCpuPkg/CpuDxe/CpuDxe.inf
  INF  OvmfPkg/LocalApicTimerDxe/LocalApicTimerDxe.inf
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index 5bb2a7cef7..59c205ead5 100644
+index 33f0761e56..5610e7ba1c 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
-@@ -771,7 +771,6 @@
+@@ -779,7 +779,6 @@
  !include OvmfPkg/Include/Dsc/OvmfTpmSecurityStub.dsc.inc
    }
  
@@ -63,7 +63,7 @@ index 5bb2a7cef7..59c205ead5 100644
    UefiCpuPkg/CpuDxe/CpuDxe.inf
    OvmfPkg/LocalApicTimerDxe/LocalApicTimerDxe.inf
 diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
-index 2ab9bcf45c..a6054701a7 100644
+index c51721cf76..0f6712992e 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.fdf
 +++ b/OvmfPkg/OvmfPkgIa32X64.fdf
 @@ -187,7 +187,6 @@ INF  MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
@@ -75,10 +75,10 @@ index 2ab9bcf45c..a6054701a7 100644
  INF  UefiCpuPkg/CpuDxe/CpuDxe.inf
  INF  OvmfPkg/LocalApicTimerDxe/LocalApicTimerDxe.inf
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index 62d6a008c6..7342d5871e 100644
+index 748f356bfc..4b6d5d3c65 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
-@@ -879,7 +879,6 @@
+@@ -887,7 +887,6 @@
  !include OvmfPkg/Include/Dsc/OvmfTpmSecurityStub.dsc.inc
    }
  
@@ -87,7 +87,7 @@ index 62d6a008c6..7342d5871e 100644
  
    UefiCpuPkg/CpuDxe/CpuDxe.inf {
 diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
-index 3eec3145ad..b9f88a32fc 100644
+index e4f6995e4d..051508970d 100644
 --- a/OvmfPkg/OvmfPkgX64.fdf
 +++ b/OvmfPkg/OvmfPkgX64.fdf
 @@ -197,7 +197,6 @@ INF  MdeModulePkg/Universal/PCD/Dxe/Pcd.inf

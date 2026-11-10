@@ -1,0 +1,98 @@
+From 43867fb3febb4f0f1d4f2546f52400e25629f4fe Mon Sep 17 00:00:00 2001
+From: Michael D Kinney <michael.d.kinney@intel.com>
+Date: Mon, 23 Mar 2026 09:50:17 -0700
+Subject: [PATCH] Revert "MdeModulePkg/PciBusDxe: Degrade MEM64 to PMEM64..."
+
+RH-Author: Gerd Hoffmann <kraxel@redhat.com>
+RH-MergeRequest: 112: Revert "MdeModulePkg/PciBusDxe: Degrade MEM64 to PMEM64..."
+RH-Jira: RHEL-188305
+RH-Acked-by: Luigi Leonardi <None>
+RH-Commit: [1/1] ca2198df465a0c3b9a118e42e2d14918e6dbeb21 (kraxel.rh/centos-src-edk2)
+
+This reverts commit f6489621b8ae1164c5e4930902988ba7c86847ba.
+
+MdeModulePkg/PciBusDxe: Degrade MEM64 to PMEM64 when bridge lacks MEM64
+
+A number of compatibility issues have been reported with this change
+to the PciBusDxe behavior. Revert this change at this time to give
+time for all the issues to be reviewed and options for supporting
+this new behavior to be evaluated and fully validated.
+
+Signed-off-by: Michael D Kinney <michael.d.kinney@intel.com>
+(cherry picked from commit defbd14d637313bdded40c717892497deec89be0)
+
+Resolves: RHEL-188305
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ .../Bus/Pci/PciBusDxe/PciResourceSupport.c    | 45 +++----------------
+ 1 file changed, 6 insertions(+), 39 deletions(-)
+
+diff --git a/MdeModulePkg/Bus/Pci/PciBusDxe/PciResourceSupport.c b/MdeModulePkg/Bus/Pci/PciBusDxe/PciResourceSupport.c
+index 2859cbdf30c..8ffd05f327d 100644
+--- a/MdeModulePkg/Bus/Pci/PciBusDxe/PciResourceSupport.c
++++ b/MdeModulePkg/Bus/Pci/PciBusDxe/PciResourceSupport.c
+@@ -1000,19 +1000,6 @@ ResourcePaddingPolicy (
+   PMEM64 -> PMEM32 -> MEM32
+   IO32   -> IO16.
+ 
+-  Additionally, if the upstream bridge supports PMEM64 but not MEM64,
+-  MEM64 resources are degraded to PMEM64 to enable 64-bit allocation
+-  through the bridge's prefetchable window. So the below degradation
+-  path is also now supported:
+-
+-  MEM64  -> PMEM64
+-
+-  This is safe per PCI-SIG's ECN title "Removing Prefetchable Terminology"
+-  (2024-04-05).
+-
+-  The terms prefetchable and non-prefetchable have also been removed from
+-  the PCIe base specification starting with version 6.3.
+-
+   @param Bridge     Pci device instance.
+   @param Mem32Node  Resource info node for 32-bit memory.
+   @param PMem32Node Resource info node for 32-bit Prefetchable Memory.
+@@ -1103,34 +1090,14 @@ DegradeResource (
+       );
+   } else {
+     //
+-    // If the upstream bridge does not support MEM64, check if we can
+-    // degrade to PMEM64 first, instead of degrading to MEM32 directly.
+-    //
+-    // This is allowed per PCIe Base Spec 6.3+ which removes the terms
+-    // prefetchable/non-prefetchable from the specification.
+-    // The distinction originally only described P2P bridge read-ahead
+-    // behavior, not resource allocation policy.
+-    //
+-    // We will still fall back and degrade to MEM32 if the upstream
+-    // bridge lacks PMEM64 support.
+-    //
+-    // Refer to PCI-SIG ECN "Removing Prefetchable Terminology"
+-    // (2024-04-05) for more details.
++    // if the bridge does not support MEM64, degrade MEM64 to MEM32
+     //
+     if (!BridgeSupportResourceDecode (Bridge, EFI_BRIDGE_MEM64_DECODE_SUPPORTED)) {
+-      if (BridgeSupportResourceDecode (Bridge, EFI_BRIDGE_PMEM64_DECODE_SUPPORTED)) {
+-        MergeResourceTree (
+-          PMem64Node,
+-          Mem64Node,
+-          TRUE
+-          );
+-      } else {
+-        MergeResourceTree (
+-          Mem32Node,
+-          Mem64Node,
+-          TRUE
+-          );
+-      }
++      MergeResourceTree (
++        Mem32Node,
++        Mem64Node,
++        TRUE
++        );
+     }
+ 
+     //
+-- 
+2.52.0
+

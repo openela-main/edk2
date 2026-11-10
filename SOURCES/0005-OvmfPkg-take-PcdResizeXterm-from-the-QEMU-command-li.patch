@@ -1,4 +1,4 @@
-From f9b45a184e1dbb81010ce25b04299d208fe94121 Mon Sep 17 00:00:00 2001
+From 7112c0dee9a676943936715199106e7cb69e327b Mon Sep 17 00:00:00 2001
 From: Laszlo Ersek <lersek@redhat.com>
 Date: Wed, 14 Oct 2015 15:59:06 +0200
 Subject: [PATCH] OvmfPkg: take PcdResizeXterm from the QEMU command line (RH
@@ -82,10 +82,10 @@ Signed-off-by: Laszlo Ersek <lersek@redhat.com>
  8 files changed, 20 insertions(+), 1 deletion(-)
 
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
-index 8e7e69da00..b18345f4a7 100644
+index 266c72580a..dd972f61bc 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.dsc
 +++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
-@@ -487,6 +487,7 @@
+@@ -503,6 +503,7 @@
  [PcdsDynamicDefault]
    gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvStoreReserved|0
  
@@ -118,10 +118,10 @@ index 18fd116311..83772af284 100644
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64|0
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase64|0
 diff --git a/OvmfPkg/Microvm/MicrovmX64.dsc b/OvmfPkg/Microvm/MicrovmX64.dsc
-index 884d5a9432..b56ca4e42f 100644
+index 0186456170..302fecf9fb 100644
 --- a/OvmfPkg/Microvm/MicrovmX64.dsc
 +++ b/OvmfPkg/Microvm/MicrovmX64.dsc
-@@ -588,7 +588,7 @@
+@@ -604,7 +604,7 @@
    # only set when
    #   ($(SMM_REQUIRE) == FALSE)
    gEfiMdeModulePkgTokenSpaceGuid.PcdEmuVariableNvStoreReserved|0
@@ -131,7 +131,7 @@ index 884d5a9432..b56ca4e42f 100644
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64|0
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase64|0
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index 5b2f51e49a..5273113e0f 100644
+index de78bf3272..4c8f908b5a 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
 @@ -620,6 +620,7 @@
@@ -143,7 +143,7 @@ index 5b2f51e49a..5273113e0f 100644
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase64|0
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64|0
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index 9180e88645..fbbe0656b4 100644
+index 94c639be13..86df478edd 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
 @@ -697,6 +697,7 @@
@@ -155,7 +155,7 @@ index 9180e88645..fbbe0656b4 100644
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase64|0
    gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64|0
 diff --git a/OvmfPkg/PlatformPei/Platform.c b/OvmfPkg/PlatformPei/Platform.c
-index a354e0641f..bb791fba71 100644
+index 1768a24037..21749bce19 100644
 --- a/OvmfPkg/PlatformPei/Platform.c
 +++ b/OvmfPkg/PlatformPei/Platform.c
 @@ -43,6 +43,18 @@
@@ -177,7 +177,7 @@ index a354e0641f..bb791fba71 100644
  EFI_PEI_PPI_DESCRIPTOR  mPpiBootMode[] = {
    {
      EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST,
-@@ -365,6 +377,7 @@ InitializePlatform (
+@@ -368,6 +380,7 @@ InitializePlatform (
      MemTypeInfoInitialization (PlatformInfoHob);
      MemMapInitialization (PlatformInfoHob);
      NoexecDxeInitialization (PlatformInfoHob);

@@ -1,4 +1,4 @@
-From a6f05c646722bb85de8b2f21af47e0f88e103010 Mon Sep 17 00:00:00 2001
+From 2c4a2512ce0ad6bb959262a7a2778762a46a0cb5 Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Mon, 4 Nov 2024 12:40:12 +0100
 Subject: [PATCH] OvmfPkg: Add a Fallback RNG (RH only)

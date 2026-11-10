@@ -1,4 +1,4 @@
-From a3bb6ef0037323bf330d2f16cd4863ecc0a82b81 Mon Sep 17 00:00:00 2001
+From e9e31a559de98cd83daab0ba1b058c984f0b53d0 Mon Sep 17 00:00:00 2001
 From: Paolo Bonzini <pbonzini@redhat.com>
 Date: Tue, 21 Nov 2017 00:57:46 +0100
 Subject: [PATCH] OvmfPkg: silence DEBUG_VERBOSE (0x00400000) in
@@ -85,10 +85,10 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
  3 files changed, 24 insertions(+), 6 deletions(-)
 
 diff --git a/OvmfPkg/AmdSev/AmdSevX64.dsc b/OvmfPkg/AmdSev/AmdSevX64.dsc
-index c7342f4f34..b4fb1554e7 100644
+index 294fe95769..0a30c1b4bc 100644
 --- a/OvmfPkg/AmdSev/AmdSevX64.dsc
 +++ b/OvmfPkg/AmdSev/AmdSevX64.dsc
-@@ -683,8 +683,14 @@
+@@ -706,8 +706,14 @@
    MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
    MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
  
@@ -106,10 +106,10 @@ index c7342f4f34..b4fb1554e7 100644
  
    #
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index db2abc7cd3..935cbab30d 100644
+index d7b896fb8d..071095c17c 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
-@@ -848,8 +848,14 @@
+@@ -856,8 +856,14 @@
    MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
    MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
  
@@ -127,12 +127,12 @@ index db2abc7cd3..935cbab30d 100644
    OvmfPkg/VirtHstiDxe/VirtHstiDxe.inf
  
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index 75768c37c6..c27cf21deb 100644
+index d450058822..92fd637044 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
-@@ -979,8 +979,14 @@
-   MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
+@@ -988,8 +988,14 @@
    MdeModulePkg/Universal/DisplayEngineDxe/DisplayEngineDxe.inf
+   MdeModulePkg/Universal/Acpi/S3SaveStateDxe/S3SaveStateDxe.inf
  
 -  OvmfPkg/QemuVideoDxe/QemuVideoDxe.inf
 -  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf

@@ -73,7 +73,6 @@ plat = OvmfX64
 dest = RHEL-10/ovmf
 cpy1 = FV/OVMF_CODE.fd OVMF_CODE.fd
 cpy2 = FV/OVMF_VARS.fd
-cpy3 = X64/Shell.efi
 
 [build.ovmf.4m.sb.smm]
 desc = ovmf build (64-bit, 4MB, q35 only, needs smm, secure boot)
@@ -192,3 +191,31 @@ cpy3 = FV/RISCV_VIRT_VARS.fd
 cpy4 = FV/RISCV_VIRT_VARS.fd RISCV_VIRT_VARS.raw
 pad1 = RISCV_VIRT_CODE.raw 32m
 pad2 = RISCV_VIRT_VARS.raw 32m
+
+
+#####################################################################
+# standalone efi shell
+
+[build.shell.ovmf]
+desc = efi shell, x64
+conf = ShellPkg/ShellPkg.dsc
+arch = X64
+plat = Shell
+dest = RHEL-10/ovmf
+cpy1 = X64/Shell_EA4BB293-2D7F-4456-A681-1F22F42CD0BC.efi Shell.efi
+
+[build.shell.armvirt]
+desc = efi shell, aa64
+conf = ShellPkg/ShellPkg.dsc
+arch = AARCH64
+plat = Shell
+dest = RHEL-10/aarch64
+cpy1 = AARCH64/Shell_EA4BB293-2D7F-4456-A681-1F22F42CD0BC.efi Shell.efi
+
+[build.shell.riscv]
+desc = efi shell, riscv64
+conf = ShellPkg/ShellPkg.dsc
+arch = RISCV64
+plat = Shell
+dest = RHEL-10/riscv
+cpy1 = RISCV64/Shell_EA4BB293-2D7F-4456-A681-1F22F42CD0BC.efi Shell.efi

@@ -1,4 +1,4 @@
-From 5b0bc2cc3e84b8951e82246b12c3aef80c433b70 Mon Sep 17 00:00:00 2001
+From 5baa050faeba28cba3d7991cc21ec925d90b88ba Mon Sep 17 00:00:00 2001
 From: Laszlo Ersek <lersek@redhat.com>
 Date: Wed, 24 Jun 2020 11:31:36 +0200
 Subject: [PATCH] OvmfPkg/QemuKernelLoaderFsDxe: suppress error on no "-kernel"

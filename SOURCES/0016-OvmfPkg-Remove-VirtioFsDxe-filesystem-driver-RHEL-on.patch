@@ -1,4 +1,4 @@
-From 948e269f5424976af342eaed0725bcd7ee384706 Mon Sep 17 00:00:00 2001
+From 2655e1c5ec25493c1a396ac79f1393ba9940e9ba Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>
 Date: Thu, 1 Jul 2021 20:29:13 +0200
 Subject: [PATCH] OvmfPkg: Remove VirtioFsDxe filesystem driver (RHEL only)
@@ -25,10 +25,10 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  4 files changed, 4 deletions(-)
 
 diff --git a/OvmfPkg/OvmfPkgIa32X64.dsc b/OvmfPkg/OvmfPkgIa32X64.dsc
-index 24a27f34ea..4c8d78ba80 100644
+index f6c05dfe42..995a8070ac 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.dsc
 +++ b/OvmfPkg/OvmfPkgIa32X64.dsc
-@@ -836,7 +836,6 @@
+@@ -844,7 +844,6 @@
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
    MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
@@ -37,7 +37,7 @@ index 24a27f34ea..4c8d78ba80 100644
    MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe.inf
    MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe.inf
 diff --git a/OvmfPkg/OvmfPkgIa32X64.fdf b/OvmfPkg/OvmfPkgIa32X64.fdf
-index d8a1dcca04..bf3411774f 100644
+index ed83683d22..83e59e11e6 100644
 --- a/OvmfPkg/OvmfPkgIa32X64.fdf
 +++ b/OvmfPkg/OvmfPkgIa32X64.fdf
 @@ -253,7 +253,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
@@ -49,10 +49,10 @@ index d8a1dcca04..bf3411774f 100644
  INF MdeModulePkg/Logo/LogoDxe.inf
  
 diff --git a/OvmfPkg/OvmfPkgX64.dsc b/OvmfPkg/OvmfPkgX64.dsc
-index 5a8ffe8828..fee634edd3 100644
+index 25e0a11843..6ce7bce4eb 100644
 --- a/OvmfPkg/OvmfPkgX64.dsc
 +++ b/OvmfPkg/OvmfPkgX64.dsc
-@@ -967,7 +967,6 @@
+@@ -975,7 +975,6 @@
    MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
    FatPkg/EnhancedFatDxe/Fat.inf
    MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
@@ -61,7 +61,7 @@ index 5a8ffe8828..fee634edd3 100644
    MdeModulePkg/Bus/Scsi/ScsiDiskDxe/ScsiDiskDxe.inf
    MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe.inf
 diff --git a/OvmfPkg/OvmfPkgX64.fdf b/OvmfPkg/OvmfPkgX64.fdf
-index 84a77918ba..f0a3664339 100644
+index e13d2866e0..782b99b28f 100644
 --- a/OvmfPkg/OvmfPkgX64.fdf
 +++ b/OvmfPkg/OvmfPkgX64.fdf
 @@ -269,7 +269,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour

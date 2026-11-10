@@ -1,4 +1,4 @@
-From 555619114921a2e44fae3fb4e741b291e6b9de1b Mon Sep 17 00:00:00 2001
+From af54081fced824c8c89f49ab9bb3a5c840a28170 Mon Sep 17 00:00:00 2001
 From: Gerd Hoffmann <kraxel@redhat.com>
 Date: Mon, 28 Aug 2023 13:27:09 +0200
 Subject: [PATCH] CryptoPkg/CrtLib: add access/open/read/write/close syscalls
@@ -73,7 +73,7 @@ index 8a8fdfefc7..11d01106d4 100644
  getuid (
    void
 diff --git a/CryptoPkg/Library/Include/CrtLibSupport.h b/CryptoPkg/Library/Include/CrtLibSupport.h
-index 4da2ef61f7..5cf2de58a9 100644
+index 613d418493..0d9d21a8dc 100644
 --- a/CryptoPkg/Library/Include/CrtLibSupport.h
 +++ b/CryptoPkg/Library/Include/CrtLibSupport.h
 @@ -62,6 +62,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
@@ -100,7 +100,7 @@ index 4da2ef61f7..5cf2de58a9 100644
  //
  // Basic types mapping
  //
-@@ -316,6 +326,37 @@ fprintf     (
+@@ -317,6 +327,37 @@ fprintf     (
    ...
    );
  

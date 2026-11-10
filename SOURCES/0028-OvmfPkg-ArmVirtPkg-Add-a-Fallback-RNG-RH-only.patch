@@ -1,4 +1,4 @@
-From f3548d62625d5ad2728078e4188e9f40965dbfe2 Mon Sep 17 00:00:00 2001
+From bbbce07cc8bb2202ac8396fead63ca5766d353ce Mon Sep 17 00:00:00 2001
 From: Oliver Steffen <osteffen@redhat.com>
 Date: Thu, 7 Nov 2024 11:36:22 +0100
 Subject: [PATCH] OvmfPkg/ArmVirtPkg: Add a Fallback RNG (RH only)

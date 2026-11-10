@@ -1,14 +1,14 @@
 ExclusiveArch: x86_64 aarch64 riscv64
 
-# edk2-stable202511
-%define GITDATE        20251114
-%define GITCOMMIT      46548b1adac8
+# edk2-stable202602
+%define GITDATE        20260221
+%define GITCOMMIT      b7a715f7c03c
 %define TOOLCHAIN      GCC
 
 %define OPENSSL_VER    3.5.5
 %define OPENSSL_HASH   7ee5eab42c0c00feea3fed210379d54150b9c6cd
 
-%define DBXDATE        20251016
+%define DBXDATE        20260630
 
 %define build_ovmf 0
 %define build_aarch64 0
@@ -25,7 +25,7 @@ ExclusiveArch: x86_64 aarch64 riscv64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    5%{?dist}.3
+Release:    7%{?dist}
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -91,26 +91,12 @@ Patch24: 0026-NetworkPkg-DxeNetLib-Reword-PseudoRandom-error-loggi.patch
 Patch25: 0027-OvmfPkg-Add-a-Fallback-RNG-RH-only.patch
 Patch26: 0028-OvmfPkg-ArmVirtPkg-Add-a-Fallback-RNG-RH-only.patch
 Patch27: 0029-OvmfPkg-X64-add-opt-org.tianocore-UninstallMemAttrPr.patch
-Patch28: 0030-OvmfPkg-MemDebugLogLib-use-AcquireSpinLockOrFail.patch
-Patch29: 0031-OvmfPkg-PlatformInitLib-reserve-igvm-parameter-area.patch
-# For RHEL-138335 - [AmpereoneX] ArmConfigureMmu: The MaxAddress 0xFFFFFFFFFFFFF is not supported by this MMU configuration
-Patch30: edk2-ArmPkg-UefiCpuPkg-Fix-boot-failure-on-FEAT_LPA-only-.patch
-# For RHEL-139470 - Enable memory debug logging support in firmware image configs
-Patch31: edk2-OvmfPkg-AmdSev-add-memory-debug-log-support.patch
-# For RHEL-139470 - Enable memory debug logging support in firmware image configs
-Patch32: edk2-OvmfPkg-MemDebugLogPeiLib-drop-duplicate-MemDebugLog.patch
-# For RHEL-139470 - Enable memory debug logging support in firmware image configs
-Patch33: edk2-OvmfPkg-MemDebugLogPeiCoreLib-enable-for-PEIMs.patch
-# For RHEL-139470 - Enable memory debug logging support in firmware image configs
-Patch34: edk2-ArmVirtPkg-use-MemDebugLogPeiCoreLib-for-PEIMs.patch
-# For RHEL-139470 - Enable memory debug logging support in firmware image configs
-Patch35: edk2-OvmfPkg-use-MemDebugLogPeiCoreLib-for-PEIMs.patch
-# For RHEL-134956 - CVE-2025-2296 edk2: EDK2: Improper Input Validation allows arbitrary command execution [rhel-10.2]
-Patch36: edk2-OvmfPkg-X86QemuLoadImageLib-flip-default-for-EnableL.patch
-# For RHEL-182421 - edk2/x64: re-enable legacy kernel loader [rhel-10.2.z]
-Patch37: edk2-Revert-OvmfPkg-X86QemuLoadImageLib-flip-default-for-.patch
-# For RHEL-291254 - CVE-2026-97631 edk2: Pre-boot RCE in EDK II PXE driver [rhel-10.2.z]
-Patch38: edk2-NetworkPkg-UefiPxeBcDxe-Fix-ICMP-buffer-overflow-in-.patch
+# For RHEL-182419 - edk2/x64: re-enable legacy kernel loader
+Patch28: edk2-Revert-OvmfPkg-X86QemuLoadImageLib-flip-default-for-.patch
+# For RHEL-188305 - [edk2,rhel-10] Unable to allocate PCI BAR with edk2-20260221-1.el10
+Patch29: edk2-Revert-MdeModulePkg-PciBusDxe-Degrade-MEM64-to-PMEM6.patch
+# For RHEL-220548 - [RHEL 10.3] TDX Secure Boot Setup Mode with OVMF.inteltdx.secboot.fd
+Patch30: edk2-OvmfPkg-EmuVariableFvbRuntimeDxe-fix-ValidateFvHeade.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -465,6 +451,7 @@ install -m 0644 \
 %{_datadir}/%{name}/aarch64/QEMU_EFI.qemuvars.fd
 %{_datadir}/%{name}/aarch64/QEMU_VARS.fd
 %{_datadir}/%{name}/aarch64/vars.*.json
+%{_datadir}/%{name}/aarch64/Shell.efi
 %{_datadir}/qemu/firmware/50-edk2-aarch64-qcow2.json
 %{_datadir}/qemu/firmware/51-edk2-aarch64-raw.json
 %{_datadir}/qemu/firmware/52-edk2-aarch64-verbose-qcow2.json
@@ -479,6 +466,7 @@ install -m 0644 \
 %common_files
 %{_datadir}/%{name}/riscv/*.fd
 %{_datadir}/%{name}/riscv/*.qcow2
+%{_datadir}/%{name}/riscv/Shell.efi
 %{_datadir}/qemu/firmware/50-edk2-riscv-qcow2.json
 %endif
 
@@ -507,56 +495,50 @@ install -m 0644 \
 
 
 %changelog
-* Tue Oct 27 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-5.el10_2.3
-- edk2-NetworkPkg-UefiPxeBcDxe-Fix-ICMP-buffer-overflow-in-.patch [RHEL-291254]
-- Resolves: RHEL-291254
-  (CVE-2026-97631 edk2: Pre-boot RCE in EDK II PXE driver [rhel-10.2.z])
+* Tue Aug 18 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20260221-7
+- edk2-update-efi-shell-build-config.patch [RHEL-235957]
+- edk2-fix-build-script-comment-typo.patch [RHEL-235957]
+- edk2-update-rpmspec-file-lists.patch [RHEL-235957]
+- Resolves: RHEL-235957
+  (add shell.efi to aarch64 sub-rpm)
 
-* Tue Jun 09 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-5.el10_2.2
-- edk2-Revert-OvmfPkg-X86QemuLoadImageLib-flip-default-for-.patch [RHEL-182421]
-- edk2-Bumped-to-OpenSSL-3.5.5-3.patch [RHEL-165699]
-- Resolves: RHEL-182421
-  (edk2/x64: re-enable legacy kernel loader [rhel-10.2.z])
-- Resolves: RHEL-165699
-  (CVE-2026-28390 edk2: OpenSSL: Denial of Service due to NULL pointer dereference in CMS EnvelopedData processing [rhel-10.2])
+* Mon Aug 03 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20260221-6
+- edk2-OvmfPkg-EmuVariableFvbRuntimeDxe-fix-ValidateFvHeade.patch [RHEL-220548]
+- Resolves: RHEL-220548
+  ([RHEL 10.3] TDX Secure Boot Setup Mode with OVMF.inteltdx.secboot.fd)
 
-* Thu Apr 23 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-5.el10_2.1
-- edk2-Bumped-to-OpenSSL-3.5.5-2.patch [RHEL-161573]
-- Resolves: RHEL-161573
-  (CVE-2026-31790 edk2: openssl: Information Disclosure from Uninitialized Memory via Invalid RSA Public Key [rhel-10.2])
+* Thu Jul 09 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20260221-5
+- edk2-update-dbx-to-20260630-v1.6.5.patch [RHEL-193127]
+- Resolves: RHEL-193127
+  ([edk2] update dbx database to release 1.6.5)
 
+* Thu Jun 25 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20260221-4
+- edk2-Revert-MdeModulePkg-PciBusDxe-Degrade-MEM64-to-PMEM6.patch [RHEL-188305]
+- Resolves: RHEL-188305
+  ([edk2,rhel-10] Unable to allocate PCI BAR with edk2-20260221-1.el10)
+
+* Mon Jun 08 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20260221-3
+- edk2-Revert-OvmfPkg-X86QemuLoadImageLib-flip-default-for-.patch [RHEL-182419]
+- edk2-Bumped-to-OpenSSL-3.5.5-3.patch [RHEL-165726]
+- Resolves: RHEL-182419
+  (edk2/x64: re-enable legacy kernel loader)
+- Resolves: RHEL-165726
+  (CVE-2026-28390 edk2: OpenSSL: Denial of Service due to NULL pointer dereference in CMS EnvelopedData processing [rhel-10.3])
+
+* Thu Apr 23 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20260221-2
+- edk2-Bumped-to-OpenSSL-3.5.5-2.patch [RHEL-161575]
+- Resolves: RHEL-161575
+  (CVE-2026-31790 edk2: openssl: Information Disclosure from Uninitialized Memory via Invalid RSA Public Key [rhel-10.3])
+
+* Thu Mar 12 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20260221-1
+- Rebase to edk2-stable202602 [RHEL-151719]
+- Resolves: RHEL-151719
+  ([edk2,rhel-10] rebase to edk2-stable202602)
+ 
 * Mon Mar 09 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-5
 - edk2-add-uefi-vars-firmware-json-files.patch [RHEL-150696]
 - Resolves: RHEL-150696
   (edk2: Add JSON descriptors for uefi-vars builds)
-
-* Thu Feb 12 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-4
-- edk2-OvmfPkg-X86QemuLoadImageLib-flip-default-for-EnableL.patch [RHEL-134956]
-- edk2-update-openssl-rhel-submodule.patch [RHEL-147785]
-- edk2-update-openssl-rhel-tarball.patch [RHEL-147785]
-- Resolves: RHEL-134956
-  (CVE-2025-2296 edk2: EDK2: Improper Input Validation allows arbitrary command execution [rhel-10.2])
-- Resolves: RHEL-147785
-  ([edk2] pick up openssl updates)
-
-* Mon Feb 09 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-3
-- edk2-OvmfPkg-AmdSev-add-memory-debug-log-support.patch [RHEL-139470]
-- edk2-OvmfPkg-MemDebugLogPeiLib-drop-duplicate-MemDebugLog.patch [RHEL-139470]
-- edk2-OvmfPkg-MemDebugLogPeiCoreLib-enable-for-PEIMs.patch [RHEL-139470]
-- edk2-ArmVirtPkg-use-MemDebugLogPeiCoreLib-for-PEIMs.patch [RHEL-139470]
-- edk2-OvmfPkg-use-MemDebugLogPeiCoreLib-for-PEIMs.patch [RHEL-139470]
-- Resolves: RHEL-139470
-  (Enable memory debug logging support in firmware image configs)
-
-* Thu Jan 08 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-2
-- edk2-ArmPkg-UefiCpuPkg-Fix-boot-failure-on-FEAT_LPA-only-.patch [RHEL-138335]
-- Resolves: RHEL-138335
-  ([AmpereoneX] ArmConfigureMmu: The MaxAddress 0xFFFFFFFFFFFFF is not supported by this MMU configuration)
-
-* Wed Dec 10 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20251114-1
-- Rebase to edk2-stable202511 [RHEL-118386]
-- Resolves: RHEL-118386
-  ([edk2,rhel-10] rebase to edk2-stable202511)
 
 * Wed Nov 12 2025 Miroslav Rezanina <mrezanin@redhat.com> - 20250822-4
 - edk2-make-dbxupdate.sh-get-version-tag-add-to-commit-mess.patch [RHEL-126085]

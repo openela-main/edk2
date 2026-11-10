@@ -108,7 +108,7 @@ def pcd_release_date():
 
 def build_message(line, line2 = None, silent = False):
     if os.environ.get('TERM') in [ 'xterm', 'xterm-256color' ]:
-        # setxterm  title
+        # set xterm title
         start  = '\x1b]2;'
         end    = '\x07'
         print(f'{start}{rebase_prefix}{line}{end}', end = '')

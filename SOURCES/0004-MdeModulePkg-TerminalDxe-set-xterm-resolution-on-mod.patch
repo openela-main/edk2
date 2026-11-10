@@ -1,4 +1,4 @@
-From dbdf905bad52ad0126f99438f637bd464313c1b8 Mon Sep 17 00:00:00 2001
+From 016edc47677a962537253dd0996d66d1da77cb56 Mon Sep 17 00:00:00 2001
 From: Laszlo Ersek <lersek@redhat.com>
 Date: Tue, 25 Feb 2014 22:40:01 +0100
 Subject: [PATCH] MdeModulePkg: TerminalDxe: set xterm resolution on mode
@@ -104,10 +104,10 @@ Signed-off-by: Laszlo Ersek <lersek@redhat.com>
  3 files changed, 36 insertions(+)
 
 diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
-index 0d981111ed..77d8aa49df 100644
+index 89a8401b71..e74b1497bd 100644
 --- a/MdeModulePkg/MdeModulePkg.dec
 +++ b/MdeModulePkg/MdeModulePkg.dec
-@@ -2300,6 +2300,10 @@
+@@ -2313,6 +2313,10 @@
    # @Prompt Conduit to use in ArmFfaLib.
    gEfiMdeModulePkgTokenSpaceGuid.PcdFfaLibConduitSmc|TRUE|BOOLEAN|0x10000029
  

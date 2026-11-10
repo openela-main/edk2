@@ -1,4 +1,4 @@
-From 3ba51256bdef2ee84943c2e2da85422107fdd8dc Mon Sep 17 00:00:00 2001
+From c56d2349b18fb6b23f9f0c404093ae2f37b4f9d5 Mon Sep 17 00:00:00 2001
 From: Miroslav Rezanina <mrezanin@redhat.com>
 Date: Thu, 24 Mar 2022 03:23:02 -0400
 Subject: [PATCH] Remove paths leading to submodules
@@ -15,19 +15,19 @@ Signed-off-by: Miroslav Rezanina <mrezanin@redhat.com>
  3 files changed, 9 deletions(-)
 
 diff --git a/BaseTools/Source/C/GNUmakefile b/BaseTools/Source/C/GNUmakefile
-index 0ea314ef96..92d3dedf47 100644
+index 73f4b27eeb..7de12940b3 100644
 --- a/BaseTools/Source/C/GNUmakefile
 +++ b/BaseTools/Source/C/GNUmakefile
-@@ -24,7 +24,6 @@ all: makerootdir subdirs
+@@ -23,7 +23,6 @@ all: makerootdir subdirs
+ 
  LIBRARIES = Common
- VFRAUTOGEN = VfrCompile/VfrLexer.h
  APPLICATIONS = \
 -  BrotliCompress \
    VfrCompile \
    EfiRom \
    GenFfs \
 diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
-index 0775aa954a..0d981111ed 100644
+index 9e2c6074eb..89a8401b71 100644
 --- a/MdeModulePkg/MdeModulePkg.dec
 +++ b/MdeModulePkg/MdeModulePkg.dec
 @@ -27,9 +27,6 @@
@@ -41,7 +41,7 @@ index 0775aa954a..0d981111ed 100644
    ##  @libraryclass  Defines a set of methods to reset whole system.
    ResetSystemLib|Include/Library/ResetSystemLib.h
 diff --git a/MdePkg/MdePkg.dec b/MdePkg/MdePkg.dec
-index 8f02cf1767..3e4d25d2e1 100644
+index 4b781d6592..8065f0239d 100644
 --- a/MdePkg/MdePkg.dec
 +++ b/MdePkg/MdePkg.dec
 @@ -30,7 +30,6 @@
