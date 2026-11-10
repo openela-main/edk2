@@ -21,7 +21,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    8%{?dist}
+Release:    9%{?dist}
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -109,6 +109,8 @@ Patch44: edk2-MdePkg-Add-the-COHERENCY_SFW_NO-CPUID-bit-field.patch
 Patch45: edk2-OvmfPkg-ResetVector-Make-ReceivedVc-a-flag-in-SEV-ES.patch
 # For RHEL-121983 - [edk2] VM panic on booting SNP guest with large memory on Genoa
 Patch46: edk2-OvmfPkg-MemEncryptSevLib-Check-if-SEV-SNP-coherency-.patch
+# For RHEL-140477 - [AMDSERVER 9.9 Bug] SEV-SNP: [OVMF] AP Creation using APIC ID list results in VMRUN exit with #VMEXIT_INVALID
+Patch47: edk2-UefiCpuPkg-MpInitLib-Fix-SNP-AP-creation-when-using-.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -444,6 +446,11 @@ install -m 0644 \
 
 
 %changelog
+* Wed Aug 05 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20241117-9
+- edk2-UefiCpuPkg-MpInitLib-Fix-SNP-AP-creation-when-using-.patch [RHEL-140477]
+- Resolves: RHEL-140477
+  ([AMDSERVER 9.9 Bug] SEV-SNP: [OVMF] AP Creation using APIC ID list results in VMRUN exit with #VMEXIT_INVALID)
+
 * Mon Nov 17 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-8
 - edk2-openssl-flatten-contents-of-openssl-tarball.patch [RHEL-115922]
 - edk2-Bumped-openssl-submodule-to-version-3.0.7-29.1.patch [RHEL-115922]
