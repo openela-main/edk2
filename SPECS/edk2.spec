@@ -8,7 +8,8 @@ ExclusiveArch: x86_64 aarch64 riscv64
 %define OPENSSL_VER    3.5.5
 %define OPENSSL_HASH   7ee5eab42c0c00feea3fed210379d54150b9c6cd
 
-%define DBXDATE        20260630
+%define DBXDATE_2011        20260630.2011
+%define DBXDATE_2023        20260901.2023
 
 %define build_ovmf 0
 %define build_aarch64 0
@@ -25,7 +26,7 @@ ExclusiveArch: x86_64 aarch64 riscv64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    7%{?dist}
+Release:    7%{?dist}.1
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -62,8 +63,10 @@ Source50: 50-edk2-riscv-qcow2.json
 Source80: edk2-build.py
 Source82: edk2-build.rhel-10
 
-Source90: DBXUpdate-%{DBXDATE}.x64.bin
-Source91: DBXUpdate-%{DBXDATE}.aa64.bin
+Source90: DBXUpdate-%{DBXDATE_2011}.x64.bin
+Source91: DBXUpdate-%{DBXDATE_2011}.aa64.bin
+Source92: DBXUpdate-%{DBXDATE_2023}.x64.bin
+Source93: DBXUpdate-%{DBXDATE_2023}.aa64.bin
 Patch1: 0003-Remove-paths-leading-to-submodules.patch
 Patch2: 0004-MdeModulePkg-TerminalDxe-set-xterm-resolution-on-mod.patch
 Patch3: 0005-OvmfPkg-take-PcdResizeXterm-from-the-QEMU-command-li.patch
@@ -97,6 +100,8 @@ Patch28: edk2-Revert-OvmfPkg-X86QemuLoadImageLib-flip-default-for-.patch
 Patch29: edk2-Revert-MdeModulePkg-PciBusDxe-Degrade-MEM64-to-PMEM6.patch
 # For RHEL-220548 - [RHEL 10.3] TDX Secure Boot Setup Mode with OVMF.inteltdx.secboot.fd
 Patch30: edk2-OvmfPkg-EmuVariableFvbRuntimeDxe-fix-ValidateFvHeade.patch
+# For RHEL-257729 - [RHEL 10.3] stock UefiShell.iso #UD / Invalid Opcode with edk2-ovmf-7 on x86_64
+Patch31: edk2-ShellPkg-disable-mmx-and-sse-instructions.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -219,7 +224,7 @@ cp -a -- %{SOURCE20} %{SOURCE21} %{SOURCE22} %{SOURCE23} .
 cp -a -- %{SOURCE40} %{SOURCE41} %{SOURCE43} %{SOURCE44} %{SOURCE45} .
 cp -a -- %{SOURCE50} .
 cp -a -- %{SOURCE80} %{SOURCE82} .
-cp -a -- %{SOURCE90} %{SOURCE91} .
+cp -a -- %{SOURCE90} %{SOURCE91} %{SOURCE92} %{SOURCE93} .
 tar -C CryptoPkg/Library/OpensslLib -a -f %{SOURCE2} -x
 tar -xf %{SOURCE3} --strip-components=1 --directory MdePkg/Library/BaseFdtLib/libfdt
 
@@ -278,32 +283,36 @@ mkdir -p SecurityPkg/DeviceSecurity/SpdmLib/libspdm/include
 %if %{build_ovmf}
 ./edk2-build.py --config edk2-build.rhel-10 -m ovmf --release-date "$RELEASE_DATE"
 build_iso RHEL-10/ovmf
-cp DBXUpdate-%{DBXDATE}.x64.bin RHEL-10/ovmf
+cp DBXUpdate-%{DBXDATE_2011}.x64.bin RHEL-10/ovmf
 virt-fw-vars --input   RHEL-10/ovmf/OVMF_VARS.fd \
              --output  RHEL-10/ovmf/OVMF_VARS.secboot.fd \
-             --set-dbx DBXUpdate-%{DBXDATE}.x64.bin \
+             --set-dbx DBXUpdate-%{DBXDATE_2011}.x64.bin \
+             --add-dbx DBXUpdate-%{DBXDATE_2023}.x64.bin \
              --enroll-redhat --secure-boot
 virt-fw-vars --input   RHEL-10/ovmf/OVMF.inteltdx.fd \
              --output  RHEL-10/ovmf/OVMF.inteltdx.secboot.fd \
-             --set-dbx DBXUpdate-%{DBXDATE}.x64.bin \
+             --set-dbx DBXUpdate-%{DBXDATE_2011}.x64.bin \
+             --add-dbx DBXUpdate-%{DBXDATE_2023}.x64.bin \
              --enroll-redhat --secure-boot \
              --set-fallback-no-reboot
 virt-fw-vars --output-json RHEL-10/ovmf/vars.blank.json
 virt-fw-vars --output-json RHEL-10/ovmf/vars.secboot.json \
-             --set-dbx DBXUpdate-%{DBXDATE}.x64.bin \
+             --set-dbx DBXUpdate-%{DBXDATE_2011}.x64.bin \
+             --add-dbx DBXUpdate-%{DBXDATE_2023}.x64.bin \
              --enroll-redhat --secure-boot
 %endif
 
 %if %{build_aarch64}
 ./edk2-build.py --config edk2-build.rhel-10 -m armvirt --release-date "$RELEASE_DATE"
-cp DBXUpdate-%{DBXDATE}.aa64.bin RHEL-10/aarch64
+cp DBXUpdate-%{DBXDATE_2011}.aa64.bin RHEL-10/aarch64
 for raw in */aarch64/*.raw; do
     qcow2="${raw%.raw}.qcow2"
     qemu-img convert -f raw -O qcow2 -o cluster_size=4096 -S 4096 "$raw" "$qcow2"
 done
 virt-fw-vars --output-json RHEL-10/aarch64/vars.blank.json
 virt-fw-vars --output-json RHEL-10/aarch64/vars.secboot.json \
-             --set-dbx DBXUpdate-%{DBXDATE}.aa64.bin \
+             --set-dbx DBXUpdate-%{DBXDATE_2011}.aa64.bin \
+             --add-dbx DBXUpdate-%{DBXDATE_2023}.aa64.bin \
              --enroll-redhat --secure-boot
 %endif
 
@@ -495,6 +504,15 @@ install -m 0644 \
 
 
 %changelog
+* Fri Oct 02 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20260221-7.el10_3.1
+- edk2-ShellPkg-disable-mmx-and-sse-instructions.patch [RHEL-257729]
+- edk2-rename-dbx-updates-signed-with-2011-kek-key.patch [RHEL-258958]
+- edk2-add-dbx-updates-release-1.7.0-signed-with-2023-kek-k.patch [RHEL-258958]
+- Resolves: RHEL-257729
+  ([RHEL 10.3] stock UefiShell.iso #UD / Invalid Opcode with edk2-ovmf-7 on x86_64)
+- Resolves: RHEL-258958
+  ([edk2,rhel-10.3.z] update dbx database to 1.7.0)
+
 * Tue Aug 18 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20260221-7
 - edk2-update-efi-shell-build-config.patch [RHEL-235957]
 - edk2-fix-build-script-comment-typo.patch [RHEL-235957]
