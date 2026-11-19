@@ -6,7 +6,7 @@ ExclusiveArch: x86_64 aarch64
 %define TOOLCHAIN      GCC
 
 %define OPENSSL_VER    3.0.7
-%define OPENSSL_HASH   4000c8f49c400db3c5b4e8ccdd9af6cc3d04da19
+%define OPENSSL_HASH   320837d479b99b22944be49ce26c8fc9ad5f212f
 
 %define DBXDATE        20251016
 
@@ -21,7 +21,7 @@ ExclusiveArch: x86_64 aarch64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    9%{?dist}
+Release:    9%{?dist}.2
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -111,6 +111,8 @@ Patch45: edk2-OvmfPkg-ResetVector-Make-ReceivedVc-a-flag-in-SEV-ES.patch
 Patch46: edk2-OvmfPkg-MemEncryptSevLib-Check-if-SEV-SNP-coherency-.patch
 # For RHEL-140477 - [AMDSERVER 9.9 Bug] SEV-SNP: [OVMF] AP Creation using APIC ID list results in VMRUN exit with #VMEXIT_INVALID
 Patch47: edk2-UefiCpuPkg-MpInitLib-Fix-SNP-AP-creation-when-using-.patch
+# For RHEL-291271 - CVE-2026-97631 edk2: Pre-boot RCE in EDK II PXE driver [rhel-9.9.z]
+Patch48: edk2-NetworkPkg-UefiPxeBcDxe-Fix-ICMP-buffer-overflow-in-.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -446,10 +448,15 @@ install -m 0644 \
 
 
 %changelog
-* Wed Aug 05 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20241117-9
-- edk2-UefiCpuPkg-MpInitLib-Fix-SNP-AP-creation-when-using-.patch [RHEL-140477]
-- Resolves: RHEL-140477
-  ([AMDSERVER 9.9 Bug] SEV-SNP: [OVMF] AP Creation using APIC ID list results in VMRUN exit with #VMEXIT_INVALID)
+* Mon Nov 02 2026 Jon Maloy <jmaloy@redhat.com> - 20241117-9.el9_9.2
+- edk2-Bumped-to-OpenSSL-3.0.7-29.3.patch [RHEL-165886]
+- Resolves: RHEL-165886
+  (CVE-2026-28390 edk2: OpenSSL: Denial of Service due to NULL pointer dereference in CMS EnvelopedData processing [rhel-9.9])
+
+* Mon Oct 26 2026 Jon Maloy <jmaloy@redhat.com> - 20241117-9.el9_9.1
+- edk2-NetworkPkg-UefiPxeBcDxe-Fix-ICMP-buffer-overflow-in-.patch [RHEL-291271]
+- Resolves: RHEL-291271
+  (CVE-2026-97631 edk2: Pre-boot RCE in EDK II PXE driver [rhel-9.9.z])
 
 * Mon Nov 17 2025 Jon Maloy <jmaloy@redhat.com> - 20241117-8
 - edk2-openssl-flatten-contents-of-openssl-tarball.patch [RHEL-115922]
