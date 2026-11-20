@@ -26,7 +26,7 @@ ExclusiveArch: x86_64 aarch64 riscv64
 
 Name:       edk2
 Version:    %{GITDATE}
-Release:    7%{?dist}.1
+Release:    7%{?dist}.2
 Summary:    UEFI firmware for 64-bit virtual machines
 License:    BSD-2-Clause-Patent and Apache-2.0 and MIT
 URL:        http://www.tianocore.org
@@ -102,6 +102,8 @@ Patch29: edk2-Revert-MdeModulePkg-PciBusDxe-Degrade-MEM64-to-PMEM6.patch
 Patch30: edk2-OvmfPkg-EmuVariableFvbRuntimeDxe-fix-ValidateFvHeade.patch
 # For RHEL-257729 - [RHEL 10.3] stock UefiShell.iso #UD / Invalid Opcode with edk2-ovmf-7 on x86_64
 Patch31: edk2-ShellPkg-disable-mmx-and-sse-instructions.patch
+# For RHEL-291255 - CVE-2026-97631 edk2: Pre-boot RCE in EDK II PXE driver [rhel-10.3.z]
+Patch32: edk2-NetworkPkg-UefiPxeBcDxe-Fix-ICMP-buffer-overflow-in-.patch
 
 # python3-devel and libuuid-devel are required for building tools.
 # python3-devel is also needed for varstore template generation and
@@ -504,6 +506,11 @@ install -m 0644 \
 
 
 %changelog
+* Tue Oct 27 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20260221-7.el10_3.2
+- edk2-NetworkPkg-UefiPxeBcDxe-Fix-ICMP-buffer-overflow-in-.patch [RHEL-291255]
+- Resolves: RHEL-291255
+  (CVE-2026-97631 edk2: Pre-boot RCE in EDK II PXE driver [rhel-10.3.z])
+
 * Fri Oct 02 2026 Miroslav Rezanina <mrezanin@redhat.com> - 20260221-7.el10_3.1
 - edk2-ShellPkg-disable-mmx-and-sse-instructions.patch [RHEL-257729]
 - edk2-rename-dbx-updates-signed-with-2011-kek-key.patch [RHEL-258958]
